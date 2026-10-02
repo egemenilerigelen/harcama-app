@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07080c">
+<title>Harcama</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main class="app">
+  <section class="totals">
+    <div><small>BUGÜN</small><b id="sToday">₺0</b></div>
+    <div><small>BU AY</small><b id="sMonth">₺0</b></div>
+  </section>
+
+  <section class="panel">
+    <input id="name" type="text" placeholder="Ne aldın?" maxlength="60" autocomplete="off">
+    <div class="display">
+      <span class="cur">₺</span>
+      <span class="amt" id="amt">0</span>
+      <button id="back" aria-label="Sil">⌫</button>
+    </div>
+    <div class="pad" id="pad"></div>
+  </section>
+
+  <section id="list"></section>
+
+  <section class="tools">
+    <button id="copy">Verileri kopyala</button>
+    <button id="clear">Tümünü sil</button>
+  </section>
+</main>
+<script src="js/storage.js"></script>
+<script src="js/calc.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
