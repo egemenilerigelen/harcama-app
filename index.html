@@ -10,28 +10,33 @@
 </head>
 <body>
 <main class="app">
-  <section class="totals">
-    <div><small>BUGÜN</small><b id="sToday">₺0</b></div>
-    <div><small>BU AY</small><b id="sMonth">₺0</b></div>
-  </section>
+  <!-- SABİT KALAN ÜST PANEL -->
+  <div class="fixed-top">
+    <section class="totals">
+      <div><small>BUGÜN</small><b id="sToday">₺0</b></div>
+      <div><small>BU AY</small><b id="sMonth">₺0</b></div>
+    </section>
 
-  <section class="panel">
-    <input id="name" type="text" placeholder="Ne aldın?" maxlength="60" autocomplete="off">
-    <div class="display">
-      <span class="cur">₺</span>
-      <span class="amt" id="amt">0</span>
-      <button id="back" aria-label="Sil">⌫</button>
-    </div>
-    <div class="pad" id="pad"></div>
-  </section>
+    <section class="panel">
+      <input id="name" type="text" placeholder="Ne aldın?" maxlength="60" autocomplete="off">
+      <div class="display">
+        <span class="cur">₺</span>
+        <span class="amt" id="amt"></span>
+        <button id="back" aria-label="Sil">⌫</button>
+      </div>
+      <div class="pad" id="pad"></div>
+    </section>
+  </div>
 
+  <!-- YÜKSEKLİĞİ SABİT LİSTE -->
   <section id="list"></section>
 
+  <!-- SABİT SİL BUTONU -->
   <section class="tools">
-    <button id="copy">Verileri kopyala</button>
     <button id="clear">Tümünü sil</button>
   </section>
 </main>
+
 <script src="js/storage.js"></script>
 <script src="js/calc.js"></script>
 <script src="js/ui.js"></script>
