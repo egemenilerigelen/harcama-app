@@ -1,18 +1,43 @@
-// js/storage.js
-const Store = (() => {
-  const K = 'harcama:v1';
-  const K_CUTOFF = 'harcama:cutoff_day';
-  let items = [];
-  try { items = JSON.parse(localStorage.getItem(K) || '[]'); } catch (e) {}
-  const save = () => { try { localStorage.setItem(K, JSON.stringify(items)); } catch (e) {} };
+// LocalStorage yönetimi
+const Store = {
+  KEY: 'expenses_v1',
+  CUTOFF_KEY: 'cutoff_day_v1',
 
-  return {
-    all: () => items,
-    add(name, amt) { items.unshift({ id: Date.now(), name, amt, ts: Date.now() }); save(); },
-    remove(id) { items = items.filter(i => i.id !== id); save(); },
-    clear() { items = []; save(); },
-    // Hesap kesim gününü alma ve kaydetme (varsayılan: 15)
-    getCutoff: () => parseInt(localStorage.getItem(K_CUTOFF) || '15', 10),
-    setCutoff: (day) => { localStorage.setItem(K_CUTOFF, day); }
-  };
-})();
+  all() {
+    try {
+      return JSON.parse(localStorage.getItem(this.KEY)) || [];
+    } catch {
+      return [];
+    }
+  },
+
+  // inst (taksit sayısı) eklendi (varsayılan: 1)
+  add(name, amt, inst = 1) {
+    const items = this.all();
+    items.unshift({
+      id: Date.now().toString(36) + Math.random().toString(36).substring(2, 5),
+      name,
+      amt: Number(amt),
+      inst: Number(inst),
+      ts: Date.now()
+    });
+    localStorage.setItem(this.KEY, JSON.stringify(items));
+  },
+
+  remove(id) {
+    const items = this.all().filter(i => i.id !== id);
+    localStorage.setItem(this.KEY, JSON.stringify(items));
+  },
+
+  clear() {
+    localStorage.removeItem(this.KEY);
+  },
+
+  getCutoff() {
+    return Number(localStorage.getItem(this.CUTOFF_KEY)) || 15;
+  },
+
+  setCutoff(day) {
+    localStorage.setItem(this.CUTOFF_KEY, day);
+  }
+};

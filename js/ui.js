@@ -1,4 +1,3 @@
-// Çizim fonksiyonları.
 const $ = id => document.getElementById(id);
 const fmt = n => '₺' + n.toLocaleString('tr-TR', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 });
 const dk = t => { 
@@ -9,23 +8,15 @@ const dk = t => {
 function dayLabel(k) {
   const [Y, M, D] = k.split('-');
   const dateObj = new Date(Y, M - 1, D);
-  
-  const formattedDate = dateObj.toLocaleDateString('tr-TR', { 
-    day: 'numeric', 
-    month: 'long', 
-    weekday: 'short' 
-  });
-
+  const formattedDate = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'short' });
   const todayStr = dk(Date.now());
   const yesterdayStr = dk(Date.now() - 864e5);
 
   if (k === todayStr) return 'Bugün, ' + formattedDate;
   if (k === yesterdayStr) return 'Dün, ' + formattedDate;
-  
   return formattedDate;
 }
 
-// Hesap kesim gününe göre mevcut dönemin başlangıç tarihini döndürür
 function getPeriodStartDate(cutoffDay) {
   const now = new Date();
   const year = now.getFullYear();
@@ -44,24 +35,72 @@ function renderAmount() {
 }
 
 function renderList() {
-  const items = Store.all(), g = {};
-  items.forEach(i => (g[dk(i.ts)] = g[dk(i.ts)] || []).push(i));
+  const rawItems = Store.all();
+  const cutoffDay = Store.getCutoff();
+  const periodStart = getPeriodStartDate(cutoffDay);
+
+  const processedItems = [];
+
+  rawItems.forEach(item => {
+    // Güvenlik Düzeltmesi: Eski verilerde `inst` veya `amt` alanı yoksa varsayılan değerleri tanımlıyoruz
+    const instCount = Math.max(1, Number(item.inst) || 1);
+    const totalAmount = Number(item.amt) || 0;
+    const singleAmt = totalAmount / instCount;
+
+    if (instCount === 1) {
+      processedItems.push({
+        ...item,
+        amt: totalAmount,
+        displayAmt: totalAmount,
+        tag: ''
+      });
+    } else {
+      const itemDate = new Date(item.ts);
+      let firstPeriodStart = new Date(itemDate.getFullYear(), itemDate.getMonth(), cutoffDay);
+      if (itemDate.getDate() < cutoffDay) {
+        firstPeriodStart.setMonth(firstPeriodStart.getMonth() - 1);
+      }
+
+      for (let m = 0; m < instCount; m++) {
+        const activePeriodStart = new Date(firstPeriodStart.getFullYear(), firstPeriodStart.getMonth() + m, cutoffDay);
+        const instTs = (m === 0) ? item.ts : activePeriodStart.getTime();
+
+        processedItems.push({
+          id: item.id + '_' + m,
+          rawId: item.id,
+          name: item.name,
+          amt: singleAmt,
+          displayAmt: singleAmt,
+          ts: instTs,
+          tag: `💳 ${m + 1}/${instCount} Taksit`
+        });
+      }
+    }
+  });
+
+  // Henüz gelmemiş (gelecek aylara ait) taksitleri ekrandan gizlemek için zaman damgası filtresi
+  const nowTs = Date.now();
+  const visibleItems = processedItems.filter(i => i.ts <= nowTs);
+
+  // Tarihe göre gruplama
+  const g = {};
+  visibleItems.forEach(i => (g[dk(i.ts)] = g[dk(i.ts)] || []).push(i));
 
   const today = dk(Date.now());
-  const cutoffDay = Store.getCutoff();
-  const periodStartTs = getPeriodStartDate(cutoffDay).getTime();
+  const periodStartTs = periodStart.getTime();
 
   // BUGÜN Toplamı
-  $('sToday').textContent = fmt((g[today] || []).reduce((s, i) => s + i.amt, 0));
+  $('sToday').textContent = fmt((g[today] || []).reduce((s, i) => s + i.displayAmt, 0));
 
-  // MEVCUT DÖNEM Toplamı (Hesap kesim tarihine göre)
-  const periodTotal = items
-    .filter(i => i.ts >= periodStartTs)
-    .reduce((s, i) => s + i.amt, 0);
+  // BU AY (Mevcut Hesap Dönemi) Toplamı
+  const periodTotal = visibleItems
+    .filter(i => i.ts >= periodStartTs && i.ts < periodStartTs + (32 * 864e5))
+    .reduce((s, i) => s + i.displayAmt, 0);
 
   $('sMonth').textContent = fmt(periodTotal);
 
-  const L = $('list'); L.innerHTML = '';
+  const L = $('list'); 
+  L.innerHTML = '';
   const days = Object.keys(g).sort().reverse();
 
   if (!days.length) { 
@@ -70,7 +109,7 @@ function renderList() {
   }
 
   days.forEach(k => {
-    const dayTotal = g[k].reduce((s, i) => s + i.amt, 0);
+    const dayTotal = g[k].reduce((s, i) => s + i.displayAmt, 0);
     const h = document.createElement('h2');
     h.innerHTML = '<span>' + dayLabel(k) + '</span><span>' + fmt(dayTotal) + '</span>';
     L.appendChild(h);
@@ -79,14 +118,41 @@ function renderList() {
     box.className = 'day';
 
     g[k].forEach(i => {
-      const r = document.createElement('div'); r.className = 'row';
-      const n = document.createElement('span'); n.className = 'n'; n.textContent = i.name;
-      const t = document.createElement('span'); t.className = 't';
+      const r = document.createElement('div'); 
+      r.className = 'row';
+      
+      const info = document.createElement('div'); 
+      info.className = 'row-info';
+      
+      const n = document.createElement('span'); 
+      n.className = 'n'; 
+      n.textContent = i.name;
+      info.appendChild(n);
+
+      if (i.tag) {
+        const tag = document.createElement('span'); 
+        tag.className = 'tag'; 
+        tag.textContent = i.tag;
+        info.appendChild(tag);
+      }
+
+      const t = document.createElement('span'); 
+      t.className = 't';
       t.textContent = new Date(i.ts).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-      const a = document.createElement('span'); a.className = 'a'; a.textContent = fmt(i.amt);
-      const x = document.createElement('button'); x.className = 'x'; x.textContent = '✕';
-      x.onclick = () => { Store.remove(i.id); renderList(); };
-      r.append(n, t, a, x); 
+      
+      const a = document.createElement('span'); 
+      a.className = 'a'; 
+      a.textContent = fmt(i.displayAmt);
+      
+      const x = document.createElement('button'); 
+      x.className = 'x'; 
+      x.textContent = '✕';
+      x.onclick = () => { 
+        Store.remove(i.rawId || i.id); 
+        renderList(); 
+      };
+
+      r.append(info, t, a, x); 
       box.appendChild(r);
     });
     L.appendChild(box);

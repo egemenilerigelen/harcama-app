@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#07080c">
 <title>Harcama</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -19,6 +19,16 @@
 
     <section class="panel">
       <input id="name" type="text" placeholder="Ne aldın?" maxlength="60" autocomplete="off">
+      
+      <!-- TAKSİT SEÇİM ŞERİDİ -->
+      <div class="inst-selector" id="instSelector">
+        <button class="inst-btn active" data-inst="1">Tek Çekim</button>
+        <button class="inst-btn" data-inst="2">2x</button>
+        <button class="inst-btn" data-inst="3">3x</button>
+        <button class="inst-btn" data-inst="6">6x</button>
+        <button class="inst-btn" data-inst="12">12x</button>
+      </div>
+
       <div class="display">
         <span class="cur">₺</span>
         <span class="amt" id="amt"></span>
@@ -28,10 +38,10 @@
     </section>
   </div>
 
-  <!-- YÜKSEKLİĞİ SABİT LİSTE -->
+  <!-- YÜKSEKLİĞİ SABİTLENMİŞ KAYDIRILABİLİR LİSTE -->
   <section id="list"></section>
 
-  <!-- SABİT SİL BUTONU -->
+  <!-- SABİT SIL BUTONU -->
   <section class="tools">
     <button id="clear">Tümünü sil</button>
   </section>

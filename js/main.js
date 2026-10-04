@@ -1,9 +1,7 @@
-// Cihaz destekliyorsa kısa titreşim verir
 const haptic = () => {
   if (navigator.vibrate) navigator.vibrate(12);
 };
 
-// Basma ve kaldırma efektlerini anlık yöneten yardımcı fonksiyon
 function bindPressEffect(btn, action) {
   const start = (e) => {
     e.preventDefault();
@@ -22,7 +20,18 @@ function bindPressEffect(btn, action) {
   btn.addEventListener('pointercancel', end);
 }
 
-// Tuş takımını oluşturma ve olayları bağlama
+// TAKSİT SEÇİMİ YÖNETİMİ
+let selectedInst = 1;
+document.querySelectorAll('.inst-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.inst-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedInst = Number(btn.dataset.inst);
+    haptic();
+  };
+});
+
+// Tuş takımını oluşturma
 ['1','2','3','4','5','6','7','8','9','.','0','EKLE'].forEach(k => {
   const b = document.createElement('button');
   b.textContent = k;
@@ -40,7 +49,6 @@ function bindPressEffect(btn, action) {
   $('pad').appendChild(b);
 });
 
-// Silme (backspace) butonuna basma efekti bağlama
 bindPressEffect($('back'), () => {
   Calc.back();
   renderAmount();
@@ -49,9 +57,18 @@ bindPressEffect($('back'), () => {
 function addEntry() {
   const v = Calc.value();
   if (v <= 0) return;
-  Store.add($('name').value.trim() || 'Adsız', v);
+  
+  // Taksit sayısı parametresi eklendi
+  Store.add($('name').value.trim() || 'Adsız', v, selectedInst);
+  
   Calc.reset();
   $('name').value = '';
+  
+  // Taksiti tekrar Tek Çekim'e sıfırla
+  selectedInst = 1;
+  document.querySelectorAll('.inst-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.inst-btn[data-inst="1"]').classList.add('active');
+
   renderAmount();
   renderList();
 }
