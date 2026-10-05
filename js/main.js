@@ -73,6 +73,12 @@ function addEntry() {
   renderList();
 }
 
+$('undoBtn').onclick = () => {
+  if (undoItem) Store.restore(undoItem);
+  hideUndo();
+  renderList();
+};
+
 let armed = false;
 $('clear').onclick = () => {
   if (!armed) {
@@ -85,6 +91,7 @@ $('clear').onclick = () => {
     return;
   }
   Store.clear();
+  hideUndo();
   renderList();
   armed = false;
   $('clear').textContent = 'Tümünü sil';

@@ -1,37 +1,47 @@
 :root {
   --bg: #07080c;
   --tx: #f1ede4;
-  --mut: #8b8f9a;
+  --mut: #9094a0;
   --gold: #d9b877;
+  --gold-hi: #f0d9a2;
   --gold2: #a8843f;
   --glass: rgba(255, 255, 255, 0.045);
   --line: rgba(255, 255, 255, 0.09);
-  
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
   /* TUŞ TAKIMI VE ANA TUTAR İÇİN HESAP MAKİNESİ FONTU */
   --num: "Orbitron", ui-monospace, monospace;
-  
+
   /* ÖZET KARTLAR VE LİSTE RAKAMLARI İÇİN DİJİTAL/FİNTECH OKUNUR FONT */
   --num-sub: "Space Grotesk", "Inter", -apple-system, sans-serif;
   --ui: "Inter", -apple-system, system-ui, "Segoe UI", sans-serif;
-  
+
+  /* Tuş yüksekliği ekran boyuna göre esner (küçük telefonda sıkışmasın) */
+  --key-h: 48px;
+
   color-scheme: dark;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+@supports (height: 1dvh) {
+  :root { --key-h: clamp(44px, 6.6dvh, 54px); }
+}
+
 html, body {
   height: 100vh;
+  height: 100dvh;
   margin: 0;
   overflow: hidden;
 }
 
 html {
   background:
-    radial-gradient(900px 500px at 85% -10%, rgba(217, 184, 119, 0.16), transparent 60%),
-    radial-gradient(700px 500px at -10% 40%, rgba(70, 90, 160, 0.14), transparent 60%),
-    radial-gradient(800px 500px at 50% 120%, rgba(217, 184, 119, 0.08), transparent 60%),
-    linear-gradient(180deg, #0b0c12, #06070a);
+    radial-gradient(900px 520px at 85% -12%, rgba(217, 184, 119, 0.17), transparent 60%),
+    radial-gradient(700px 500px at -12% 38%, rgba(70, 90, 160, 0.13), transparent 60%),
+    radial-gradient(800px 520px at 50% 118%, rgba(217, 184, 119, 0.09), transparent 60%),
+    linear-gradient(180deg, #0b0c12, #05060a);
   background-color: var(--bg);
   background-attachment: fixed;
 }
@@ -48,13 +58,15 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  -webkit-font-smoothing: antialiased;
 }
 
 .app {
   max-width: 420px;
   width: 100%;
   height: 100vh;
-  padding: 14px 14px 48px;
+  height: 100dvh;
+  padding: 14px 14px 64px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -75,47 +87,94 @@ body {
 
 .totals div {
   flex: 1;
-  padding: 10px 14px;
-  border-radius: 14px;
-  background: var(--glass);
+  position: relative;
+  padding: 10px 14px 11px;
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.02));
   border: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+}
+
+/* Kartın üstünde ince altın ışık çizgisi */
+.totals div::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 14px;
+  right: 14px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(240, 217, 162, 0.55), transparent);
 }
 
 .totals small {
   display: block;
   color: var(--mut);
   font-size: 10px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
+  margin-bottom: 2px;
 }
 
 /* BUGÜN / BU AY TUTARLARI: Rahat okunur dijital font */
 .totals b {
-  font: 600 18px var(--num-sub);
+  display: block;
+  font: 600 20px var(--num-sub);
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: var(--gold);
   letter-spacing: 0.01em;
 }
 
 .panel {
+  position: relative;
   padding: 11px;
-  border-radius: 22px;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
-  border: 1px solid var(--line);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  border-radius: 24px;
+  background:
+    radial-gradient(260px 120px at 50% 0%, rgba(217, 184, 119, 0.08), transparent 70%),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.02));
+  border: 1px solid transparent;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.5),
+    0 2px 0 rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Degrade çerçeve: üstte altın, aşağıda silik */
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(165deg,
+    rgba(240, 217, 162, 0.5),
+    rgba(255, 255, 255, 0.07) 32%,
+    rgba(255, 255, 255, 0.03) 68%,
+    rgba(217, 184, 119, 0.28));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
 }
 
 #name {
   width: 100%;
-  background: rgba(0, 0, 0, 0.28);
+  background: rgba(0, 0, 0, 0.3);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 14px;
   color: var(--tx);
-  padding: 9px 13px;
-  font: 14.5px var(--ui);
+  padding: 9px 14px;
+  font: 16px var(--ui); /* iOS 16px altı inputta sayfayı yakınlaştırır */
   outline: none;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 #name::placeholder {
@@ -123,42 +182,56 @@ body {
 }
 
 #name:focus {
-  border-color: rgba(217, 184, 119, 0.55);
+  border-color: rgba(217, 184, 119, 0.6);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35), 0 0 0 3px rgba(217, 184, 119, 0.12);
 }
 
-/* TAKSİT SEÇENEK BUTONLARI */
+/* TAKSİT SEÇİMİ: tek parça segmentli kontrol */
 .inst-selector {
   display: flex;
-  gap: 6px;
-  margin-top: 7px;
-  margin-bottom: 2px;
+  gap: 3px;
+  margin-top: 8px;
+  padding: 3px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--line);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .inst-btn {
   flex: 1;
-  padding: 4.5px 0;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--line);
+  min-height: 34px;
+  padding: 0;
+  border-radius: 11px;
+  background: transparent;
+  border: 0;
   color: var(--mut);
-  font: 11px var(--ui);
+  font: 500 12px var(--ui);
+  white-space: nowrap;
   cursor: pointer;
-  transition: all 0.15s ease;
+  touch-action: manipulation;
+  transition: background 0.2s var(--ease), color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .inst-btn.active {
-  background: rgba(217, 184, 119, 0.18);
-  border-color: var(--gold);
-  color: var(--gold);
+  background: linear-gradient(180deg, rgba(240, 217, 162, 0.26), rgba(217, 184, 119, 0.12));
+  color: var(--gold-hi);
   font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(217, 184, 119, 0.55), 0 4px 12px rgba(217, 184, 119, 0.12);
 }
 
+/* TUTAR EKRANI: içe gömülü cam ekran */
 .display {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 8px;
-  min-height: 52px;
+  margin: 8px 0;
+  padding: 4px 6px 4px 14px;
+  min-height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.22));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.04);
 }
 
 /* EKRANDAKİ TUTAR VE SİMGESİ: Orijinal Hesap Makinesi Fontu */
@@ -170,23 +243,46 @@ body {
 .amt {
   flex: 1;
   text-align: right;
-  font: 500 36px var(--num);
+  font: 500 34px var(--num);
   letter-spacing: 0.03em;
   overflow: hidden;
   text-overflow: clip;
   white-space: nowrap;
-  text-shadow: 0 0 18px rgba(217, 184, 119, 0.25);
+  text-shadow: 0 0 20px rgba(217, 184, 119, 0.32);
   line-height: 1;
-  min-height: 36px;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  transition: font-size 0.15s ease;
 }
+
+/* Boşken sönük "0" göster */
+.amt:empty::before {
+  content: "0";
+  color: rgba(241, 237, 228, 0.16);
+  text-shadow: none;
+}
+
+/* Uzun tutarda yazıyı küçült ki taşmasın */
+.amt.sm { font-size: 26px; }
+.amt.xs { font-size: 20px; }
 
 #back {
   background: none;
   border: 0;
   color: var(--mut);
   font-size: 20px;
-  padding: 4px 6px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
   cursor: pointer;
+  touch-action: manipulation;
+  transition: color 0.15s ease;
+}
+
+#back.pressed {
+  color: var(--gold);
 }
 
 /* TUŞ TAKIMI: Orijinal Hesap Makinesi Fontu */
@@ -197,10 +293,11 @@ body {
 }
 
 .pad button {
-  height: 48px;
-  border-radius: 14px;
+  height: var(--key-h);
+  border-radius: 15px;
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.025));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 6px 14px rgba(0, 0, 0, 0.28);
   color: var(--tx);
   font: 400 21px var(--num);
   cursor: pointer;
@@ -211,27 +308,64 @@ body {
 }
 
 .pad button.pressed {
-  transform: scale(0.92);
-  background: rgba(255, 255, 255, 0.22);
+  transform: scale(0.93);
+  background: linear-gradient(180deg, rgba(217, 184, 119, 0.28), rgba(217, 184, 119, 0.12));
   box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
+/* EKLE: tutar yokken sönük, tutar girilince altın parlar */
 .pad .add {
-  background: linear-gradient(180deg, var(--gold), var(--gold2));
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold) 48%, var(--gold2) 100%);
   color: #1b1407;
   border: 0;
   font: 600 12.5px var(--ui);
-  letter-spacing: 0.14em;
-  box-shadow: 0 6px 18px rgba(217, 184, 119, 0.25);
+  letter-spacing: 0.16em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 6px 18px rgba(217, 184, 119, 0.2);
+  opacity: 0.55;
+  transition: opacity 0.25s ease, box-shadow 0.25s ease, transform 0.04s ease-out;
+}
+
+/* Metalik parlama şeridi */
+.pad .add::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.35) 50%, transparent 65%);
+  transform: translateX(-100%);
+}
+
+body.has-amt .pad .add {
+  opacity: 1;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 8px 26px rgba(217, 184, 119, 0.38);
+}
+
+body.has-amt .pad .add::after {
+  animation: sheen 2.8s ease-in-out 0.2s infinite;
+}
+
+.pad .add.pressed {
+  background: linear-gradient(180deg, var(--gold), var(--gold2));
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+@keyframes sheen {
+  0%, 55% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 /* 2. LİSTE ALANI VE GÜNLÜK HARCAMALAR */
 #list {
-  height: 250px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   margin-top: 12px;
-  padding-right: 2px;
+  padding: 0 2px 18px 0;
   -webkit-overflow-scrolling: touch;
+  /* Alt kenarda yumuşak kaybolma: kaydırılabildiğini hissettirir */
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 22px), transparent);
+  mask-image: linear-gradient(180deg, #000 calc(100% - 22px), transparent);
 }
 
 #list::-webkit-scrollbar {
@@ -246,9 +380,10 @@ body {
 #list h2 {
   display: flex;
   justify-content: space-between;
-  margin: 10px 4px 6px;
+  align-items: baseline;
+  margin: 12px 4px 7px;
   font: 500 11px var(--ui);
-  letter-spacing: 0.14em;
+  letter-spacing: 0.15em;
   color: var(--mut);
   text-transform: uppercase;
 }
@@ -256,14 +391,16 @@ body {
 /* TARİH BAŞLIĞINDAKİ GÜNLÜK TOPLAM TUTAR: Rahat okunur dijital font */
 #list h2 span:last-child {
   font: 600 14px var(--num-sub);
+  font-variant-numeric: tabular-nums;
   color: var(--gold);
   letter-spacing: 0.01em;
 }
 
 .day {
-  border-radius: 16px;
-  background: var(--glass);
+  border-radius: 18px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02));
   border: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   overflow: hidden;
 }
 
@@ -271,7 +408,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
+  padding: 11px 14px;
   border-top: 1px solid var(--line);
 }
 
@@ -283,29 +420,40 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   min-width: 0;
 }
 
 .row .n {
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 500;
 }
 
+/* Taksit etiketi: küçük altın hap */
 .row .tag {
+  margin-top: 4px;
+  padding: 1px 8px;
+  border-radius: 99px;
+  background: rgba(217, 184, 119, 0.12);
+  border: 1px solid rgba(217, 184, 119, 0.22);
   font-size: 10px;
-  color: var(--gold2);
-  margin-top: 2px;
+  letter-spacing: 0.02em;
+  color: var(--gold);
 }
 
 .row .t {
   color: var(--mut);
-  font-size: 11px;
+  font: 11px var(--num-sub);
+  font-variant-numeric: tabular-nums;
 }
 
 /* HARCAMA SATIRINDAKİ FİYAT: Rahat okunur dijital font */
 .row .a {
   font: 600 15px var(--num-sub);
+  font-variant-numeric: tabular-nums;
   letter-spacing: 0.01em;
 }
 
@@ -313,15 +461,68 @@ body {
   background: none;
   border: 0;
   color: #5d616c;
-  font-size: 15px;
-  padding: 2px 4px;
+  font-size: 16px;
+  min-width: 40px;
+  min-height: 40px;
+  margin: -10px -8px -10px 0;
+  padding: 0;
   cursor: pointer;
+  touch-action: manipulation;
+  transition: color 0.15s ease;
+}
+
+.row .x:active {
+  color: #e07a7a;
 }
 
 .empty {
   text-align: center;
   color: var(--mut);
-  padding: 20px 0;
+  padding: 22px 0;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+/* SİLME GERİ ALMA ŞERİDİ */
+#undo {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 8px 8px 16px;
+  border-radius: 16px;
+  background: rgba(22, 24, 32, 0.92);
+  border: 1px solid rgba(217, 184, 119, 0.25);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  font: 13px var(--ui);
+  color: var(--tx);
+}
+
+#undo.show {
+  display: flex;
+  animation: rise 0.28s var(--ease);
+}
+
+#undo button {
+  background: rgba(217, 184, 119, 0.14);
+  border: 0;
+  border-radius: 10px;
+  color: var(--gold-hi);
+  font: 600 13px var(--ui);
+  min-height: 36px;
+  padding: 0 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* 3. SABİT ALT BUTON */
@@ -336,10 +537,20 @@ body {
 
 .tools button {
   padding: 8px 18px;
+  min-height: 36px;
   border-radius: 12px;
   background: transparent;
   border: 1px solid var(--line);
   color: var(--mut);
   font: 12px var(--ui);
+  letter-spacing: 0.03em;
   cursor: pointer;
+  touch-action: manipulation;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

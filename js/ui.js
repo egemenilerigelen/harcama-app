@@ -30,8 +30,38 @@ function getPeriodStartDate(cutoffDay) {
   }
 }
 
-function renderAmount() { 
-  $('amt').textContent = Calc.raw(); 
+// Silme geri alma şeridi (4 sn görünür)
+let undoItem = null;
+let undoTimer = null;
+
+function hideUndo() {
+  clearTimeout(undoTimer);
+  undoItem = null;
+  $('undo').classList.remove('show');
+}
+
+function showUndo(item) {
+  undoItem = item;
+  $('undo').classList.add('show');
+  clearTimeout(undoTimer);
+  undoTimer = setTimeout(hideUndo, 4000);
+}
+
+// Ekranda binlik ayracı (.) ve ondalık virgül (,) ile göster; ham değer Calc'ta kalır
+function formatRaw(raw) {
+  if (!raw) return '';
+  const [i, d] = raw.split('.');
+  const grouped = i.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return raw.includes('.') ? grouped + ',' + (d || '') : grouped;
+}
+
+function renderAmount() {
+  const text = formatRaw(Calc.raw());
+  const el = $('amt');
+  el.textContent = text;
+  el.classList.toggle('sm', text.length > 9 && text.length <= 12);
+  el.classList.toggle('xs', text.length > 12);
+  document.body.classList.toggle('has-amt', Calc.value() > 0);
 }
 
 function renderList() {
@@ -147,9 +177,12 @@ function renderList() {
       const x = document.createElement('button'); 
       x.className = 'x'; 
       x.textContent = '✕';
-      x.onclick = () => { 
-        Store.remove(i.rawId || i.id); 
-        renderList(); 
+      x.onclick = () => {
+        const id = i.rawId || i.id;
+        const removed = Store.all().find(e => e.id === id);
+        Store.remove(id);
+        if (removed) showUndo(removed);
+        renderList();
       };
 
       r.append(info, t, a, x); 

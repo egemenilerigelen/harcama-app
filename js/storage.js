@@ -29,6 +29,15 @@ const Store = {
     localStorage.setItem(this.KEY, JSON.stringify(items));
   },
 
+  // Silinen kaydı geri koyar; yeni kayıtlar başta durduğu için ts'ye göre sıralar
+  restore(item) {
+    const items = this.all();
+    if (items.some(i => i.id === item.id)) return;
+    items.push(item);
+    items.sort((a, b) => b.ts - a.ts);
+    localStorage.setItem(this.KEY, JSON.stringify(items));
+  },
+
   clear() {
     localStorage.removeItem(this.KEY);
   },
