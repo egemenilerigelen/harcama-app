@@ -54,7 +54,8 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
 - Fontlar: `--num` (Orbitron) tuş takımı ve tutar ekranı; `--num-sub` (Space Grotesk / Inter) özet kartları ve liste. Google Fonts `index.html`'deki `<link>` ile yüklenir.
 - Düzen sabit: `body { overflow: hidden }`, sayfa kaymaz. `.app` = `.views` (esner) + `.tabbar` (altta, `--tab-h` + `safe-area-inset-bottom`). Aynı anda tek `.view.active` görünür; içinde sadece `#list` / `.scroll` kaydırılır.
 - Sekmeler: Ana Sayfa (`home`), Harcamalar (`list`), Özet (`summary`, şimdilik yer tutucu), Ayarlar (`settings`). Geçiş `showTab(name)` ile; router/hash yok.
-- Ana sayfadaki son harcamalar kaymaz, ekran yüksekliğine göre 3 / 2 / 1 satır gösterir (`max-height` 719px / 599px kırılımları). Küçük ekran sıkılaştırmaları `@media (max-height: 620px)` bloğunda.
+- Ana sayfa sırası: özet kartlar → son harcamalar → giriş paneli (tuş takımı altta, başparmak bölgesinde). Son harcamalar kaymaz; `fitRecent()` en fazla 3 satırdan tam sığanları gösterir (iPhone 15'te 2, Pro Max'te 3, SE'de 1).
+- Boşluk ölçüsü `:root`'ta: `--edge` 16px (yan kenar), `--gap` 12px (bloklar arası), `--gap-s` 8px (bileşen içi). Bölüm başlıkları (`.sec-head`, `.sec-title`, `#list h2`) tek kuralı paylaşır. Kaydırma çubukları gizli. Küçük ekran sıkılaştırmaları `@media (max-height: 620px)` bloğunda.
 - Hedef ekranlar: iPhone Safari içerik alanları 393×659 (iPhone 15), 430×739 (Pro Max), 375×548 (SE). Yatay kaydırma olmamalı, tuş takımı ve alt bar her birine sığmalı.
 - Dokunmatik: tuşlar, sekmeler ve stepper `pointerdown` ile `bindPressEffect` üzerinden tetiklenir ve `navigator.vibrate(12)` ile titreşim verir. Yeni tuşlarda aynı yardımcıyı kullan.
 - "Tümünü sil" Ayarlar'dadır ve iki dokunuşla onaylanır (2,5 sn içinde).

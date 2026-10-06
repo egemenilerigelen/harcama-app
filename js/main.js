@@ -85,7 +85,12 @@ function showTab(name) {
   if (document.activeElement) document.activeElement.blur();
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.dataset.view === name));
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  if (name === 'home') fitRecent();
 }
+
+window.addEventListener('resize', fitRecent);
+// Fontlar yüklenince satır yükseklikleri değişebilir
+if (document.fonts) document.fonts.ready.then(fitRecent);
 
 document.querySelectorAll('.tab').forEach(t => {
   bindPressEffect(t, () => showTab(t.dataset.tab));

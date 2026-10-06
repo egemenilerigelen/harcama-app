@@ -22,6 +22,11 @@
   /* Alt sekme çubuğunun yüksekliği (güvenli alan hariç) */
   --tab-h: 54px;
 
+  /* BOŞLUK ÖLÇÜSÜ: kenar 16, bloklar arası 12, bileşen içi 8 */
+  --edge: 16px;
+  --gap: 12px;
+  --gap-s: 8px;
+
   color-scheme: dark;
 }
 
@@ -83,7 +88,7 @@ body {
   display: none;
   height: 100%;
   flex-direction: column;
-  padding: calc(env(safe-area-inset-top, 0px) + 12px) 14px 0;
+  padding: calc(env(safe-area-inset-top, 0px) + var(--gap)) var(--edge) var(--gap);
 }
 
 .view.active {
@@ -97,7 +102,7 @@ body {
 }
 
 .view-head {
-  margin: 2px 4px 12px;
+  margin: 0 4px var(--gap);
 }
 
 .view-head h1 {
@@ -106,16 +111,11 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* 1. ÜST PANEL */
-.fixed-top {
-  width: 100%;
-  flex-shrink: 0;
-}
-
+/* 1. ANA SAYFA: ÖZET KARTLAR */
 .totals {
+  flex-shrink: 0;
   display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: var(--gap-s);
 }
 
 .totals div {
@@ -163,9 +163,11 @@ body {
   letter-spacing: 0.01em;
 }
 
+/* GİRİŞ PANELİ: ekranın altında, başparmak bölgesinde */
 .panel {
+  flex-shrink: 0;
   position: relative;
-  padding: 11px;
+  padding: var(--gap);
   border-radius: 24px;
   background:
     radial-gradient(260px 120px at 50% 0%, rgba(217, 184, 119, 0.08), transparent 70%),
@@ -222,7 +224,7 @@ body {
 }
 
 #search {
-  margin-top: 8px;
+  margin-top: var(--gap-s);
 }
 
 #search::-webkit-search-cancel-button {
@@ -233,7 +235,7 @@ body {
 .inst-selector, .seg {
   display: flex;
   gap: 3px;
-  margin-top: 8px;
+  margin-top: var(--gap-s);
   padding: 3px;
   border-radius: 14px;
   background: rgba(0, 0, 0, 0.3);
@@ -272,7 +274,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 8px 0;
+  margin: var(--gap-s) 0;
   padding: 4px 6px 4px 14px;
   min-height: 56px;
   border-radius: 16px;
@@ -336,7 +338,7 @@ body {
 .pad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 7px;
+  gap: var(--gap-s);
 }
 
 .pad button {
@@ -402,35 +404,46 @@ body.has-amt .pad .add::after {
   100% { transform: translateX(100%); }
 }
 
-/* ANA SAYFA: SON HARCAMALAR */
+/* ANA SAYFA: SON HARCAMALAR (kartlar ile panel arasındaki boşluğu doldurur) */
 .recent {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  margin-top: 8px;
+  margin: var(--gap) 0;
 }
 
-.sec-head {
+/* BÖLÜM BAŞLIKLARI: ana sayfa, gün başlıkları ve ayarlar aynı ölçüde */
+.sec-head, .sec-title, #list h2 {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin: 0 4px 4px;
-}
-
-.sec-head small, .sec-title {
+  align-items: baseline;
+  margin: 20px 4px var(--gap-s);
   font: 500 11px var(--ui);
   letter-spacing: 0.15em;
   color: var(--mut);
+  text-transform: uppercase;
 }
 
+.sec-head, .sec-title:first-child, #list h2:first-child {
+  margin-top: 0;
+}
+
+.sec-head small {
+  font: inherit;
+}
+
+/* Bağlantının dokunma alanı görünenden büyük, hizayı bozmaz */
 .link {
   background: none;
   border: 0;
   color: var(--gold);
-  font: 500 12.5px var(--ui);
-  min-height: 28px;
-  padding: 0 0 0 12px;
+  font: 500 12px var(--ui);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  min-height: 32px;
+  margin: -10px -4px -10px 0;
+  padding: 0 4px 0 12px;
   cursor: pointer;
   touch-action: manipulation;
   transition: opacity 0.15s ease;
@@ -445,7 +458,7 @@ body.has-amt .pad .add::after {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  margin: 10px 4px 0;
+  margin: var(--gap) 4px;
   font: 500 12px var(--num-sub);
   font-variant-numeric: tabular-nums;
   color: var(--mut);
@@ -461,31 +474,17 @@ body.has-amt .pad .add::after {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 0 2px 18px 0;
+  padding-bottom: 18px;
+  scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   /* Alt kenarda yumuşak kaybolma: kaydırılabildiğini hissettirir */
   -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 18px), transparent);
   mask-image: linear-gradient(180deg, #000 calc(100% - 18px), transparent);
 }
 
+/* Kaydırma çubuğu gizli; alt kenardaki solma kaydırılabildiğini gösterir */
 #list::-webkit-scrollbar, #recent::-webkit-scrollbar, .scroll::-webkit-scrollbar {
-  width: 4px;
-}
-
-#list::-webkit-scrollbar-thumb, #recent::-webkit-scrollbar-thumb, .scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
-}
-
-#list h2 {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin: 12px 4px 7px;
-  font: 500 11px var(--ui);
-  letter-spacing: 0.15em;
-  color: var(--mut);
-  text-transform: uppercase;
+  display: none;
 }
 
 /* TARİH BAŞLIĞINDAKİ GÜNLÜK TOPLAM TUTAR: Rahat okunur dijital font */
@@ -516,7 +515,7 @@ body.has-amt .pad .add::after {
   border-top: 0;
 }
 
-/* Ana sayfadaki kısa liste: kaymaz, sığdığı kadar satır gösterir (3 / 2 / 1) */
+/* Ana sayfadaki kısa liste: kaymaz, sadece tam sığan satırlar gösterilir (fitRecent) */
 #recent {
   overflow: hidden;
   padding-bottom: 0;
@@ -538,14 +537,6 @@ body.has-amt .pad .add::after {
 #recent .row .tag {
   margin-top: 0;
   flex-shrink: 0;
-}
-
-@media (max-height: 719px) {
-  #recent .row:nth-child(n+3) { display: none; }
-}
-
-@media (max-height: 599px) {
-  #recent .row:nth-child(n+2) { display: none; }
 }
 
 .row-info {
@@ -620,20 +611,12 @@ body.has-amt .pad .add::after {
 }
 
 /* 3. AYARLAR */
-.sec-title {
-  margin: 14px 4px 7px;
-}
-
-.sec-title:first-child {
-  margin-top: 4px;
-}
-
 .set-row {
   display: flex;
   align-items: center;
   gap: 12px;
   min-height: 62px;
-  padding: 11px 12px 11px 14px;
+  padding: 11px var(--gap) 11px 14px;
   border-top: 1px solid var(--line);
 }
 
@@ -735,7 +718,7 @@ body.has-amt .pad .add::after {
 }
 
 .note {
-  margin: 18px 12px 0;
+  margin: 20px var(--gap) 0;
   text-align: center;
   color: var(--mut);
   font-size: 12px;
@@ -775,9 +758,9 @@ body.has-amt .pad .add::after {
 /* SİLME GERİ ALMA ŞERİDİ */
 #undo {
   position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tab-h) + 10px);
+  left: var(--edge);
+  right: var(--edge);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tab-h) + var(--gap));
   z-index: 5;
   display: none;
   align-items: center;
@@ -886,19 +869,15 @@ body.has-amt .pad .add::after {
 
 /* Küçük ekran (iPhone SE vb.): tuş takımını ve kartları sıkılaştır */
 @media (max-height: 620px) {
-  :root { --key-h: 40px; --tab-h: 52px; }
-  .view { padding-top: calc(env(safe-area-inset-top, 0px) + 10px); }
-  .totals { margin-bottom: 8px; }
+  :root { --key-h: 40px; --tab-h: 52px; --gap: 10px; --gap-s: 6px; }
   .totals div { padding: 7px 12px 8px; }
   .totals b { font-size: 18px; }
   #name { padding: 7px 14px; }
   .inst-btn { min-height: 30px; }
-  .display { min-height: 46px; margin: 6px 0; }
+  .display { min-height: 46px; }
   .amt { font-size: 30px; }
   .amt.sm { font-size: 24px; }
   .amt.xs { font-size: 18px; }
-  .pad { gap: 6px; }
-  .recent { margin-top: 6px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

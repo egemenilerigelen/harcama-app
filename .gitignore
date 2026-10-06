@@ -1,2 +1,5 @@
 # Yerel önizleme ve Claude Code ayarları
 .claude/
+
+# Tasarım denetim aracı (impeccable) yerel ayarları
+.impeccable/

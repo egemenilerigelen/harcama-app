@@ -12,42 +12,40 @@
 <main class="app">
   <div class="views">
 
-    <!-- 1. ANA SAYFA: özet kartlar, tuş takımı, son harcamalar -->
+    <!-- 1. ANA SAYFA: özet kartlar, son harcamalar, giriş paneli (başparmak bölgesinde, altta) -->
     <section class="view active" data-view="home">
-      <div class="fixed-top">
-        <section class="totals">
-          <div><small>BUGÜN</small><b id="sToday">₺0</b></div>
-          <div><small>BU AY</small><b id="sMonth">₺0</b></div>
-        </section>
+      <section class="totals">
+        <div><small>BUGÜN</small><b id="sToday">₺0</b></div>
+        <div><small>BU AY</small><b id="sMonth">₺0</b></div>
+      </section>
 
-        <section class="panel">
-          <input id="name" type="text" placeholder="Ne aldın?" maxlength="60" autocomplete="off">
-
-          <!-- TAKSİT SEÇİM ŞERİDİ -->
-          <div class="inst-selector" id="instSelector">
-            <button class="inst-btn active" data-inst="1">Tek Çekim</button>
-            <button class="inst-btn" data-inst="2">2x</button>
-            <button class="inst-btn" data-inst="3">3x</button>
-            <button class="inst-btn" data-inst="6">6x</button>
-            <button class="inst-btn" data-inst="12">12x</button>
-          </div>
-
-          <div class="display">
-            <span class="cur">₺</span>
-            <span class="amt" id="amt"></span>
-            <button id="back" aria-label="Sil">⌫</button>
-          </div>
-          <div class="pad" id="pad"></div>
-        </section>
-      </div>
-
-      <!-- SON 3 HARCAMA -->
+      <!-- SON HARCAMALAR (en fazla 3, sığdığı kadar) -->
       <section class="recent">
         <div class="sec-head">
           <small>SON HARCAMALAR</small>
           <button class="link" id="seeAll">Tümünü gör ›</button>
         </div>
         <div id="recent"></div>
+      </section>
+
+      <section class="panel">
+        <input id="name" type="text" placeholder="Ne aldın?" maxlength="60" autocomplete="off">
+
+        <!-- TAKSİT SEÇİM ŞERİDİ -->
+        <div class="inst-selector" id="instSelector">
+          <button class="inst-btn active" data-inst="1">Tek Çekim</button>
+          <button class="inst-btn" data-inst="2">2x</button>
+          <button class="inst-btn" data-inst="3">3x</button>
+          <button class="inst-btn" data-inst="6">6x</button>
+          <button class="inst-btn" data-inst="12">12x</button>
+        </div>
+
+        <div class="display">
+          <span class="cur">₺</span>
+          <span class="amt" id="amt"></span>
+          <button id="back" aria-label="Sil">⌫</button>
+        </div>
+        <div class="pad" id="pad"></div>
       </section>
     </section>
 

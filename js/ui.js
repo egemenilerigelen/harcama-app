@@ -168,6 +168,17 @@ function buildRow(i, when) {
   return r;
 }
 
+// Son harcamalar: sadece tam sığan satırları göster (en az 1); ekran boyuna göre 3 / 2 / 1
+function fitRecent() {
+  const R = $('recent');
+  if (!R.clientHeight) return; // ana sayfa gizliyken ölçülemez
+  const rows = R.querySelectorAll('.row');
+  rows.forEach(r => (r.style.display = ''));
+  for (let k = rows.length - 1; k > 0 && R.scrollHeight > R.clientHeight; k--) {
+    rows[k].style.display = 'none';
+  }
+}
+
 function renderList() {
   const cutoffDay = Store.getCutoff();
   const periodStart = getPeriodStartDate(cutoffDay);
@@ -201,6 +212,7 @@ function renderList() {
     visibleItems.slice(0, 3).forEach(i => box.appendChild(buildRow(i, shortWhen(i.ts))));
     R.appendChild(box);
   }
+  fitRecent();
 
   // HARCAMALAR: dönem filtresi ve arama
   let items = visibleItems;
