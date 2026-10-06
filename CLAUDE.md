@@ -38,11 +38,11 @@ Veri şemasını değiştirirsen eski kayıtları bozma. `ui.js` zaten eksik `in
 
 ## Taksit mantığı (`expandItems`)
 
-- Taksitli kayıt (`inst > 1`) her render'da sanal kayıtlara açılır: tutar `amt / inst`, id `<id>_<n>`, `rawId` asıl kaydın id'si, etiket `💳 n/inst Taksit`.
+- Taksitli kayıt (`inst > 1`) her render'da sanal kayıtlara açılır: tutar `amt / inst`, id `<id>_<n>`, `rawId` asıl kaydın id'si, etiket `n/inst taksit`.
 - İlk taksit kaydın kendi tarihine, sonrakiler sonraki hesap kesim günlerine düşer.
 - `ts > Date.now()` olan gelecek taksitler listeden gizlenir; toplamlara da girmez.
 - Silme sanal satırdan yapılsa bile `Store.remove(i.rawId || i.id)` ile asıl kaydı siler.
-- "BU AY" = içinde bulunulan hesap dönemi (kesim gününden itibaren), takvim ayı değil.
+- "Bu dönem" = içinde bulunulan hesap dönemi (kesim gününden itibaren), takvim ayı değil. Arayüzde "ay" denmez, dönem aralığı yanında yazar.
 
 ## Tuş takımı (`calc.js`)
 
@@ -50,14 +50,18 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
 
 ## Arayüz ve tasarım
 
-- Koyu glassmorphism tema; arka plan `#07080c`, vurgu `--gold: #d9b877`, `--gold2: #a8843f`.
-- Fontlar: `--num` (Orbitron) tuş takımı ve tutar ekranı; `--num-sub` (Space Grotesk / Inter) özet kartları ve liste. Google Fonts `index.html`'deki `<link>` ile yüklenir.
+- Sade koyu tema ("siyah kart"): zemin `--bg`, yüzeyler `--surface` / `--surface-2` / `--surface-3`, kenar `--line`. Altın (`--gold`, `--gold-soft`) sadece sinyal: EKLE, seçili durumlar, ana toplamlar, bağlantılar.
+- Derinlik fiziksel mantıkla verilir, süs için değil: ışık tek yerden (yukarıdan, zemindeki nötr radial). Basılan şeyler kabarık (`--raised` + `--hl` + nötr gölge; tuşlarda alt kalınlık, basınca 2px iner), yazılan şeyler gömük (`--sunken` + `--inset`: inputlar, segment izi, stepper). EKLE metalik altın (dikey ton + koyu altın alt kenar), parlama yok. Gölgeler her zaman siyah/nötr, asla renkli.
+- Kaçınılacaklar ("AI slop" listesi): arka plan lekeleri, cam/blur efekti, renkli parlama gölgeleri, sürekli dönen animasyonlar, degrade yazı, dekoratif ışık çizgileri, kutu içinde kutu, geniş aralıklı BÜYÜK HARF mini etiketler, emoji ikonlar, 4.5:1 altı kontrast. Hareket sadece bir şey olduğunda (ör. yeni kayıt `.row.enter`).
+- Font: sistem fontu (`--ui`; iPhone'da SF Pro). Dış font yüklenmez. Rakamlarda `font-variant-numeric: tabular-nums`. Etiketler normal yazım ("Son harcamalar"), en küçük yazı 11px.
 - Düzen sabit: `body { overflow: hidden }`, sayfa kaymaz. `.app` = `.views` (esner) + `.tabbar` (altta, `--tab-h` + `safe-area-inset-bottom`). Aynı anda tek `.view.active` görünür; içinde sadece `#list` / `.scroll` kaydırılır.
 - Sekmeler: Ana Sayfa (`home`), Harcamalar (`list`), Özet (`summary`, şimdilik yer tutucu), Ayarlar (`settings`). Geçiş `showTab(name)` ile; router/hash yok.
-- Ana sayfa sırası: özet kartlar → son harcamalar → giriş paneli (tuş takımı altta, başparmak bölgesinde). Son harcamalar kaymaz; `fitRecent()` en fazla 3 satırdan tam sığanları gösterir (iPhone 15'te 2, Pro Max'te 3, SE'de 1).
+- Ana sayfa sırası: tek özet kartı ("Bu dönem" + dönem aralığı büyük, "Bugün" sağda küçük) → son harcamalar → giriş paneli (tuş takımı altta, başparmak bölgesinde). Son harcamalar kaymaz, panele yaslanır (artan boşluk üstte); `fitRecent()` en fazla 3 satırdan tam sığanları gösterir (iPhone 15 ve Pro Max'te 3, SE'de 1). Satırlarda saat değil tarih etiketi (`shortWhen`: Bugün / Dün / 5 Eki).
+- Taksit: isim alanının yanında tek düğme (`#instChip`); dokununca `.inst-selector` aynı satırı kaplar (`#entry.picking`), seçince ya da dışarı dokununca kapanır. `setInst(n)` seçimi ve düğme etiketini günceller.
+- Silme: satırlar `.swipe` sarmalayıcısında, sola kaydırınca (`bindSwipe`, eşik 90px / genişliğin %30'u) silinir ve geri alma şeridi açılır. Ana sayfada ✕ gizli; Harcamalar'da ✕ de durur.
 - Boşluk ölçüsü `:root`'ta: `--edge` 16px (yan kenar), `--gap` 12px (bloklar arası), `--gap-s` 8px (bileşen içi). Bölüm başlıkları (`.sec-head`, `.sec-title`, `#list h2`) tek kuralı paylaşır. Kaydırma çubukları gizli. Küçük ekran sıkılaştırmaları `@media (max-height: 620px)` bloğunda.
 - Hedef ekranlar: iPhone Safari içerik alanları 393×659 (iPhone 15), 430×739 (Pro Max), 375×548 (SE). Yatay kaydırma olmamalı, tuş takımı ve alt bar her birine sığmalı.
-- Dokunmatik: tuşlar, sekmeler ve stepper `pointerdown` ile `bindPressEffect` üzerinden tetiklenir ve `navigator.vibrate(12)` ile titreşim verir. Yeni tuşlarda aynı yardımcıyı kullan.
+- Dokunmatik: tuşlar, sekmeler, taksit düğmesi ve stepper `pointerdown` ile `bindPressEffect` üzerinden tetiklenir ve `navigator.vibrate(12)` ile titreşim verir. Yeni tuşlarda aynı yardımcıyı kullan.
 - "Tümünü sil" Ayarlar'dadır ve iki dokunuşla onaylanır (2,5 sn içinde).
 - Arayüz dili Türkçe; sayı biçimi `tr-TR`, para birimi ₺.
 
@@ -73,3 +77,11 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
 ## Bilinen sınırlar / fikirler
 
 PWA dosyaları (manifest, service worker) henüz yok. Özet sekmesi yer tutucu: Faz 2'de hedef halkası ve yaklaşan taksitler, Faz 3'te aylık grafik ve yedekleme / CSV dışa aktarma gelecek. Kayıt düzenleme, kategoriler ve çoklu kart planlanan fikirler.
+
+### Sunucuya / gerçek zamanlı veriye geçiş (tasarım ve Faz 2–3'ten sonra)
+
+Hedef: Supabase veya Firebase gibi CDN'den yüklenebilen, girişi ve gerçek zamanlı güncellemeyi sağlayan bir servis. Ayrı sunucu yazılmaz, derleme adımı eklenmez.
+
+- Kolaylaştıran: veri sadece `Store` üzerinden geçiyor; `renderList()` her değişimde baştan çiziyor (gerçek zamanlı dinleyici → `renderList()`); taksit/dönem hesapları istemcide, sunucuda sadece ham kayıtlar durur; id'ler cihazlar arası çakışmaz.
+- Değişecekler: `Store` asenkron olur (ekleme, silme, geri alma, açılış beklemeli); kullanıcı girişi; uygulama bir adreste yayınlanır (`file://` ile giriş çalışmaz, ör. GitHub Pages); `localStorage`'daki kayıtlar ilk girişte bir kez yüklenir (Faz 3'teki JSON yedekleme buna temel olur); çevrimdışı davranış seçilir; sunucuda "herkes sadece kendi verisini görür" kuralı yazılır.
+- Ayarlar da taşınır: `cutoff_day_v1` ve ileride hedef (`goal_v1`) kullanıcı başına senkronlanmalı.

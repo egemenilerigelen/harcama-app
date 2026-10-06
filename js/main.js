@@ -20,21 +20,35 @@ function bindPressEffect(btn, action) {
   btn.addEventListener('pointercancel', end);
 }
 
-// TAKSİT SEÇİMİ YÖNETİMİ
+// TAKSİT SEÇİMİ: küçük düğme; dokununca seçenekler aynı satırda açılır, seçince kapanır
 let selectedInst = 1;
+
+function setInst(n) {
+  selectedInst = n;
+  document.querySelectorAll('.inst-btn').forEach(b => b.classList.toggle('active', Number(b.dataset.inst) === n));
+  $('instLabel').textContent = n === 1 ? 'Tek çekim' : n + ' taksit';
+  $('instChip').classList.toggle('set', n > 1);
+  $('entry').classList.remove('picking');
+}
+
+bindPressEffect($('instChip'), () => $('entry').classList.add('picking'));
+
 document.querySelectorAll('.inst-btn').forEach(btn => {
   btn.onclick = () => {
-    document.querySelectorAll('.inst-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    selectedInst = Number(btn.dataset.inst);
+    setInst(Number(btn.dataset.inst));
     haptic();
   };
+});
+
+// Seçenekler açıkken başka yere dokunulursa kapat
+document.addEventListener('pointerdown', e => {
+  if (!e.target.closest('#entry')) $('entry').classList.remove('picking');
 });
 
 // Tuş takımını oluşturma
 ['1','2','3','4','5','6','7','8','9','.','0','EKLE'].forEach(k => {
   const b = document.createElement('button');
-  b.textContent = k;
+  b.textContent = k === 'EKLE' ? 'Ekle' : k;
   
   if (k === 'EKLE') {
     b.className = 'add';
@@ -64,13 +78,15 @@ function addEntry() {
   Calc.reset();
   $('name').value = '';
   
-  // Taksiti tekrar Tek Çekim'e sıfırla
-  selectedInst = 1;
-  document.querySelectorAll('.inst-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector('.inst-btn[data-inst="1"]').classList.add('active');
+  // Taksiti tekrar tek çekime sıfırla
+  setInst(1);
 
   renderAmount();
   renderList();
+
+  // Yeni kaydı ana sayfadaki listede kısa bir hareketle göster
+  const first = document.querySelector('#recent .row');
+  if (first) first.classList.add('enter');
 }
 
 $('undoBtn').onclick = () => {

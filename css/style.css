@@ -1,20 +1,27 @@
 :root {
-  --bg: #07080c;
+  /* RENKLER: düz koyu yüzeyler; altın sadece sinyal (EKLE, seçili durum, ana toplamlar) */
+  --bg: #0a0b0e;
+  --surface: #14161b;
+  --surface-2: #1c1f25;
+  --surface-3: #262a31;
+  --line: rgba(255, 255, 255, 0.08);
   --tx: #f1ede4;
-  --mut: #9094a0;
+  --mut: #9a9eaa;
+  --mut-2: #80848f;
   --gold: #d9b877;
-  --gold-hi: #f0d9a2;
-  --gold2: #a8843f;
-  --glass: rgba(255, 255, 255, 0.045);
-  --line: rgba(255, 255, 255, 0.09);
+  --gold-soft: rgba(217, 184, 119, 0.14);
+  --danger: #e88f8f;
+
+  /* DERİNLİK: ışık tek yerden (yukarıdan); kabarık = basılan, gömük = yazılan. Gölgeler nötr */
+  --raised: linear-gradient(180deg, #1c1f26, #15171c);
+  --hl: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --elev: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.18);
+  --sunken: #0e0f13;
+  --inset: inset 0 1px 3px rgba(0, 0, 0, 0.45);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* TUŞ TAKIMI VE ANA TUTAR İÇİN HESAP MAKİNESİ FONTU */
-  --num: "Orbitron", ui-monospace, monospace;
-
-  /* ÖZET KARTLAR VE LİSTE RAKAMLARI İÇİN DİJİTAL/FİNTECH OKUNUR FONT */
-  --num-sub: "Space Grotesk", "Inter", -apple-system, sans-serif;
-  --ui: "Inter", -apple-system, system-ui, "Segoe UI", sans-serif;
+  /* FONT: sistem fontu (iPhone'da SF Pro, Android'de Roboto); indirme yok, çevrimdışı da aynı */
+  --ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
 
   /* Tuş yüksekliği ekran boyuna göre esner (küçük telefonda sıkışmasın) */
   --key-h: 48px;
@@ -40,16 +47,18 @@ html, body {
   margin: 0;
   overflow: hidden;
   overscroll-behavior: none;
+  background: var(--bg);
 }
 
+/* Zemin: ekranın üstünden gelen tek, nötr ve hafif ışık */
 html {
   background:
-    radial-gradient(900px 520px at 85% -12%, rgba(217, 184, 119, 0.17), transparent 60%),
-    radial-gradient(700px 500px at -12% 38%, rgba(70, 90, 160, 0.13), transparent 60%),
-    radial-gradient(800px 520px at 50% 118%, rgba(217, 184, 119, 0.09), transparent 60%),
-    linear-gradient(180deg, #0b0c12, #05060a);
-  background-color: var(--bg);
-  background-attachment: fixed;
+    radial-gradient(130% 55% at 50% -8%, #1b1e26 0%, transparent 70%),
+    var(--bg);
+}
+
+body {
+  background: transparent;
 }
 
 * {
@@ -58,13 +67,16 @@ html {
 }
 
 body {
-  background: transparent;
   color: var(--tx);
   font: 15px/1.3 var(--ui);
   display: flex;
   justify-content: center;
   align-items: center;
   -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
 }
 
 .app {
@@ -93,11 +105,11 @@ body {
 
 .view.active {
   display: flex;
-  animation: viewIn 0.22s var(--ease);
+  animation: viewIn 0.2s var(--ease);
 }
 
 @keyframes viewIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -107,124 +119,168 @@ body {
 
 .view-head h1 {
   margin: 0;
-  font: 600 26px var(--num-sub);
-  letter-spacing: -0.01em;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-/* 1. ANA SAYFA: ÖZET KARTLAR */
+/* 1. ANA SAYFA: TEK ÖZET KARTI (bu dönem büyük, bugün yanında) */
 .totals {
   flex-shrink: 0;
   display: flex;
-  gap: var(--gap-s);
-}
-
-.totals div {
-  flex: 1;
-  position: relative;
-  padding: 10px 14px 11px;
-  border-radius: 16px;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.02));
+  align-items: flex-end;
+  padding: 13px 16px 14px;
+  border-radius: 18px;
+  background: var(--raised);
   border: 1px solid var(--line);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  overflow: hidden;
-}
-
-/* Kartın üstünde ince altın ışık çizgisi */
-.totals div::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 14px;
-  right: 14px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(240, 217, 162, 0.55), transparent);
+  box-shadow: var(--hl), var(--elev);
 }
 
 .totals small {
   display: block;
+  margin-bottom: 4px;
   color: var(--mut);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
-/* BUGÜN / BU AY TUTARLARI: Rahat okunur dijital font */
+.totals small span {
+  font-weight: 400;
+}
+
+/* BU AY / BUGÜN TUTARLARI */
 .totals b {
   display: block;
-  font: 600 20px var(--num-sub);
-  font-variant-numeric: tabular-nums;
-  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--gold);
-  letter-spacing: 0.01em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 
-/* GİRİŞ PANELİ: ekranın altında, başparmak bölgesinde */
+.tot-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.tot-main b {
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+.tot-side {
+  flex-shrink: 0;
+  margin-left: 16px;
+  padding-left: 16px;
+  border-left: 1px solid var(--line);
+  text-align: right;
+}
+
+.tot-side b {
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+/* GİRİŞ PANELİ: çerçevesiz, ekranın altında, başparmak bölgesinde */
 .panel {
   flex-shrink: 0;
-  position: relative;
-  padding: var(--gap);
-  border-radius: 24px;
-  background:
-    radial-gradient(260px 120px at 50% 0%, rgba(217, 184, 119, 0.08), transparent 70%),
-    linear-gradient(160deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.02));
-  border: 1px solid transparent;
-  box-shadow:
-    0 24px 60px rgba(0, 0, 0, 0.5),
-    0 2px 0 rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-}
-
-/* Degrade çerçeve: üstte altın, aşağıda silik */
-.panel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(165deg,
-    rgba(240, 217, 162, 0.5),
-    rgba(255, 255, 255, 0.07) 32%,
-    rgba(255, 255, 255, 0.03) 68%,
-    rgba(217, 184, 119, 0.28));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-  pointer-events: none;
 }
 
 #name, #search {
   width: 100%;
   -webkit-appearance: none;
   appearance: none;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--sunken);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 12px;
+  box-shadow: var(--inset);
   color: var(--tx);
-  padding: 9px 14px;
+  padding: 10px 14px;
   font: 16px var(--ui); /* iOS 16px altı inputta sayfayı yakınlaştırır */
   outline: none;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.15s ease;
 }
 
 #name::placeholder, #search::placeholder {
-  color: #5d616c;
+  color: var(--mut-2);
 }
 
 #name:focus, #search:focus {
   border-color: rgba(217, 184, 119, 0.6);
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35), 0 0 0 3px rgba(217, 184, 119, 0.12);
 }
 
 #search {
   margin-top: var(--gap-s);
+}
+
+/* İSİM + TAKSİT DÜĞMESİ */
+.entry {
+  position: relative;
+  display: flex;
+  gap: var(--gap-s);
+}
+
+.entry #name {
+  flex: 1;
+  min-width: 0;
+}
+
+.inst-chip {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 9px 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  box-shadow: var(--hl), 0 1px 2px rgba(0, 0, 0, 0.4);
+  color: var(--mut);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.05s ease-out, color 0.15s ease;
+}
+
+.inst-chip svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.inst-chip.pressed {
+  background: var(--surface-2);
+}
+
+/* Taksit seçiliyse düğme altın */
+.inst-chip.set {
+  color: var(--gold);
+}
+
+/* Seçenekler açıkken şerit aynı satırı kaplar */
+.entry .inst-selector {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: none;
+}
+
+.entry.picking .inst-selector {
+  display: flex;
+  animation: viewIn 0.15s var(--ease);
+}
+
+.entry.picking #name, .entry.picking .inst-chip {
+  visibility: hidden;
 }
 
 #search::-webkit-search-cancel-button {
@@ -234,13 +290,13 @@ body {
 /* TAKSİT SEÇİMİ VE LİSTE FİLTRESİ: tek parça segmentli kontrol */
 .inst-selector, .seg {
   display: flex;
-  gap: 3px;
+  gap: 2px;
   margin-top: var(--gap-s);
   padding: 3px;
-  border-radius: 14px;
-  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  background: var(--sunken);
   border: 1px solid var(--line);
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--inset);
 }
 
 .seg {
@@ -249,92 +305,98 @@ body {
 
 .inst-btn, .seg button {
   flex: 1;
-  min-height: 34px;
+  min-height: 32px;
   padding: 0;
-  border-radius: 11px;
+  border-radius: 9px;
   background: transparent;
   border: 0;
   color: var(--mut);
-  font: 500 12px var(--ui);
+  font-size: 13px;
+  font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
   touch-action: manipulation;
-  transition: background 0.2s var(--ease), color 0.2s ease, box-shadow 0.2s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .inst-btn.active, .seg button.active {
-  background: linear-gradient(180deg, rgba(240, 217, 162, 0.26), rgba(217, 184, 119, 0.12));
-  color: var(--gold-hi);
+  background: linear-gradient(180deg, rgba(217, 184, 119, 0.2), rgba(217, 184, 119, 0.12));
+  color: var(--gold);
   font-weight: 600;
-  box-shadow: inset 0 0 0 1px rgba(217, 184, 119, 0.55), 0 4px 12px rgba(217, 184, 119, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(217, 184, 119, 0.28), 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
-/* TUTAR EKRANI: içe gömülü cam ekran */
+/* TUTAR EKRANI: kutusuz, hesap makinesi gibi sağa yaslı; ₺ rakamın hemen solunda */
 .display {
   display: flex;
   align-items: center;
   gap: 8px;
   margin: var(--gap-s) 0;
-  padding: 4px 6px 4px 14px;
   min-height: 56px;
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.22));
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.04);
 }
 
-/* EKRANDAKİ TUTAR VE SİMGESİ: Orijinal Hesap Makinesi Fontu */
+.amt-line {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 4px;
+  overflow: hidden;
+}
+
 .cur {
-  font: 400 20px var(--num);
-  color: var(--gold2);
+  flex-shrink: 0;
+  color: var(--mut);
+  font-size: 24px;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+/* Tutar yokken ₺ de sönük */
+.amt-line:has(.amt:empty) .cur {
+  color: #3a3e47;
 }
 
 .amt {
-  flex: 1;
-  text-align: right;
-  font: 500 34px var(--num);
-  letter-spacing: 0.03em;
   overflow: hidden;
-  text-overflow: clip;
   white-space: nowrap;
-  text-shadow: 0 0 20px rgba(217, 184, 119, 0.32);
-  line-height: 1;
-  min-height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  font-size: 40px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
   transition: font-size 0.15s ease;
 }
 
-/* Boşken sönük "0" göster */
+/* Boşken sönük "0" göster: rakamın nerede çıkacağını gösterir */
 .amt:empty::before {
   content: "0";
-  color: rgba(241, 237, 228, 0.16);
-  text-shadow: none;
+  color: #3a3e47;
 }
 
 /* Uzun tutarda yazıyı küçült ki taşmasın */
-.amt.sm { font-size: 26px; }
-.amt.xs { font-size: 20px; }
+.amt.sm { font-size: 32px; }
+.amt.xs { font-size: 25px; }
 
 #back {
   background: none;
   border: 0;
   color: var(--mut);
-  font-size: 20px;
-  min-width: 40px;
-  min-height: 40px;
+  font-size: 22px;
+  min-width: 44px;
+  min-height: 44px;
   padding: 0;
   cursor: pointer;
   touch-action: manipulation;
-  transition: color 0.15s ease;
+  transition: color 0.1s ease;
 }
 
 #back.pressed {
-  color: var(--gold);
+  color: var(--tx);
 }
 
-/* TUŞ TAKIMI: Orijinal Hesap Makinesi Fontu */
+/* TUŞ TAKIMI: tek kutu katmanı */
 .pad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -343,73 +405,61 @@ body {
 
 .pad button {
   height: var(--key-h);
-  border-radius: 15px;
+  border-radius: 14px;
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.025));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 6px 14px rgba(0, 0, 0, 0.28);
+  background: var(--raised);
+  box-shadow: var(--hl), 0 2px 0 rgba(0, 0, 0, 0.45), 0 4px 10px rgba(0, 0, 0, 0.2);
   color: var(--tx);
-  font: 400 21px var(--num);
+  font-size: 24px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
   cursor: pointer;
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
-  transition: transform 0.04s ease-out, background 0.04s ease-out, box-shadow 0.04s ease-out;
+  transition: transform 0.05s ease-out, background 0.05s ease-out, box-shadow 0.05s ease-out;
 }
 
+/* Basınca tuş kalınlığı kadar iner */
 .pad button.pressed {
-  transform: scale(0.93);
-  background: linear-gradient(180deg, rgba(217, 184, 119, 0.28), rgba(217, 184, 119, 0.12));
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+  transform: translateY(2px);
+  background: var(--surface-2);
+  box-shadow: var(--hl), 0 0 0 rgba(0, 0, 0, 0.45);
 }
 
-/* EKLE: tutar yokken sönük, tutar girilince altın parlar */
+/* EKLE: tutar yokken soluk altın, tutar girilince dolu altın */
 .pad .add {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold) 48%, var(--gold2) 100%);
-  color: #1b1407;
-  border: 0;
-  font: 600 12.5px var(--ui);
-  letter-spacing: 0.16em;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 6px 18px rgba(217, 184, 119, 0.2);
-  opacity: 0.55;
-  transition: opacity 0.25s ease, box-shadow 0.25s ease, transform 0.04s ease-out;
+  background: var(--gold-soft);
+  border-color: transparent;
+  color: var(--gold);
+  font-size: 16px;
+  font-weight: 600;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.05s ease-out;
 }
 
-/* Metalik parlama şeridi */
-.pad .add::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.35) 50%, transparent 65%);
-  transform: translateX(-100%);
-}
-
+/* Metalik altın: yukarıdan ışık, koyu altın alt kenar (parlama yok) */
 body.has-amt .pad .add {
-  opacity: 1;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 8px 26px rgba(217, 184, 119, 0.38);
-}
-
-body.has-amt .pad .add::after {
-  animation: sheen 2.8s ease-in-out 0.2s infinite;
+  background: linear-gradient(180deg, #e4c88e, #cfac68);
+  color: #1b1407;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 0 #7d6331, 0 4px 10px rgba(0, 0, 0, 0.25);
 }
 
 .pad .add.pressed {
-  background: linear-gradient(180deg, var(--gold), var(--gold2));
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35);
+  background: var(--gold-soft);
 }
 
-@keyframes sheen {
-  0%, 55% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+body.has-amt .pad .add.pressed {
+  background: linear-gradient(180deg, #d4b679, #c09c5b);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 0 0 #7d6331;
 }
 
-/* ANA SAYFA: SON HARCAMALAR (kartlar ile panel arasındaki boşluğu doldurur) */
+/* ANA SAYFA: SON HARCAMALAR (kartlar ile panel arasında; artan boşluk üstte kalır, liste panele yakın durur) */
 .recent {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   margin: var(--gap) 0;
 }
 
@@ -419,10 +469,9 @@ body.has-amt .pad .add::after {
   justify-content: space-between;
   align-items: baseline;
   margin: 20px 4px var(--gap-s);
-  font: 500 11px var(--ui);
-  letter-spacing: 0.15em;
   color: var(--mut);
-  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .sec-head, .sec-title:first-child, #list h2:first-child {
@@ -437,10 +486,9 @@ body.has-amt .pad .add::after {
 .link {
   background: none;
   border: 0;
-  color: var(--gold);
-  font: 500 12px var(--ui);
-  letter-spacing: 0.02em;
-  text-transform: none;
+  color: var(--tx);
+  font-size: 13px;
+  font-weight: 500;
   min-height: 32px;
   margin: -10px -4px -10px 0;
   padding: 0 4px 0 12px;
@@ -459,13 +507,14 @@ body.has-amt .pad .add::after {
   justify-content: space-between;
   gap: 10px;
   margin: var(--gap) 4px;
-  font: 500 12px var(--num-sub);
-  font-variant-numeric: tabular-nums;
   color: var(--mut);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }
 
 #listSum {
-  color: var(--gold);
+  color: var(--tx);
+  font-weight: 500;
 }
 
 /* 2. LİSTE ALANI VE GÜNLÜK HARCAMALAR */
@@ -487,44 +536,79 @@ body.has-amt .pad .add::after {
   display: none;
 }
 
-/* TARİH BAŞLIĞINDAKİ GÜNLÜK TOPLAM TUTAR: Rahat okunur dijital font */
+/* TARİH BAŞLIĞINDAKİ GÜNLÜK TOPLAM TUTAR */
 #list h2 span:last-child {
-  font: 600 14px var(--num-sub);
+  color: var(--tx);
   font-variant-numeric: tabular-nums;
-  color: var(--gold);
-  letter-spacing: 0.01em;
 }
 
 .day, .card {
-  border-radius: 18px;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02));
+  border-radius: 16px;
+  background: var(--raised);
   border: 1px solid var(--line);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  box-shadow: var(--hl), var(--elev);
   overflow: hidden;
 }
 
-.row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 14px;
+/* SOLA KAYDIRARAK SİLME: satırın arkasında kırmızı "Sil" zemini */
+.swipe {
+  position: relative;
   border-top: 1px solid var(--line);
 }
 
-.row:first-child {
+.swipe:first-child {
   border-top: 0;
+}
+
+.swipe.on {
+  background: #b54a4a;
+}
+
+.swipe.on::after {
+  content: "Sil";
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  transform: translateY(-50%);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  touch-action: pan-y;
+  transition: transform 0.2s var(--ease);
+}
+
+/* Kayarken satır opak olur ki arkadaki kırmızı görünsün */
+.swipe.on .row {
+  background: #191b21;
+}
+
+/* Yeni eklenen kayıt: tek seferlik giriş hareketi */
+.row.enter {
+  animation: rowIn 0.6s var(--ease);
+}
+
+@keyframes rowIn {
+  from { opacity: 0; transform: translateY(-6px); background: var(--gold-soft); }
+  40% { opacity: 1; transform: translateY(0); background: var(--gold-soft); }
+  to { background: transparent; }
 }
 
 /* Ana sayfadaki kısa liste: kaymaz, sadece tam sığan satırlar gösterilir (fitRecent) */
 #recent {
+  flex: 0 1 auto;
   overflow: hidden;
   padding-bottom: 0;
   -webkit-mask-image: none;
   mask-image: none;
-}
-
-#recent .row {
-  padding: 9px 14px;
 }
 
 /* Taksit etiketi ismin yanında: satır yüksekliği sabit kalır */
@@ -537,6 +621,11 @@ body.has-amt .pad .add::after {
 #recent .row .tag {
   margin-top: 0;
   flex-shrink: 0;
+}
+
+/* Ana sayfada ✕ yok; silme sola kaydırarak */
+#recent .row .x {
+  display: none;
 }
 
 .row-info {
@@ -555,36 +644,36 @@ body.has-amt .pad .add::after {
   font-weight: 500;
 }
 
-/* Taksit etiketi: küçük altın hap */
+/* Taksit etiketi: sade hap */
 .row .tag {
   margin-top: 4px;
-  padding: 1px 8px;
-  border-radius: 99px;
-  background: rgba(217, 184, 119, 0.12);
-  border: 1px solid rgba(217, 184, 119, 0.22);
-  font-size: 10px;
-  letter-spacing: 0.02em;
-  color: var(--gold);
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--mut);
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 .row .t {
   color: var(--mut);
-  font: 11px var(--num-sub);
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 
-/* HARCAMA SATIRINDAKİ FİYAT: Rahat okunur dijital font */
+/* HARCAMA SATIRINDAKİ FİYAT */
 .row .a {
-  font: 600 15px var(--num-sub);
+  font-size: 15px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.01em;
 }
 
 .row .x {
   background: none;
   border: 0;
-  color: #5d616c;
-  font-size: 16px;
+  color: var(--mut-2);
+  font-size: 15px;
   min-width: 40px;
   min-height: 40px;
   margin: -10px -8px -10px 0;
@@ -595,15 +684,14 @@ body.has-amt .pad .add::after {
 }
 
 .row .x:active {
-  color: #e07a7a;
+  color: var(--danger);
 }
 
 .empty {
   text-align: center;
   color: var(--mut);
   padding: 22px 0;
-  font-size: 13px;
-  letter-spacing: 0.02em;
+  font-size: 14px;
 }
 
 #recent .empty {
@@ -642,18 +730,17 @@ body.has-amt .pad .add::after {
 
 .set-info small {
   color: var(--mut);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.35;
 }
 
 .soon {
   padding: 3px 9px;
-  border-radius: 99px;
-  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-2);
   color: var(--mut);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
   white-space: nowrap;
 }
 
@@ -662,66 +749,66 @@ body.has-amt .pad .add::after {
   display: flex;
   align-items: center;
   padding: 3px;
-  border-radius: 14px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--line);
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  background: var(--sunken);
+  box-shadow: var(--inset);
 }
 
 .stepper button {
   width: 40px;
   height: 40px;
   padding: 0;
-  border-radius: 11px;
+  border-radius: 9px;
   border: 0;
-  background: rgba(255, 255, 255, 0.06);
+  background: transparent;
   color: var(--tx);
-  font: 400 20px var(--ui);
+  font-size: 20px;
   cursor: pointer;
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
-  transition: transform 0.04s ease-out, background 0.04s ease-out;
+  transition: transform 0.05s ease-out, background 0.05s ease-out;
 }
 
 .stepper button.pressed {
-  transform: scale(0.9);
-  background: rgba(217, 184, 119, 0.22);
+  transform: scale(0.92);
+  background: var(--surface-3);
 }
 
 .stepper span {
-  min-width: 36px;
+  min-width: 34px;
   text-align: center;
-  font: 600 17px var(--num-sub);
+  font-size: 17px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--gold-hi);
+  color: var(--gold);
 }
 
 .danger {
   min-height: 40px;
   padding: 0 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(224, 122, 122, 0.35);
-  background: rgba(224, 122, 122, 0.08);
-  color: #e88f8f;
-  font: 600 13px var(--ui);
+  border-radius: 10px;
+  border: 1px solid rgba(232, 143, 143, 0.35);
+  background: transparent;
+  color: var(--danger);
+  font-size: 14px;
+  font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
   touch-action: manipulation;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .danger.armed {
-  background: rgba(224, 122, 122, 0.22);
-  border-color: rgba(224, 122, 122, 0.7);
-  color: #ffc2c2;
+  background: rgba(232, 143, 143, 0.16);
+  border-color: rgba(232, 143, 143, 0.7);
 }
 
 .note {
   margin: 20px var(--gap) 0;
   text-align: center;
   color: var(--mut);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 /* ÖZET: Faz 2'ye kadar yer tutucu */
@@ -745,14 +832,15 @@ body.has-amt .pad .add::after {
 
 .soon-box b {
   color: var(--tx);
-  font: 600 17px var(--num-sub);
+  font-size: 17px;
+  font-weight: 600;
 }
 
 .soon-box p {
   margin: 0;
   max-width: 260px;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.45;
 }
 
 /* SİLME GERİ ALMA ŞERİDİ */
@@ -766,29 +854,28 @@ body.has-amt .pad .add::after {
   align-items: center;
   justify-content: space-between;
   padding: 8px 8px 8px 16px;
-  border-radius: 16px;
-  background: rgba(22, 24, 32, 0.92);
-  border: 1px solid rgba(217, 184, 119, 0.25);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  font: 13px var(--ui);
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+  font-size: 14px;
   color: var(--tx);
 }
 
 #undo.show {
   display: flex;
-  animation: rise 0.28s var(--ease);
+  animation: rise 0.25s var(--ease);
 }
 
 #undo button {
-  background: rgba(217, 184, 119, 0.14);
+  background: none;
   border: 0;
   border-radius: 10px;
-  color: var(--gold-hi);
-  font: 600 13px var(--ui);
+  color: var(--gold);
+  font-size: 14px;
+  font-weight: 600;
   min-height: 36px;
-  padding: 0 14px;
+  padding: 0 12px;
   cursor: pointer;
   touch-action: manipulation;
 }
@@ -801,25 +888,14 @@ body.has-amt .pad .add::after {
 /* 4. ALT SEKME ÇUBUĞU: iPhone home çubuğu için güvenli alan kadar uzar */
 .tabbar {
   flex-shrink: 0;
-  position: relative;
   display: flex;
   height: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px));
   padding: 0 6px env(safe-area-inset-bottom, 0px);
-  background: rgba(10, 11, 16, 0.78);
+  background: linear-gradient(180deg, #121318, #0d0e12);
   border-top: 1px solid var(--line);
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-}
-
-/* Üst kenarda ince altın ışık çizgisi */
-.tabbar::before {
-  content: "";
-  position: absolute;
-  top: -1px;
-  left: 18%;
-  right: 18%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(240, 217, 162, 0.35), transparent);
+  box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.35);
+  position: relative;
+  z-index: 2;
 }
 
 .tab {
@@ -833,13 +909,13 @@ body.has-amt .pad .add::after {
   background: none;
   border: 0;
   color: var(--mut);
-  font: 500 11px var(--ui);
-  letter-spacing: 0.01em;
+  font-size: 11px;
+  font-weight: 500;
   cursor: pointer;
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
-  transition: color 0.2s ease;
+  transition: color 0.15s ease;
 }
 
 .tab svg {
@@ -850,34 +926,35 @@ body.has-amt .pad .add::after {
   stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: transform 0.12s var(--ease), fill 0.2s ease;
+  transition: transform 0.12s var(--ease), fill 0.15s ease;
 }
 
 .tab.pressed svg {
-  transform: scale(0.86);
+  transform: scale(0.88);
 }
 
 /* Aktif sekme: altın renk, ikon hafif dolu */
 .tab.active {
-  color: var(--gold-hi);
+  color: var(--gold);
 }
 
 .tab.active svg {
-  stroke: var(--gold);
-  fill: rgba(217, 184, 119, 0.16);
+  fill: var(--gold-soft);
 }
 
 /* Küçük ekran (iPhone SE vb.): tuş takımını ve kartları sıkılaştır */
 @media (max-height: 620px) {
   :root { --key-h: 40px; --tab-h: 52px; --gap: 10px; --gap-s: 6px; }
-  .totals div { padding: 7px 12px 8px; }
-  .totals b { font-size: 18px; }
-  #name { padding: 7px 14px; }
+  .totals { padding: 10px 14px 11px; }
+  .tot-main b { font-size: 25px; }
+  .tot-side b { font-size: 15px; }
+  #name { padding: 8px 14px; }
   .inst-btn { min-height: 30px; }
   .display { min-height: 46px; }
-  .amt { font-size: 30px; }
-  .amt.sm { font-size: 24px; }
-  .amt.xs { font-size: 18px; }
+  .amt { font-size: 34px; }
+  .amt.sm { font-size: 27px; }
+  .amt.xs { font-size: 21px; }
+  .pad button { font-size: 22px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

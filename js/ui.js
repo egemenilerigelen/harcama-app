@@ -67,10 +67,10 @@ function renderAmount() {
 const hm = ts => new Date(ts).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 const shortDate = ts => new Date(ts).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
 
-// Kısa zaman etiketi: bugünse saat, dünse "Dün", değilse "5 Eki"
+// Kısa tarih etiketi: "Bugün", "Dün" ya da "5 Eki"
 function shortWhen(ts) {
   const k = dk(ts);
-  if (k === dk(Date.now())) return hm(ts);
+  if (k === dk(Date.now())) return 'Bugün';
   if (k === dk(Date.now() - 864e5)) return 'Dün';
   return shortDate(ts);
 }
@@ -115,7 +115,7 @@ function expandItems(cutoffDay) {
           amt: singleAmt,
           displayAmt: singleAmt,
           ts: instTs,
-          tag: `💳 ${m + 1}/${instCount} Taksit`
+          tag: `${m + 1}/${instCount} taksit`
         });
       }
     }
@@ -124,8 +124,56 @@ function expandItems(cutoffDay) {
   return processedItems;
 }
 
+// Sola kaydırarak silme: eşiği geçerse kayıt silinir (geri alma şeridi açılır)
+function bindSwipe(s, r, onDelete) {
+  let x0 = null, y0 = 0, dx = 0, axis = null;
+
+  r.addEventListener('pointerdown', e => {
+    if (e.target.closest('button')) return;
+    x0 = e.clientX; y0 = e.clientY; dx = 0; axis = null;
+  });
+
+  r.addEventListener('pointermove', e => {
+    if (x0 === null) return;
+    const mx = e.clientX - x0, my = e.clientY - y0;
+    // Önce yönü belirle: dikeyse listenin kaymasına karışma
+    if (!axis && Math.abs(mx) + Math.abs(my) > 8) {
+      axis = Math.abs(mx) > Math.abs(my) ? 'x' : 'y';
+      if (axis === 'x') {
+        r.setPointerCapture(e.pointerId);
+        r.style.transition = 'none';
+        s.classList.add('on');
+      }
+    }
+    if (axis !== 'x') return;
+    dx = Math.min(0, mx);
+    r.style.transform = 'translateX(' + dx + 'px)';
+  });
+
+  const end = () => {
+    if (x0 === null) return;
+    x0 = null;
+    if (axis !== 'x') return;
+    r.style.transition = '';
+    if (dx < -Math.min(90, r.offsetWidth * 0.3)) {
+      r.style.transform = 'translateX(-100%)';
+      haptic();
+      setTimeout(onDelete, 160);
+    } else {
+      r.style.transform = '';
+      setTimeout(() => s.classList.remove('on'), 200);
+    }
+  };
+
+  r.addEventListener('pointerup', end);
+  r.addEventListener('pointercancel', end);
+}
+
 // Tek harcama satırı; ana sayfa ve Harcamalar sekmesi aynı satırı kullanır
 function buildRow(i, when) {
+  const s = document.createElement('div');
+  s.className = 'swipe';
+
   const r = document.createElement('div');
   r.className = 'row';
 
@@ -156,23 +204,27 @@ function buildRow(i, when) {
   x.className = 'x';
   x.textContent = '✕';
   x.setAttribute('aria-label', 'Sil');
-  x.onclick = () => {
+
+  const del = () => {
     const id = i.rawId || i.id;
     const removed = Store.all().find(e => e.id === id);
     Store.remove(id);
     if (removed) showUndo(removed);
     renderList();
   };
+  x.onclick = del;
 
   r.append(info, t, a, x);
-  return r;
+  s.appendChild(r);
+  bindSwipe(s, r, del);
+  return s;
 }
 
 // Son harcamalar: sadece tam sığan satırları göster (en az 1); ekran boyuna göre 3 / 2 / 1
 function fitRecent() {
   const R = $('recent');
   if (!R.clientHeight) return; // ana sayfa gizliyken ölçülemez
-  const rows = R.querySelectorAll('.row');
+  const rows = R.querySelectorAll('.swipe');
   rows.forEach(r => (r.style.display = ''));
   for (let k = rows.length - 1; k > 0 && R.scrollHeight > R.clientHeight; k--) {
     rows[k].style.display = 'none';
@@ -185,6 +237,7 @@ function renderList() {
   const periodStartTs = periodStart.getTime();
   const prevStartTs = new Date(periodStart.getFullYear(), periodStart.getMonth() - 1, cutoffDay).getTime();
   const nextStartTs = new Date(periodStart.getFullYear(), periodStart.getMonth() + 1, cutoffDay).getTime();
+  const periodRange = shortDate(periodStartTs) + ' – ' + shortDate(nextStartTs - 864e5);
 
   // Henüz gelmemiş (gelecek aylara ait) taksitleri gizle, yeniden eskiye sırala
   const nowTs = Date.now();
@@ -200,6 +253,7 @@ function renderList() {
 
   // BU AY (Mevcut Hesap Dönemi) Toplamı
   $('sMonth').textContent = fmt(sum(visibleItems.filter(i => i.ts >= periodStartTs)));
+  $('sPeriod').textContent = '· ' + periodRange;
 
   // ANA SAYFA: son 3 harcama
   const R = $('recent');
@@ -219,7 +273,7 @@ function renderList() {
   let range = 'Tüm zamanlar';
   if (listFilter === 'period') {
     items = items.filter(i => i.ts >= periodStartTs);
-    range = shortDate(periodStartTs) + ' – ' + shortDate(nextStartTs - 864e5);
+    range = periodRange;
   } else if (listFilter === 'prev') {
     items = items.filter(i => i.ts >= prevStartTs && i.ts < periodStartTs);
     range = shortDate(prevStartTs) + ' – ' + shortDate(periodStartTs - 864e5);

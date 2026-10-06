@@ -5,15 +5,15 @@ Kredi kartı harcamalarını hızlıca kaydetmek için geliştirilmiş, mobil ö
 ## Özellikler
 
 - **Hızlı giriş:** Üstte sabit hesap makinesi tuş takımı. En fazla 9 hane ve 2 ondalık.
-- **Taksit desteği:** Tek çekim, 2x, 3x, 6x ve 12x. Taksitler hesap kesim günlerine göre aylara dağıtılır ve listede `💳 1/3 Taksit` gibi etiketlenir.
+- **Taksit desteği:** İsim alanının yanındaki düğmeden tek çekim, 2x, 3x, 6x ve 12x. Taksitler hesap kesim günlerine göre aylara dağıtılır ve listede `1/3 taksit` gibi etiketlenir.
 - **Alt sekme çubuğu:** Ana Sayfa, Harcamalar, Özet ve Ayarlar. iPhone home çubuğu için güvenli alan bırakır.
-- **Özet kartlar:** Bugünün toplamı ve içinde bulunulan hesap dönemi (kesim gününden itibaren) toplamı.
+- **Özet kartı:** İçinde bulunulan hesap dönemi (kesim gününden itibaren) toplamı ve tarih aralığı, yanında bugünün toplamı.
 - **Son harcamalar:** Ana sayfada en son eklenen kayıtlar; "Tümünü gör" ile Harcamalar sekmesine geçilir.
-- **Harcamalar sekmesi:** Günlere göre gruplu tam liste, dönem filtresi (bu dönem / geçen dönem / tümü) ve arama. Kayıtlar tek tek silinebilir, silme geri alınabilir.
+- **Harcamalar sekmesi:** Günlere göre gruplu tam liste, dönem filtresi (bu dönem / geçen dönem / tümü) ve arama. Kayıtlar sola kaydırarak ya da ✕ ile silinir (ana sayfada da kaydırarak), silme geri alınabilir.
 - **Ayarlar:** Hesap kesim günü (1–28) ve iki dokunuşla onaylanan "Tümünü sil".
 - **Dokunmatik uyumlu:** Tuşlarda titreşim geri bildirimi ve basma efekti. Sayfa kaymaz, sadece listeler kayar.
 - **Çevrimdışı:** Veriler tarayıcının `localStorage` alanında tutulur.
-- **Koyu glassmorphism tema:** Buzlu cam kartlar, altın vurgu rengi.
+- **Sade koyu tema:** Düz yüzeyler, altın sadece vurgu için. Sistem fontu, çevrimdışı da aynı görünür.
 
 ## Başlarken
 
@@ -25,7 +25,7 @@ Derleme veya kurulum gerekmez.
    ```
 2. `index.html` dosyasını tarayıcıda aç.
 
-Telefonda denemek için sayfayı mobil tarayıcıda aç ya da masaüstü tarayıcıda geliştirici araçlarından mobil görünüme geç. Fontlar Google Fonts'tan yüklenir; internet yoksa sistem fontlarına düşer.
+Telefonda denemek için sayfayı mobil tarayıcıda aç ya da masaüstü tarayıcıda geliştirici araçlarından mobil görünüme geç. Dış font yüklenmez; cihazın sistem fontu kullanılır.
 
 ## Proje yapısı
 
@@ -76,4 +76,4 @@ Hesap kesim günü `cutoff_day_v1` anahtarında tutulur (varsayılan 15, Ayarlar
 
 ## Teknoloji
 
-Saf HTML5, CSS3 ve ES6 JavaScript. Fontlar: Orbitron, Space Grotesk, Inter.
+Saf HTML5, CSS3 ve ES6 JavaScript. Font: cihazın sistem fontu (iPhone'da SF Pro).
