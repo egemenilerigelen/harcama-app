@@ -79,23 +79,76 @@ $('undoBtn').onclick = () => {
   renderList();
 };
 
+// ALT SEKME ÇUBUĞU
+function showTab(name) {
+  // Açık klavyeyi kapat (gizlenen sekmedeki inputta kalmasın)
+  if (document.activeElement) document.activeElement.blur();
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.dataset.view === name));
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+}
+
+document.querySelectorAll('.tab').forEach(t => {
+  bindPressEffect(t, () => showTab(t.dataset.tab));
+});
+
+bindPressEffect($('seeAll'), () => showTab('list'));
+
+// HARCAMALAR: dönem filtresi ve arama
+document.querySelectorAll('#listFilter button').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('#listFilter button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    listFilter = btn.dataset.f;
+    haptic();
+    renderList();
+  };
+});
+
+$('search').oninput = () => {
+  listQuery = $('search').value;
+  renderList();
+};
+
+// AYARLAR: hesap kesim günü (1–28, her ayda bulunan günler)
+function renderCutoff() {
+  $('cutDay').textContent = Store.getCutoff();
+}
+
+function stepCutoff(d) {
+  const day = Math.min(28, Math.max(1, Store.getCutoff() + d));
+  Store.setCutoff(day);
+  renderCutoff();
+  renderList();
+}
+
+bindPressEffect($('cutMinus'), () => stepCutoff(-1));
+bindPressEffect($('cutPlus'), () => stepCutoff(1));
+
 let armed = false;
+let armTimer = null;
+const disarm = () => {
+  armed = false;
+  $('clear').textContent = 'Sil';
+  $('clear').classList.remove('armed');
+};
+
 $('clear').onclick = () => {
   if (!armed) {
     armed = true;
-    $('clear').textContent = 'Emin misin? Tekrar dokun';
-    setTimeout(() => {
-      armed = false;
-      $('clear').textContent = 'Tümünü sil';
-    }, 2500);
+    $('clear').textContent = 'Emin misin?';
+    $('clear').classList.add('armed');
+    haptic();
+    clearTimeout(armTimer);
+    armTimer = setTimeout(disarm, 2500);
     return;
   }
+  clearTimeout(armTimer);
   Store.clear();
   hideUndo();
   renderList();
-  armed = false;
-  $('clear').textContent = 'Tümünü sil';
+  disarm();
 };
 
 renderAmount();
+renderCutoff();
 renderList();

@@ -64,11 +64,24 @@ function renderAmount() {
   document.body.classList.toggle('has-amt', Calc.value() > 0);
 }
 
-function renderList() {
-  const rawItems = Store.all();
-  const cutoffDay = Store.getCutoff();
-  const periodStart = getPeriodStartDate(cutoffDay);
+const hm = ts => new Date(ts).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+const shortDate = ts => new Date(ts).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
 
+// Kısa zaman etiketi: bugünse saat, dünse "Dün", değilse "5 Eki"
+function shortWhen(ts) {
+  const k = dk(ts);
+  if (k === dk(Date.now())) return hm(ts);
+  if (k === dk(Date.now() - 864e5)) return 'Dün';
+  return shortDate(ts);
+}
+
+// Harcamalar sekmesi filtresi: 'period' (bu dönem), 'prev' (geçen dönem), 'all'
+let listFilter = 'period';
+let listQuery = '';
+
+// Taksitli kayıtları sanal taksit satırlarına açar (gelecek taksitler dahil)
+function expandItems(cutoffDay) {
+  const rawItems = Store.all();
   const processedItems = [];
 
   rawItems.forEach(item => {
@@ -108,86 +121,129 @@ function renderList() {
     }
   });
 
-  // Henüz gelmemiş (gelecek aylara ait) taksitleri ekrandan gizlemek için zaman damgası filtresi
-  const nowTs = Date.now();
-  const visibleItems = processedItems.filter(i => i.ts <= nowTs);
+  return processedItems;
+}
 
-  // Tarihe göre gruplama
-  const g = {};
-  visibleItems.forEach(i => (g[dk(i.ts)] = g[dk(i.ts)] || []).push(i));
+// Tek harcama satırı; ana sayfa ve Harcamalar sekmesi aynı satırı kullanır
+function buildRow(i, when) {
+  const r = document.createElement('div');
+  r.className = 'row';
 
-  const today = dk(Date.now());
+  const info = document.createElement('div');
+  info.className = 'row-info';
+
+  const n = document.createElement('span');
+  n.className = 'n';
+  n.textContent = i.name;
+  info.appendChild(n);
+
+  if (i.tag) {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.textContent = i.tag;
+    info.appendChild(tag);
+  }
+
+  const t = document.createElement('span');
+  t.className = 't';
+  t.textContent = when;
+
+  const a = document.createElement('span');
+  a.className = 'a';
+  a.textContent = fmt(i.displayAmt);
+
+  const x = document.createElement('button');
+  x.className = 'x';
+  x.textContent = '✕';
+  x.setAttribute('aria-label', 'Sil');
+  x.onclick = () => {
+    const id = i.rawId || i.id;
+    const removed = Store.all().find(e => e.id === id);
+    Store.remove(id);
+    if (removed) showUndo(removed);
+    renderList();
+  };
+
+  r.append(info, t, a, x);
+  return r;
+}
+
+function renderList() {
+  const cutoffDay = Store.getCutoff();
+  const periodStart = getPeriodStartDate(cutoffDay);
   const periodStartTs = periodStart.getTime();
+  const prevStartTs = new Date(periodStart.getFullYear(), periodStart.getMonth() - 1, cutoffDay).getTime();
+  const nextStartTs = new Date(periodStart.getFullYear(), periodStart.getMonth() + 1, cutoffDay).getTime();
+
+  // Henüz gelmemiş (gelecek aylara ait) taksitleri gizle, yeniden eskiye sırala
+  const nowTs = Date.now();
+  const visibleItems = expandItems(cutoffDay)
+    .filter(i => i.ts <= nowTs)
+    .sort((a, b) => b.ts - a.ts);
+
+  const sum = list => list.reduce((s, i) => s + i.displayAmt, 0);
 
   // BUGÜN Toplamı
-  $('sToday').textContent = fmt((g[today] || []).reduce((s, i) => s + i.displayAmt, 0));
+  const today = dk(nowTs);
+  $('sToday').textContent = fmt(sum(visibleItems.filter(i => dk(i.ts) === today)));
 
   // BU AY (Mevcut Hesap Dönemi) Toplamı
-  const periodTotal = visibleItems
-    .filter(i => i.ts >= periodStartTs && i.ts < periodStartTs + (32 * 864e5))
-    .reduce((s, i) => s + i.displayAmt, 0);
+  $('sMonth').textContent = fmt(sum(visibleItems.filter(i => i.ts >= periodStartTs)));
 
-  $('sMonth').textContent = fmt(periodTotal);
+  // ANA SAYFA: son 3 harcama
+  const R = $('recent');
+  R.innerHTML = '';
+  if (!visibleItems.length) {
+    R.innerHTML = '<div class="empty">Henüz harcama yok</div>';
+  } else {
+    const box = document.createElement('div');
+    box.className = 'day';
+    visibleItems.slice(0, 3).forEach(i => box.appendChild(buildRow(i, shortWhen(i.ts))));
+    R.appendChild(box);
+  }
 
-  const L = $('list'); 
+  // HARCAMALAR: dönem filtresi ve arama
+  let items = visibleItems;
+  let range = 'Tüm zamanlar';
+  if (listFilter === 'period') {
+    items = items.filter(i => i.ts >= periodStartTs);
+    range = shortDate(periodStartTs) + ' – ' + shortDate(nextStartTs - 864e5);
+  } else if (listFilter === 'prev') {
+    items = items.filter(i => i.ts >= prevStartTs && i.ts < periodStartTs);
+    range = shortDate(prevStartTs) + ' – ' + shortDate(periodStartTs - 864e5);
+  }
+
+  const q = listQuery.trim().toLocaleLowerCase('tr-TR');
+  if (q) items = items.filter(i => (i.name || '').toLocaleLowerCase('tr-TR').includes(q));
+
+  $('listRange').textContent = range;
+  $('listSum').textContent = items.length ? items.length + ' harcama · ' + fmt(sum(items)) : '';
+
+  // Tarihe göre gruplama (sıralı listeden geldiği için gün sırası korunur)
+  const g = {};
+  items.forEach(i => (g[dk(i.ts)] = g[dk(i.ts)] || []).push(i));
+
+  const L = $('list');
   L.innerHTML = '';
-  const days = Object.keys(g).sort().reverse();
+  const days = Object.keys(g);
 
-  if (!days.length) { 
-    L.innerHTML = '<div class="empty">Henüz harcama yok</div>'; 
-    return; 
+  if (!days.length) {
+    const msg = q ? 'Sonuç yok' : listFilter === 'all' ? 'Henüz harcama yok' : 'Bu dönemde harcama yok';
+    const e = document.createElement('div');
+    e.className = 'empty';
+    e.textContent = msg;
+    L.appendChild(e);
+    return;
   }
 
   days.forEach(k => {
-    const dayTotal = g[k].reduce((s, i) => s + i.displayAmt, 0);
     const h = document.createElement('h2');
-    h.innerHTML = '<span>' + dayLabel(k) + '</span><span>' + fmt(dayTotal) + '</span>';
+    h.innerHTML = '<span>' + dayLabel(k) + '</span><span>' + fmt(sum(g[k])) + '</span>';
     L.appendChild(h);
 
-    const box = document.createElement('div'); 
+    const box = document.createElement('div');
     box.className = 'day';
-
-    g[k].forEach(i => {
-      const r = document.createElement('div'); 
-      r.className = 'row';
-      
-      const info = document.createElement('div'); 
-      info.className = 'row-info';
-      
-      const n = document.createElement('span'); 
-      n.className = 'n'; 
-      n.textContent = i.name;
-      info.appendChild(n);
-
-      if (i.tag) {
-        const tag = document.createElement('span'); 
-        tag.className = 'tag'; 
-        tag.textContent = i.tag;
-        info.appendChild(tag);
-      }
-
-      const t = document.createElement('span'); 
-      t.className = 't';
-      t.textContent = new Date(i.ts).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-      
-      const a = document.createElement('span'); 
-      a.className = 'a'; 
-      a.textContent = fmt(i.displayAmt);
-      
-      const x = document.createElement('button'); 
-      x.className = 'x'; 
-      x.textContent = '✕';
-      x.onclick = () => {
-        const id = i.rawId || i.id;
-        const removed = Store.all().find(e => e.id === id);
-        Store.remove(id);
-        if (removed) showUndo(removed);
-        renderList();
-      };
-
-      r.append(info, t, a, x); 
-      box.appendChild(r);
-    });
+    g[k].forEach(i => box.appendChild(buildRow(i, hm(i.ts))));
     L.appendChild(box);
   });
 }

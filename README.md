@@ -6,10 +6,12 @@ Kredi kartı harcamalarını hızlıca kaydetmek için geliştirilmiş, mobil ö
 
 - **Hızlı giriş:** Üstte sabit hesap makinesi tuş takımı. En fazla 9 hane ve 2 ondalık.
 - **Taksit desteği:** Tek çekim, 2x, 3x, 6x ve 12x. Taksitler hesap kesim günlerine göre aylara dağıtılır ve listede `💳 1/3 Taksit` gibi etiketlenir.
+- **Alt sekme çubuğu:** Ana Sayfa, Harcamalar, Özet ve Ayarlar. iPhone home çubuğu için güvenli alan bırakır.
 - **Özet kartlar:** Bugünün toplamı ve içinde bulunulan hesap dönemi (kesim gününden itibaren) toplamı.
-- **Günlere göre liste:** Harcamalar tarihe göre gruplanır, gün toplamı gösterilir. Tek tek silinebilir.
-- **Güvenli toplu silme:** "Tümünü sil" iki dokunuşla onaylanır.
-- **Dokunmatik uyumlu:** Tuşlarda titreşim geri bildirimi ve basma efekti. Sayfa kaymaz, sadece liste kayar.
+- **Son harcamalar:** Ana sayfada en son eklenen kayıtlar; "Tümünü gör" ile Harcamalar sekmesine geçilir.
+- **Harcamalar sekmesi:** Günlere göre gruplu tam liste, dönem filtresi (bu dönem / geçen dönem / tümü) ve arama. Kayıtlar tek tek silinebilir, silme geri alınabilir.
+- **Ayarlar:** Hesap kesim günü (1–28) ve iki dokunuşla onaylanan "Tümünü sil".
+- **Dokunmatik uyumlu:** Tuşlarda titreşim geri bildirimi ve basma efekti. Sayfa kaymaz, sadece listeler kayar.
 - **Çevrimdışı:** Veriler tarayıcının `localStorage` alanında tutulur.
 - **Koyu glassmorphism tema:** Buzlu cam kartlar, altın vurgu rengi.
 
@@ -36,7 +38,7 @@ harcama-app/
     ├── storage.js    Store: localStorage katmanı
     ├── calc.js       Calc: tutar girişi
     ├── ui.js         biçimlendirme yardımcıları, liste ve toplam çizimi
-    └── main.js       tuş takımı, taksit seçimi, ekleme, silme
+    └── main.js       tuş takımı, taksit seçimi, ekleme, sekmeler, ayarlar
 ```
 
 Script sırası önemlidir: `storage → calc → ui → main`. Dosyalar global değişken kullanır ve ES modülü değildir; bu sayede `file://` ile doğrudan açılır.
@@ -57,12 +59,15 @@ Harcamalar `localStorage` içinde `expenses_v1` anahtarıyla JSON dizisi olarak 
 | `inst` | Taksit sayısı (yoksa 1) |
 | `ts` | Eklenme zamanı (epoch ms) |
 
-Hesap kesim günü `cutoff_day_v1` anahtarında tutulur (varsayılan 15). `Store` nesnesi veri erişimini soyutladığı için ileride başka bir depolamaya geçmek kolaydır.
+Hesap kesim günü `cutoff_day_v1` anahtarında tutulur (varsayılan 15, Ayarlar'dan değiştirilir). `Store` nesnesi veri erişimini soyutladığı için ileride başka bir depolamaya geçmek kolaydır.
 
 ## Yol haritası
 
-- [ ] Hesap kesim gününü arayüzden değiştirme
-- [ ] Limit ve kalan limit
+- [x] Hesap kesim gününü arayüzden değiştirme
+- [x] Alt sekme çubuğu ve ayrı Harcamalar ekranı
+- [ ] Özet: aylık hedef, ilerleme halkası, yaklaşan taksitler
+- [ ] Aylık harcama grafiği
+- [ ] JSON yedekleme / geri yükleme
 - [ ] Kategoriler
 - [ ] Kayıt düzenleme
 - [ ] CSV dışa aktarma

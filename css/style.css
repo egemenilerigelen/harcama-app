@@ -19,10 +19,10 @@
   /* Tuş yüksekliği ekran boyuna göre esner (küçük telefonda sıkışmasın) */
   --key-h: 48px;
 
+  /* Alt sekme çubuğunun yüksekliği (güvenli alan hariç) */
+  --tab-h: 54px;
+
   color-scheme: dark;
-  box-sizing: border-box;
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 @supports (height: 1dvh) {
@@ -34,6 +34,7 @@ html, body {
   height: 100dvh;
   margin: 0;
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 html {
@@ -66,11 +67,43 @@ body {
   width: 100%;
   height: 100vh;
   height: 100dvh;
-  padding: 14px 14px 64px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   position: relative;
+}
+
+/* SEKME GÖRÜNÜMLERİ: aynı anda sadece biri görünür */
+.views {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.view {
+  display: none;
+  height: 100%;
+  flex-direction: column;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 14px 0;
+}
+
+.view.active {
+  display: flex;
+  animation: viewIn 0.22s var(--ease);
+}
+
+@keyframes viewIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.view-head {
+  margin: 2px 4px 12px;
+}
+
+.view-head h1 {
+  margin: 0;
+  font: 600 26px var(--num-sub);
+  letter-spacing: -0.01em;
 }
 
 /* 1. ÜST PANEL */
@@ -82,7 +115,7 @@ body {
 .totals {
   display: flex;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .totals div {
@@ -164,8 +197,10 @@ body {
   pointer-events: none;
 }
 
-#name {
+#name, #search {
   width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -177,17 +212,25 @@ body {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-#name::placeholder {
+#name::placeholder, #search::placeholder {
   color: #5d616c;
 }
 
-#name:focus {
+#name:focus, #search:focus {
   border-color: rgba(217, 184, 119, 0.6);
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35), 0 0 0 3px rgba(217, 184, 119, 0.12);
 }
 
-/* TAKSİT SEÇİMİ: tek parça segmentli kontrol */
-.inst-selector {
+#search {
+  margin-top: 8px;
+}
+
+#search::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+/* TAKSİT SEÇİMİ VE LİSTE FİLTRESİ: tek parça segmentli kontrol */
+.inst-selector, .seg {
   display: flex;
   gap: 3px;
   margin-top: 8px;
@@ -198,7 +241,11 @@ body {
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-.inst-btn {
+.seg {
+  margin-top: 0;
+}
+
+.inst-btn, .seg button {
   flex: 1;
   min-height: 34px;
   padding: 0;
@@ -213,7 +260,7 @@ body {
   transition: background 0.2s var(--ease), color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.inst-btn.active {
+.inst-btn.active, .seg button.active {
   background: linear-gradient(180deg, rgba(240, 217, 162, 0.26), rgba(217, 184, 119, 0.12));
   color: var(--gold-hi);
   font-weight: 600;
@@ -355,24 +402,77 @@ body.has-amt .pad .add::after {
   100% { transform: translateX(100%); }
 }
 
+/* ANA SAYFA: SON HARCAMALAR */
+.recent {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+}
+
+.sec-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 4px 4px;
+}
+
+.sec-head small, .sec-title {
+  font: 500 11px var(--ui);
+  letter-spacing: 0.15em;
+  color: var(--mut);
+}
+
+.link {
+  background: none;
+  border: 0;
+  color: var(--gold);
+  font: 500 12.5px var(--ui);
+  min-height: 28px;
+  padding: 0 0 0 12px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.15s ease;
+}
+
+.link.pressed {
+  opacity: 0.55;
+}
+
+/* HARCAMALAR: dönem aralığı ve toplam satırı */
+.list-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 4px 0;
+  font: 500 12px var(--num-sub);
+  font-variant-numeric: tabular-nums;
+  color: var(--mut);
+}
+
+#listSum {
+  color: var(--gold);
+}
+
 /* 2. LİSTE ALANI VE GÜNLÜK HARCAMALAR */
-#list {
+#list, #recent, .scroll {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  margin-top: 12px;
+  overscroll-behavior: contain;
   padding: 0 2px 18px 0;
   -webkit-overflow-scrolling: touch;
   /* Alt kenarda yumuşak kaybolma: kaydırılabildiğini hissettirir */
-  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 22px), transparent);
-  mask-image: linear-gradient(180deg, #000 calc(100% - 22px), transparent);
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 18px), transparent);
+  mask-image: linear-gradient(180deg, #000 calc(100% - 18px), transparent);
 }
 
-#list::-webkit-scrollbar {
+#list::-webkit-scrollbar, #recent::-webkit-scrollbar, .scroll::-webkit-scrollbar {
   width: 4px;
 }
 
-#list::-webkit-scrollbar-thumb {
+#list::-webkit-scrollbar-thumb, #recent::-webkit-scrollbar-thumb, .scroll::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 4px;
 }
@@ -396,7 +496,7 @@ body.has-amt .pad .add::after {
   letter-spacing: 0.01em;
 }
 
-.day {
+.day, .card {
   border-radius: 18px;
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02));
   border: 1px solid var(--line);
@@ -414,6 +514,38 @@ body.has-amt .pad .add::after {
 
 .row:first-child {
   border-top: 0;
+}
+
+/* Ana sayfadaki kısa liste: kaymaz, sığdığı kadar satır gösterir (3 / 2 / 1) */
+#recent {
+  overflow: hidden;
+  padding-bottom: 0;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+#recent .row {
+  padding: 9px 14px;
+}
+
+/* Taksit etiketi ismin yanında: satır yüksekliği sabit kalır */
+#recent .row-info {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+#recent .row .tag {
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
+@media (max-height: 719px) {
+  #recent .row:nth-child(n+3) { display: none; }
+}
+
+@media (max-height: 599px) {
+  #recent .row:nth-child(n+2) { display: none; }
 }
 
 .row-info {
@@ -483,12 +615,170 @@ body.has-amt .pad .add::after {
   letter-spacing: 0.02em;
 }
 
+#recent .empty {
+  padding: 14px 0;
+}
+
+/* 3. AYARLAR */
+.sec-title {
+  margin: 14px 4px 7px;
+}
+
+.sec-title:first-child {
+  margin-top: 4px;
+}
+
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 62px;
+  padding: 11px 12px 11px 14px;
+  border-top: 1px solid var(--line);
+}
+
+.set-row:first-child {
+  border-top: 0;
+}
+
+.set-row.off {
+  opacity: 0.5;
+}
+
+.set-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.set-info b {
+  font-weight: 500;
+}
+
+.set-info small {
+  color: var(--mut);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.soon {
+  padding: 3px 9px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  color: var(--mut);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Kesim günü: − gün + */
+.stepper {
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--line);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.stepper button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 11px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--tx);
+  font: 400 20px var(--ui);
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.04s ease-out, background 0.04s ease-out;
+}
+
+.stepper button.pressed {
+  transform: scale(0.9);
+  background: rgba(217, 184, 119, 0.22);
+}
+
+.stepper span {
+  min-width: 36px;
+  text-align: center;
+  font: 600 17px var(--num-sub);
+  font-variant-numeric: tabular-nums;
+  color: var(--gold-hi);
+}
+
+.danger {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(224, 122, 122, 0.35);
+  background: rgba(224, 122, 122, 0.08);
+  color: #e88f8f;
+  font: 600 13px var(--ui);
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.danger.armed {
+  background: rgba(224, 122, 122, 0.22);
+  border-color: rgba(224, 122, 122, 0.7);
+  color: #ffc2c2;
+}
+
+.note {
+  margin: 18px 12px 0;
+  text-align: center;
+  color: var(--mut);
+  font-size: 12px;
+}
+
+/* ÖZET: Faz 2'ye kadar yer tutucu */
+.soon-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 28px 40px;
+  text-align: center;
+  color: var(--mut);
+}
+
+.soon-box svg {
+  width: 92px;
+  height: 92px;
+  margin-bottom: 6px;
+}
+
+.soon-box b {
+  color: var(--tx);
+  font: 600 17px var(--num-sub);
+}
+
+.soon-box p {
+  margin: 0;
+  max-width: 260px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 /* SİLME GERİ ALMA ŞERİDİ */
 #undo {
   position: absolute;
   left: 14px;
   right: 14px;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tab-h) + 10px);
+  z-index: 5;
   display: none;
   align-items: center;
   justify-content: space-between;
@@ -525,27 +815,90 @@ body.has-amt .pad .add::after {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 3. SABİT ALT BUTON */
-.tools {
-  position: absolute;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
-  left: 0;
-  right: 0;
+/* 4. ALT SEKME ÇUBUĞU: iPhone home çubuğu için güvenli alan kadar uzar */
+.tabbar {
+  flex-shrink: 0;
+  position: relative;
   display: flex;
-  justify-content: center;
+  height: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px));
+  padding: 0 6px env(safe-area-inset-bottom, 0px);
+  background: rgba(10, 11, 16, 0.78);
+  border-top: 1px solid var(--line);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
 }
 
-.tools button {
-  padding: 8px 18px;
-  min-height: 36px;
-  border-radius: 12px;
-  background: transparent;
-  border: 1px solid var(--line);
+/* Üst kenarda ince altın ışık çizgisi */
+.tabbar::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 18%;
+  right: 18%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(240, 217, 162, 0.35), transparent);
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0;
+  background: none;
+  border: 0;
   color: var(--mut);
-  font: 12px var(--ui);
-  letter-spacing: 0.03em;
+  font: 500 11px var(--ui);
+  letter-spacing: 0.01em;
   cursor: pointer;
   touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: color 0.2s ease;
+}
+
+.tab svg {
+  width: 25px;
+  height: 25px;
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.12s var(--ease), fill 0.2s ease;
+}
+
+.tab.pressed svg {
+  transform: scale(0.86);
+}
+
+/* Aktif sekme: altın renk, ikon hafif dolu */
+.tab.active {
+  color: var(--gold-hi);
+}
+
+.tab.active svg {
+  stroke: var(--gold);
+  fill: rgba(217, 184, 119, 0.16);
+}
+
+/* Küçük ekran (iPhone SE vb.): tuş takımını ve kartları sıkılaştır */
+@media (max-height: 620px) {
+  :root { --key-h: 40px; --tab-h: 52px; }
+  .view { padding-top: calc(env(safe-area-inset-top, 0px) + 10px); }
+  .totals { margin-bottom: 8px; }
+  .totals div { padding: 7px 12px 8px; }
+  .totals b { font-size: 18px; }
+  #name { padding: 7px 14px; }
+  .inst-btn { min-height: 30px; }
+  .display { min-height: 46px; margin: 6px 0; }
+  .amt { font-size: 30px; }
+  .amt.sm { font-size: 24px; }
+  .amt.xs { font-size: 18px; }
+  .pad { gap: 6px; }
+  .recent { margin-top: 6px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
