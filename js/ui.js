@@ -75,8 +75,15 @@ function shortWhen(ts) {
   return shortDate(ts);
 }
 
-// Harcamalar sekmesi filtresi: 'period' (bu dönem), 'prev' (geçen dönem), 'all'
-let listFilter = 'period';
+// Dönem aralığı etiketi; başka yıldaysa yıl da yazılır
+function rangeLabel(a, b) {
+  const y = new Date(b).getFullYear();
+  return shortDate(a) + ' – ' + shortDate(b) + (y !== new Date().getFullYear() ? ' ' + y : '');
+}
+
+// Harcamalar sekmesi: dönem gezgini (0 = bu dönem, -1 = geçen dönem ...) ve arama
+let listPeriod = 0;
+let searchOpen = false;
 let listQuery = '';
 
 // Taksitli kayıtları sanal taksit satırlarına açar (gelecek taksitler dahil)
@@ -129,8 +136,8 @@ function bindSwipe(s, r, onDelete) {
   let x0 = null, y0 = 0, dx = 0, axis = null;
 
   r.addEventListener('pointerdown', e => {
-    if (e.target.closest('button')) return;
     x0 = e.clientX; y0 = e.clientY; dx = 0; axis = null;
+    s.swiped = false;
   });
 
   r.addEventListener('pointermove', e => {
@@ -154,6 +161,7 @@ function bindSwipe(s, r, onDelete) {
     if (x0 === null) return;
     x0 = null;
     if (axis !== 'x') return;
+    s.swiped = true; // ardından gelen tıklama detayı açmasın
     r.style.transition = '';
     if (dx < -Math.min(90, r.offsetWidth * 0.3)) {
       r.style.transform = 'translateX(-100%)';
@@ -200,24 +208,51 @@ function buildRow(i, when) {
   a.className = 'a';
   a.textContent = fmt(i.displayAmt);
 
-  const x = document.createElement('button');
-  x.className = 'x';
-  x.textContent = '✕';
-  x.setAttribute('aria-label', 'Sil');
-
-  const del = () => {
-    const id = i.rawId || i.id;
-    const removed = Store.all().find(e => e.id === id);
-    Store.remove(id);
-    if (removed) showUndo(removed);
-    renderList();
+  // Dokununca detay; sola kaydırınca silme
+  r.onclick = () => {
+    if (!s.swiped) openDetail(i.rawId || i.id);
   };
-  x.onclick = del;
 
-  r.append(info, t, a, x);
+  r.append(t, info, a); // saat/tarih solda, ekstre gibi
   s.appendChild(r);
-  bindSwipe(s, r, del);
+  bindSwipe(s, r, () => deleteEntry(i.rawId || i.id));
   return s;
+}
+
+// Kaydı siler (taksitliyse asıl kaydı), geri alma şeridini açar
+function deleteEntry(id) {
+  const removed = Store.all().find(e => e.id === id);
+  Store.remove(id);
+  if (removed) showUndo(removed);
+  renderList();
+}
+
+// KAYIT DETAYI: alttan açılan panel
+function openDetail(id) {
+  const e = Store.all().find(x => x.id === id);
+  if (!e) return;
+  const inst = Math.max(1, Number(e.inst) || 1);
+  const amt = Number(e.amt) || 0;
+
+  $('dName').textContent = e.name;
+  $('dAmt').textContent = fmt(amt);
+  $('dDate').textContent = new Date(e.ts).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'short' }) + ', ' + hm(e.ts);
+  $('dPay').textContent = inst === 1 ? 'Tek çekim' : inst + ' taksit × ' + fmt(amt / inst);
+
+  // Kalan taksit: henüz gelmemiş sanal taksit satırları
+  const rest = expandItems(Store.getCutoff()).filter(x => x.rawId === id && x.ts > Date.now()).length;
+  $('dRestRow').style.display = inst === 1 ? 'none' : '';
+  $('dRest').textContent = rest ? rest + ' taksit · ' + fmt(rest * amt / inst) : 'Tamamlandı';
+
+  $('dDel').onclick = () => {
+    closeDetail();
+    deleteEntry(id);
+  };
+  $('sheet').classList.add('open');
+}
+
+function closeDetail() {
+  $('sheet').classList.remove('open');
 }
 
 // Son harcamalar: sadece tam sığan satırları göster (en az 1); ekran boyuna göre 3 / 2 / 1
@@ -235,7 +270,6 @@ function renderList() {
   const cutoffDay = Store.getCutoff();
   const periodStart = getPeriodStartDate(cutoffDay);
   const periodStartTs = periodStart.getTime();
-  const prevStartTs = new Date(periodStart.getFullYear(), periodStart.getMonth() - 1, cutoffDay).getTime();
   const nextStartTs = new Date(periodStart.getFullYear(), periodStart.getMonth() + 1, cutoffDay).getTime();
   const periodRange = shortDate(periodStartTs) + ' – ' + shortDate(nextStartTs - 864e5);
 
@@ -268,22 +302,33 @@ function renderList() {
   }
   fitRecent();
 
-  // HARCAMALAR: dönem filtresi ve arama
-  let items = visibleItems;
-  let range = 'Tüm zamanlar';
-  if (listFilter === 'period') {
-    items = items.filter(i => i.ts >= periodStartTs);
-    range = periodRange;
-  } else if (listFilter === 'prev') {
-    items = items.filter(i => i.ts >= prevStartTs && i.ts < periodStartTs);
-    range = shortDate(prevStartTs) + ' – ' + shortDate(periodStartTs - 864e5);
+  // HARCAMALAR: arama açıksa tüm dönemlerde arar, değilse seçili dönemi gösterir
+  let items, emptyMsg;
+  if (searchOpen) {
+    const q = listQuery.trim().toLocaleLowerCase('tr-TR');
+    items = q ? visibleItems.filter(i => (i.name || '').toLocaleLowerCase('tr-TR').includes(q)) : visibleItems;
+    $('searchSum').textContent = items.length ? items.length + (q ? ' sonuç · ' : ' harcama · ') + fmt(sum(items)) : '';
+    emptyMsg = q ? 'Sonuç yok' : 'Henüz harcama yok';
+  } else {
+    const ps = new Date(periodStart.getFullYear(), periodStart.getMonth() + listPeriod, cutoffDay).getTime();
+    const pe = new Date(periodStart.getFullYear(), periodStart.getMonth() + listPeriod + 1, cutoffDay).getTime();
+    items = visibleItems.filter(i => i.ts >= ps && i.ts < pe);
+    const total = sum(items);
+
+    // Günlük ortalama: bu dönemde geçen gün sayısına, geçmiş dönemde dönemin tamamına göre
+    const dayCount = listPeriod === 0 ? Math.floor((nowTs - ps) / 864e5) + 1 : Math.round((pe - ps) / 864e5);
+
+    $('perName').textContent = listPeriod === 0 ? 'Bu dönem' : listPeriod === -1 ? 'Geçen dönem' : -listPeriod + ' dönem önce';
+    $('listRange').textContent = rangeLabel(ps, pe - 864e5);
+    $('perTotal').textContent = fmt(total);
+    $('listSum').textContent = items.length ? 'Günlük ort. ' + fmt(Math.round(total / dayCount)) : 'Harcama yok';
+
+    // En eski kaydın dönemine kadar geri, bu döneme kadar ileri gidilebilir
+    const oldest = visibleItems.length ? visibleItems[visibleItems.length - 1].ts : nowTs;
+    $('perPrev').disabled = ps <= oldest;
+    $('perNext').disabled = listPeriod >= 0;
+    emptyMsg = 'Bu dönemde harcama yok';
   }
-
-  const q = listQuery.trim().toLocaleLowerCase('tr-TR');
-  if (q) items = items.filter(i => (i.name || '').toLocaleLowerCase('tr-TR').includes(q));
-
-  $('listRange').textContent = range;
-  $('listSum').textContent = items.length ? items.length + ' harcama · ' + fmt(sum(items)) : '';
 
   // Tarihe göre gruplama (sıralı listeden geldiği için gün sırası korunur)
   const g = {};
@@ -294,10 +339,9 @@ function renderList() {
   const days = Object.keys(g);
 
   if (!days.length) {
-    const msg = q ? 'Sonuç yok' : listFilter === 'all' ? 'Henüz harcama yok' : 'Bu dönemde harcama yok';
     const e = document.createElement('div');
     e.className = 'empty';
-    e.textContent = msg;
+    e.textContent = emptyMsg;
     L.appendChild(e);
     return;
   }

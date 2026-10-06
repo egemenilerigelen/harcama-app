@@ -101,6 +101,7 @@ function showTab(name) {
   if (document.activeElement) document.activeElement.blur();
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.dataset.view === name));
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  closeDetail();
   if (name === 'home') fitRecent();
 }
 
@@ -112,23 +113,45 @@ document.querySelectorAll('.tab').forEach(t => {
   bindPressEffect(t, () => showTab(t.dataset.tab));
 });
 
-bindPressEffect($('seeAll'), () => showTab('list'));
-
-// HARCAMALAR: dönem filtresi ve arama
-document.querySelectorAll('#listFilter button').forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll('#listFilter button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    listFilter = btn.dataset.f;
-    haptic();
-    renderList();
-  };
+// "Tümünü gör": Harcamalar bu dönemden açılır
+bindPressEffect($('seeAll'), () => {
+  listPeriod = 0;
+  renderList();
+  showTab('list');
 });
+
+// HARCAMALAR: dönem gezgini
+function stepPeriod(d) {
+  listPeriod = Math.min(0, listPeriod + d);
+  renderList();
+  $('list').scrollTop = 0;
+}
+
+bindPressEffect($('perPrev'), () => { if (!$('perPrev').disabled) stepPeriod(-1); });
+bindPressEffect($('perNext'), () => { if (!$('perNext').disabled) stepPeriod(1); });
+
+// HARCAMALAR: arama (ikonla açılır, Vazgeç ile kapanır)
+function setSearch(open) {
+  searchOpen = open;
+  listQuery = '';
+  $('search').value = '';
+  document.querySelector('[data-view="list"]').classList.toggle('searching', open);
+  renderList();
+  if (open) $('search').focus();
+  else $('search').blur();
+}
+
+$('searchBtn').onclick = () => setSearch(!searchOpen);
+$('searchCancel').onclick = () => setSearch(false);
 
 $('search').oninput = () => {
   listQuery = $('search').value;
   renderList();
 };
+
+// KAYIT DETAYI: arka plana ya da Kapat'a dokununca kapanır
+$('sheetBg').onclick = closeDetail;
+$('dClose').onclick = closeDetail;
 
 // AYARLAR: hesap kesim günü (1–28, her ayda bulunan günler)
 function renderCutoff() {

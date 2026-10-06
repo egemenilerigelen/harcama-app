@@ -59,16 +59,37 @@
       </section>
     </section>
 
-    <!-- 2. HARCAMALAR: tam liste, dönem filtresi, arama -->
+    <!-- 2. HARCAMALAR: dönem gezgini, arama (ikonla açılır), tam liste -->
     <section class="view" data-view="list">
-      <header class="view-head"><h1>Harcamalar</h1></header>
-      <div class="seg" id="listFilter">
-        <button class="active" data-f="period">Bu dönem</button>
-        <button data-f="prev">Geçen dönem</button>
-        <button data-f="all">Tümü</button>
+      <header class="view-head">
+        <h1>Harcamalar</h1>
+        <button class="icon-btn" id="searchBtn" aria-label="Ara">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+        </button>
+      </header>
+
+      <!-- DÖNEM GEZGİNİ: ‹ › ile hesap dönemleri arasında -->
+      <div class="period">
+        <div class="period-nav">
+          <button class="icon-btn" id="perPrev" aria-label="Önceki dönem">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6"/></svg>
+          </button>
+          <div class="period-label"><small id="perName">Bu dönem</small><span id="listRange"></span></div>
+          <button class="icon-btn" id="perNext" aria-label="Sonraki dönem">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg>
+          </button>
+        </div>
+        <b id="perTotal">₺0</b>
+        <small id="listSum"></small>
       </div>
-      <input id="search" type="search" placeholder="Ara" maxlength="60" autocomplete="off">
-      <div class="list-meta"><span id="listRange"></span><span id="listSum"></span></div>
+
+      <!-- ARAMA: tüm dönemlerde arar -->
+      <div class="search-bar">
+        <input id="search" type="search" placeholder="Tüm harcamalarda ara" maxlength="60" autocomplete="off">
+        <button class="link" id="searchCancel">Vazgeç</button>
+      </div>
+      <small class="search-sum" id="searchSum"></small>
+
       <section id="list"></section>
     </section>
 
@@ -126,6 +147,25 @@
         <p class="note">Veriler sadece bu cihazda, tarayıcıda saklanır.</p>
       </div>
     </section>
+  </div>
+
+  <!-- KAYIT DETAYI: satıra dokununca alttan açılır -->
+  <div class="sheet-wrap" id="sheet">
+    <div class="sheet-bg" id="sheetBg"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dName">
+      <div class="sheet-grip"></div>
+      <div class="sheet-head">
+        <h2 id="dName"></h2>
+        <button class="link" id="dClose">Kapat</button>
+      </div>
+      <b class="sheet-amt" id="dAmt"></b>
+      <div class="card">
+        <div class="kv"><span>Tarih</span><b id="dDate"></b></div>
+        <div class="kv"><span>Ödeme</span><b id="dPay"></b></div>
+        <div class="kv" id="dRestRow"><span>Kalan</span><b id="dRest"></b></div>
+      </div>
+      <button class="danger wide" id="dDel">Harcamayı sil</button>
+    </div>
   </div>
 
   <!-- SİLME GERİ ALMA ŞERİDİ -->
