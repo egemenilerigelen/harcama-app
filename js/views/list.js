@@ -1,0 +1,112 @@
+// HARCAMALAR: dönem gezgini, arama ve günlere göre liste
+// Kendi durumunu (seçili dönem, arama) kendisi tutar; değişince onChange ile yeniden çizim ister.
+// Bağımlılık: Config, Domain, Format, ExpenseRow, Touch, $, el
+class ListView {
+  #offset = 0;          // 0 bu dönem, -1 geçen dönem ...
+  #searching = false;
+  #query = '';
+  #rowActions;
+  #onChange;
+  #view = document.querySelector('[data-view="list"]');
+  #list = $('list');
+  #search = $('search');
+  #prev = $('perPrev');
+  #next = $('perNext');
+
+  constructor({ rowActions, onChange }) {
+    this.#rowActions = rowActions;
+    this.#onChange = onChange;
+
+    Touch.bindPress(this.#prev, () => { if (!this.#prev.disabled) this.#step(-1); });
+    Touch.bindPress(this.#next, () => { if (!this.#next.disabled) this.#step(1); });
+
+    $('searchBtn').onclick = () => this.#setSearch(!this.#searching);
+    $('searchCancel').onclick = () => this.#setSearch(false);
+    this.#search.oninput = () => {
+      this.#query = this.#search.value;
+      this.#onChange();
+    };
+  }
+
+  // "Tümünü gör" ile gelindiğinde bu döneme dön (çizimi çağıran yapar)
+  resetPeriod() {
+    this.#offset = 0;
+  }
+
+  render({ now, cutoff, rows }) {
+    const items = this.#searching ? this.#renderSearch(rows) : this.#renderPeriod(now, cutoff, rows);
+    const empty = this.#searching
+      ? (this.#query.trim() ? 'Sonuç yok' : 'Henüz harcama yok')
+      : 'Bu dönemde harcama yok';
+    this.#renderDays(items, empty);
+  }
+
+  // Arama: tüm dönemlerde isimle eşleşenler
+  #renderSearch(rows) {
+    const q = this.#query.trim().toLocaleLowerCase('tr-TR');
+    const items = q ? rows.filter(r => (r.name || '').toLocaleLowerCase('tr-TR').includes(q)) : rows;
+    $('searchSum').textContent = items.length
+      ? items.length + (q ? ' sonuç · ' : ' harcama · ') + Format.money(Domain.sum(items))
+      : '';
+    return items;
+  }
+
+  // Dönem kartı: seçili dönemin toplamı ve günlük ortalaması
+  #renderPeriod(now, cutoff, rows) {
+    const start = Domain.periodStart(now, cutoff, this.#offset).getTime();
+    const end = Domain.periodStart(now, cutoff, this.#offset + 1).getTime();
+    const items = rows.filter(r => r.ts >= start && r.ts < end);
+    const total = Domain.sum(items);
+
+    $('perName').textContent = Format.periodName(this.#offset);
+    $('listRange').textContent = Format.rangeWithYear(start, end - Config.DAY_MS);
+    $('perTotal').textContent = Format.money(total);
+    $('listSum').textContent = items.length
+      ? 'Günlük ort. ' + Format.money(Math.round(total / Domain.periodDays(start, end, now)))
+      : 'Harcama yok';
+
+    // En eski kaydın dönemine kadar geri, bu döneme kadar ileri gidilebilir
+    const oldest = rows.length ? rows[rows.length - 1].ts : now;
+    this.#prev.disabled = start <= oldest;
+    this.#next.disabled = this.#offset >= 0;
+    return items;
+  }
+
+  #renderDays(items, emptyText) {
+    this.#list.innerHTML = '';
+    const groups = Domain.groupByDay(items);
+    const days = Object.keys(groups);
+
+    if (!days.length) {
+      this.#list.appendChild(el('div', 'empty', emptyText));
+      return;
+    }
+
+    days.forEach(k => {
+      const head = el('h2');
+      head.append(el('span', '', Format.dayLabel(k)), el('span', '', Format.money(Domain.sum(groups[k]))));
+      this.#list.appendChild(head);
+
+      const box = el('div', 'day');
+      groups[k].forEach(r => box.appendChild(ExpenseRow.create(r, Format.time(r.ts), this.#rowActions)));
+      this.#list.appendChild(box);
+    });
+  }
+
+  #step(d) {
+    this.#offset = Math.min(0, this.#offset + d);
+    this.#onChange();
+    this.#list.scrollTop = 0;
+  }
+
+  // Arama ikonla açılır, Vazgeç ile kapanır; açıkken dönem kartının yerini alır
+  #setSearch(open) {
+    this.#searching = open;
+    this.#query = '';
+    this.#search.value = '';
+    this.#view.classList.toggle('searching', open);
+    this.#onChange();
+    if (open) this.#search.focus();
+    else this.#search.blur();
+  }
+}

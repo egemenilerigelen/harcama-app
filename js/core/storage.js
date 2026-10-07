@@ -1,4 +1,5 @@
-// LocalStorage yönetimi
+// VERİ KATMANI: localStorage'a sadece buradan erişilir
+// Bağımlılık: Config
 const Store = {
   KEY: 'expenses_v1',
   CUTOFF_KEY: 'cutoff_day_v1',
@@ -43,7 +44,7 @@ const Store = {
   },
 
   getCutoff() {
-    return Number(localStorage.getItem(this.CUTOFF_KEY)) || 15;
+    return Number(localStorage.getItem(this.CUTOFF_KEY)) || Config.DEFAULT_CUTOFF;
   },
 
   setCutoff(day) {

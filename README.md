@@ -32,17 +32,22 @@ Telefonda denemek için sayfayı mobil tarayıcıda aç ya da masaüstü tarayı
 
 ```
 harcama-app/
-├── index.html        iskelet ve script sırası
+├── index.html          iskelet ve script sırası
 ├── css/
-│   └── style.css     tüm tasarım (renk ve font değişkenleri :root'ta)
+│   └── style.css       tüm tasarım (renk, font ve boşluk değişkenleri :root'ta)
 └── js/
-    ├── storage.js    Store: localStorage katmanı
-    ├── calc.js       Calc: tutar girişi
-    ├── ui.js         biçimlendirme yardımcıları, liste ve toplam çizimi
-    └── main.js       tuş takımı, taksit seçimi, ekleme, sekmeler, ayarlar
+    ├── core/           çekirdek, DOM'a dokunmaz
+    │   ├── config.js   sabitler
+    │   ├── storage.js  Store: localStorage katmanı
+    │   ├── calc.js     Calc: tutar girişi
+    │   ├── domain.js   iş mantığı: dönem, taksit, toplamlar (saf fonksiyonlar)
+    │   └── format.js   para ve tarih metinleri
+    ├── ui/             ortak bileşenler: dokunma, satır, geri alma, detay paneli
+    ├── views/          ekranlar: giriş paneli, ana sayfa, harcamalar, ayarlar, sekmeler
+    └── app.js          bileşenleri kurar ve bağlar
 ```
 
-Script sırası önemlidir: `storage → calc → ui → main`. Dosyalar global değişken kullanır ve ES modülü değildir; bu sayede `file://` ile doğrudan açılır.
+Katmanlar tek yönlü bağımlıdır: `core → ui → views → app`. Veriye sadece `app.js` erişir; ekranlar birbirini tanımaz, geri çağrılarla konuşur. Dosyalar ES modülü değildir (her biri tek bir global tanımlar); bu sayede `file://` ile doğrudan açılır. Script sırası `index.html`'dedir.
 
 ## Veri modeli
 

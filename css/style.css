@@ -708,7 +708,7 @@ body.has-amt .pad .add.pressed {
   to { background: transparent; }
 }
 
-/* Ana sayfadaki kısa liste: kaymaz, sadece tam sığan satırlar gösterilir (fitRecent) */
+/* Ana sayfadaki kısa liste: kaymaz, sadece tam sığan satırlar gösterilir (HomeView.fit) */
 #recent {
   flex: 0 1 auto;
   overflow: hidden;

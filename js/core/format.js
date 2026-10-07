@@ -1,0 +1,71 @@
+// BİÇİMLENDİRME: ekranda görünen sayı ve tarih metinleri (tr-TR)
+// Bağımlılık: Config, Domain
+const Format = Object.freeze({
+  money(n) {
+    return '₺' + n.toLocaleString('tr-TR', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 });
+  },
+
+  time(ts) {
+    return new Date(ts).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+  },
+
+  shortDate(ts) {
+    return new Date(ts).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+  },
+
+  // Detay paneli: "5 Ekim 2026 Pzt, 17:42"
+  longDateTime(ts) {
+    return new Date(ts).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'short' }) + ', ' + Format.time(ts);
+  },
+
+  // Gün başlığı: "Bugün, 7 Ekim Sal" / "Dün, ..." / "5 Ekim Pzt"
+  dayLabel(key) {
+    const [Y, M, D] = key.split('-');
+    const label = new Date(Y, M - 1, D).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'short' });
+    if (key === Domain.dayKey(Date.now())) return 'Bugün, ' + label;
+    if (key === Domain.dayKey(Date.now() - Config.DAY_MS)) return 'Dün, ' + label;
+    return label;
+  },
+
+  // Kısa tarih etiketi: "Bugün", "Dün" ya da "5 Eki"
+  shortWhen(ts) {
+    const key = Domain.dayKey(ts);
+    if (key === Domain.dayKey(Date.now())) return 'Bugün';
+    if (key === Domain.dayKey(Date.now() - Config.DAY_MS)) return 'Dün';
+    return Format.shortDate(ts);
+  },
+
+  // Dönem aralığı: "13 Eyl – 12 Eki"
+  range(a, b) {
+    return Format.shortDate(a) + ' – ' + Format.shortDate(b);
+  },
+
+  // Dönem aralığı; başka yıldaysa yıl da yazılır
+  rangeWithYear(a, b) {
+    const y = new Date(b).getFullYear();
+    return Format.range(a, b) + (y !== new Date().getFullYear() ? ' ' + y : '');
+  },
+
+  // Dönem gezgini etiketi: 0 bu dönem, -1 geçen dönem, -n "n dönem önce"
+  periodName(offset) {
+    if (offset === 0) return 'Bu dönem';
+    if (offset === -1) return 'Geçen dönem';
+    return -offset + ' dönem önce';
+  },
+
+  installment(n) {
+    return n === 1 ? 'Tek çekim' : n + ' taksit';
+  },
+
+  part(no, of) {
+    return no + '/' + of + ' taksit';
+  },
+
+  // Tutar girişi: binlik ayracı (.) ve ondalık virgül (,); ham değer Calc'ta kalır
+  amountInput(raw) {
+    if (!raw) return '';
+    const [i, d] = raw.split('.');
+    const grouped = i.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return raw.includes('.') ? grouped + ',' + (d || '') : grouped;
+  }
+});
