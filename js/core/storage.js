@@ -3,6 +3,7 @@
 const Store = {
   KEY: 'expenses_v1',
   CUTOFF_KEY: 'cutoff_day_v1',
+  GOAL_KEY: 'goal_v1',
 
   all() {
     try {
@@ -49,5 +50,15 @@ const Store = {
 
   setCutoff(day) {
     localStorage.setItem(this.CUTOFF_KEY, day);
+  },
+
+  // Dönem hedefi: her ekstre bu tutarla ölçülür; 0 = hedef yok
+  getGoal() {
+    return Number(localStorage.getItem(this.GOAL_KEY)) || 0;
+  },
+
+  setGoal(amount) {
+    if (amount > 0) localStorage.setItem(this.GOAL_KEY, amount);
+    else localStorage.removeItem(this.GOAL_KEY);
   }
 };

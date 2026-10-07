@@ -1,13 +1,11 @@
 // KAYIT DETAYI: satıra dokununca alttan açılan panel
-// Bağımlılık: Domain, Format, $
-class DetailSheet {
-  #sheet = $('sheet');
+// Bağımlılık: BottomSheet, Domain, Format, $
+class DetailSheet extends BottomSheet {
   #id = null;
 
   // onDelete(id): paneldeki "Harcamayı sil"
   constructor({ onDelete }) {
-    $('sheetBg').onclick = () => this.close();
-    $('dClose').onclick = () => this.close();
+    super($('sheet'));
     $('dDel').onclick = () => {
       const id = this.#id;
       this.close();
@@ -31,10 +29,6 @@ class DetailSheet {
     $('dRest').textContent = rest ? rest + ' taksit · ' + Format.money(rest * total / parts) : 'Tamamlandı';
 
     this.#id = item.id;
-    this.#sheet.classList.add('open');
-  }
-
-  close() {
-    this.#sheet.classList.remove('open');
+    super.open();
   }
 }

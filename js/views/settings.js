@@ -1,15 +1,17 @@
-// AYARLAR: hesap kesim günü ve iki dokunuşla onaylanan "Tümünü sil"
+// AYARLAR: hesap kesim günü, dönem hedefi ve iki dokunuşla onaylanan "Tümünü sil"
 // Veriyi kendisi değiştirmez; istekleri geri çağrılarla dışarı verir.
-// Bağımlılık: Config, Touch, $
+// Bağımlılık: Config, Format, Touch, $
 class SettingsView {
   #clear = $('clear');
   #armed = false;
   #timer = null;
 
-  // onCutoffStep(+1 / -1): kesim gününü değiştir, onClear(): tüm kayıtları sil
-  constructor({ onCutoffStep, onClear }) {
+  // onCutoffStep(+1 / -1): kesim gününü değiştir, onEditGoal(): hedef panelini aç,
+  // onClear(): tüm kayıtları sil
+  constructor({ onCutoffStep, onEditGoal, onClear }) {
     Touch.bindPress($('cutMinus'), () => onCutoffStep(-1));
     Touch.bindPress($('cutPlus'), () => onCutoffStep(1));
+    $('goalRow').onclick = onEditGoal; // click: iPhone klavyesi açılabilsin
 
     this.#clear.onclick = () => {
       if (!this.#armed) {
@@ -24,6 +26,10 @@ class SettingsView {
 
   showCutoff(day) {
     $('cutDay').textContent = day;
+  }
+
+  showGoal(goal) {
+    $('goalValue').textContent = goal ? Format.money(goal) : 'Yok';
   }
 
   // İlk dokunuş: onay ister, süre dolarsa vazgeçer

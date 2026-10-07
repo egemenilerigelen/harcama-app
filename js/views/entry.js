@@ -37,7 +37,7 @@ class EntryPanel {
   #bindInstallments() {
     Touch.bindPress($('instChip'), () => this.#entry.classList.add('picking'));
 
-    document.querySelectorAll('.inst-btn').forEach(btn => {
+    document.querySelectorAll('#instSelector .inst-btn').forEach(btn => {
       btn.onclick = () => {
         this.#setInst(Number(btn.dataset.inst));
         Touch.haptic();
@@ -52,7 +52,7 @@ class EntryPanel {
 
   #setInst(n) {
     this.#inst = n;
-    document.querySelectorAll('.inst-btn').forEach(b => b.classList.toggle('active', Number(b.dataset.inst) === n));
+    document.querySelectorAll('#instSelector .inst-btn').forEach(b => b.classList.toggle('active', Number(b.dataset.inst) === n));
     $('instLabel').textContent = Format.installment(n);
     $('instChip').classList.toggle('set', n > 1);
     this.#entry.classList.remove('picking');

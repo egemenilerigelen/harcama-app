@@ -93,17 +93,53 @@
       <section id="list"></section>
     </section>
 
-    <!-- 3. ÖZET: Faz 2'de dolacak -->
+    <!-- 3. ÖZET: dönem hedefi, harcama grafiği, devam eden taksitler -->
     <section class="view" data-view="summary">
       <header class="view-head"><h1>Özet</h1></header>
-      <div class="soon-box">
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="9"/>
-          <circle cx="50" cy="50" r="40" fill="none" stroke="#d9b877" stroke-width="9" stroke-linecap="round"
-                  stroke-dasharray="163 252" transform="rotate(-90 50 50)"/>
-        </svg>
-        <b>Yakında</b>
-        <p>Aylık harcamalar, hedef ve ilerleme grafiği burada olacak.</p>
+      <div class="scroll">
+
+        <!-- HEDEF: halka (dokununca hedef paneli) + harcanan / hedef / kalan -->
+        <div class="card goal">
+          <header class="card-head">
+            <h2>Dönem hedefi</h2>
+            <span id="sumRange"></span>
+          </header>
+          <button class="ring" id="ringBtn" aria-label="Dönem hedefini düzenle"></button>
+          <div class="goal-stats">
+            <div class="kv-s"><span>Harcanan</span><b id="gSpent"></b></div>
+            <div class="kv-s"><span>Hedef</span><b id="gGoal"></b></div>
+            <div class="kv-s"><span id="gLeftLabel">Kalan</span><b id="gLeft"></b></div>
+          </div>
+          <p class="goal-hint" id="gHint"></p>
+        </div>
+
+        <!-- GRAFİK: adım sayacı tarzı; günlük ya da ekstre -->
+        <div class="card chart-card">
+          <header class="card-head">
+            <h2>Harcama grafiği</h2>
+          </header>
+          <div class="inst-selector seg" id="chartMode">
+            <button class="seg-btn active" data-mode="day">Günlük</button>
+            <button class="seg-btn" data-mode="period">Ekstre</button>
+          </div>
+          <div class="chart-read">
+            <div class="chart-read-l"><span id="chartLabel"></span><small id="chartNote"></small></div>
+            <b id="chartValue"></b>
+          </div>
+          <svg class="chart" id="chart" role="img"></svg>
+        </div>
+
+        <!-- TAKSİTLER: gelecek ekstreye yazılan, toplam kalan, alışveriş başına ilerleme -->
+        <div class="card inst-card">
+          <header class="card-head">
+            <h2>Devam eden taksitler</h2>
+          </header>
+          <div class="inst-sum" id="instSum">
+            <div><small>Gelecek ekstre</small><b id="instNext"></b></div>
+            <div><small>Toplam kalan</small><b id="instTotal"></b></div>
+          </div>
+          <div id="instList"></div>
+        </div>
       </div>
     </section>
 
@@ -124,6 +160,14 @@
               <button id="cutPlus" aria-label="Arttır">+</button>
             </div>
           </div>
+          <button class="set-row set-link" id="goalRow">
+            <span class="set-info">
+              <b>Dönem hedefi</b>
+              <small>Özet'teki halka bu tutara göre dolar</small>
+            </span>
+            <span class="set-value" id="goalValue">Yok</span>
+            <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg>
+          </button>
         </div>
 
         <h2 class="sec-title">Veri</h2>
@@ -151,12 +195,12 @@
 
   <!-- KAYIT DETAYI: satıra dokununca alttan açılır -->
   <div class="sheet-wrap" id="sheet">
-    <div class="sheet-bg" id="sheetBg"></div>
+    <div class="sheet-bg" id="sheetBg" data-close></div>
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dName">
       <div class="sheet-grip"></div>
       <div class="sheet-head">
         <h2 id="dName"></h2>
-        <button class="link" id="dClose">Kapat</button>
+        <button class="link" id="dClose" data-close>Kapat</button>
       </div>
       <b class="sheet-amt" id="dAmt"></b>
       <div class="card">
@@ -165,6 +209,24 @@
         <div class="kv" id="dRestRow"><span>Kalan</span><b id="dRest"></b></div>
       </div>
       <button class="danger wide" id="dDel">Harcamayı sil</button>
+    </div>
+  </div>
+
+  <!-- HEDEF PANELİ: Kaydet üstte (klavye açıkken görünür kalsın) -->
+  <div class="sheet-wrap" id="goalSheet">
+    <div class="sheet-bg" data-close></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="goalTitle">
+      <div class="sheet-grip"></div>
+      <div class="sheet-head">
+        <h2 id="goalTitle">Dönem hedefi</h2>
+        <button class="link save" id="goalSave">Kaydet</button>
+      </div>
+      <p class="sheet-note">Her ekstre bu tutarla ölçülür. İstediğin zaman değiştirebilirsin.</p>
+      <label class="goal-input">
+        <span class="cur">₺</span>
+        <input id="goalInput" inputmode="numeric" enterkeyhint="done" autocomplete="off" placeholder="10.000" aria-label="Hedef tutarı">
+      </label>
+      <button class="danger wide" id="goalClear">Hedefi kaldır</button>
     </div>
   </div>
 
@@ -202,10 +264,15 @@
 <script src="js/ui/touch.js"></script>
 <script src="js/ui/row.js"></script>
 <script src="js/ui/undo.js"></script>
+<script src="js/ui/sheet.js"></script>
 <script src="js/ui/detail.js"></script>
+<script src="js/ui/goal-sheet.js"></script>
+<script src="js/ui/ring.js"></script>
+<script src="js/ui/barchart.js"></script>
 <script src="js/views/entry.js"></script>
 <script src="js/views/home.js"></script>
 <script src="js/views/list.js"></script>
+<script src="js/views/summary.js"></script>
 <script src="js/views/settings.js"></script>
 <script src="js/views/tabs.js"></script>
 <script src="js/app.js"></script>

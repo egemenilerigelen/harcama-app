@@ -34,5 +34,19 @@ const Config = Object.freeze({
 
   // Tutar ekranında yazının küçüldüğü karakter sayıları
   AMOUNT_SM_LEN: 9,
-  AMOUNT_XS_LEN: 12
+  AMOUNT_XS_LEN: 12,
+
+  // Dönem hedefi: bu orandan sonra halka uyarı rengine döner; en fazla hane
+  GOAL_WARN_RATIO: 0.8,
+  GOAL_MAX_DIGITS: 9,
+
+  // Sütun grafik: çizim alanı yüksekliği, üst boşluk (ölçek etiketi), x ekseni bandı,
+  // sütun en fazla genişliği, sütunlar arası boşluk, uç yuvarlaklığı, ekstre görünümünde kaç dönem
+  CHART_H: 132,
+  CHART_TOP: 18,
+  CHART_AXIS_H: 22,
+  BAR_MAX_W: 24,
+  BAR_GAP: 2,
+  BAR_RADIUS: 4,
+  CHART_PERIODS: 6
 });

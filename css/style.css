@@ -12,6 +12,7 @@
   --gold-soft: rgba(217, 184, 119, 0.14);
   --danger: #e88f8f;
   --danger-bg: #b54a4a;
+  --warn: #e3a857;
 
   /* DERİNLİK: ışık tek yerden (yukarıdan); kabarık = basılan, gömük = yazılan. Gölgeler nötr */
   --raised: linear-gradient(180deg, #1c1f26, #15171c);
@@ -304,7 +305,7 @@ button {
   box-shadow: var(--inset);
 }
 
-.inst-btn {
+.inst-btn, .seg-btn {
   flex: 1;
   min-height: 32px;
   padding: 0;
@@ -320,7 +321,7 @@ button {
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.inst-btn.active {
+.inst-btn.active, .seg-btn.active {
   background: linear-gradient(180deg, rgba(217, 184, 119, 0.2), rgba(217, 184, 119, 0.12));
   color: var(--gold);
   font-weight: 600;
@@ -911,36 +912,446 @@ body.has-amt .pad .add.pressed {
   font-size: 13px;
 }
 
-/* ÖZET: Faz 2'ye kadar yer tutucu */
-.soon-box {
-  flex: 1;
+/* 5. ÖZET */
+
+/* MODÜL KARTI BAŞLIĞI (Apple Sağlık tarzı, ikonsuz): başlık kartın içinde, solda beyaz başlık,
+   sağda gri ikincil bilgi. Hiyerarşi: ekran başlığı → kart başlığı (beyaz) → kart içi etiketler (gri).
+   Süs ikonu yok: başlığı tekrar eden ikon bilgi taşımaz */
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.card-head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.card-head span {
+  margin-left: auto;
+  color: var(--mut);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Özet kartları arasında boşluk (dışarıda başlık yok) */
+.scroll > .card + .card {
+  margin-top: 14px;
+}
+
+/* HEDEF KARTI: solda halka, sağda tutarlar, altta ne yapmalı satırı */
+.goal {
+  display: grid;
+  grid-template-columns: 108px 1fr;
+  align-items: center;
+  gap: 14px 18px;
+  padding: 14px 16px 16px;
+}
+
+/* Başlık iki sütunu da kaplar */
+.goal .card-head {
+  grid-column: 1 / -1;
+}
+
+.ring {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--gold);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Durum rengi; aynı bilgi halkanın ortasında ve alt satırda yazıyla da var */
+.ring.warn { color: var(--warn); }
+.ring.over { color: var(--danger); }
+
+.ring svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.ring circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 9;
+}
+
+/* Boş iz: dolgunun aynı renginin açık tonu */
+.ring-track {
+  opacity: 0.16;
+}
+
+.ring-arc {
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.5s var(--ease), opacity 0.2s ease;
+}
+
+.ring-text {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 0 28px 40px;
-  text-align: center;
-  color: var(--mut);
 }
 
-.soon-box svg {
-  width: 92px;
-  height: 92px;
-  margin-bottom: 6px;
-}
-
-.soon-box b {
+/* Büyük tekil rakam: orantılı rakamlar (tabular değil) */
+.ring-text b {
   color: var(--tx);
-  font-size: 17px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.ring.none .ring-text b {
+  font-size: 16px;
   font-weight: 600;
 }
 
-.soon-box p {
+.ring-text small {
+  color: var(--mut);
+  font-size: 12px;
+}
+
+.goal-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.kv-s {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.kv-s span {
+  color: var(--mut);
+  font-size: 13px;
+}
+
+.kv-s b {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Harcanan bir toplam: altın */
+#gSpent {
+  color: var(--gold);
+}
+
+.goal-hint {
+  grid-column: 1 / -1;
   margin: 0;
-  max-width: 260px;
-  font-size: 14px;
-  line-height: 1.45;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--mut);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* GRAFİK KARTI */
+.chart-card {
+  padding: 14px 14px 10px;
+}
+
+.chart-card .card-head {
+  margin-bottom: 12px;
+}
+
+.seg {
+  margin-top: 0;
+}
+
+/* Okuma satırı: seçili sütunun etiketi, notu ve değeri (değer öne çıkar).
+   Not satırının yeri her görünümde ayrılır ki Günlük / Ekstre geçişinde grafik zıplamasın */
+.chart-read {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 12px 2px 4px;
+}
+
+.chart-read-l {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chart-read span {
+  color: var(--mut);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.chart-read small {
+  min-height: 16px;
+  color: var(--mut-2);
+  font-size: 12px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-read b {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  touch-action: pan-y;
+}
+
+/* Tek seri: tüm sütunlar aynı altın; seçili tam, diğerleri soluk */
+.chart .bar {
+  fill: var(--gold);
+  opacity: 0.5;
+  transition: opacity 0.15s ease;
+}
+
+.chart .bar.sel {
+  opacity: 1;
+}
+
+/* Gelecek günler ve harcamasız günler: tabanda ince iz */
+.chart .stub {
+  fill: var(--surface-3);
+}
+
+.chart .stub.zero {
+  fill: var(--gold);
+  opacity: 0.25;
+}
+
+.chart .stub.zero.sel {
+  opacity: 0.6;
+}
+
+/* Izgara: düz, silik kıl çizgi */
+.chart .grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+
+.chart text {
+  fill: var(--mut);
+  font-family: var(--ui);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart .hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+/* TAKSİTLER KARTI */
+.inst-card .card-head {
+  padding: 14px 14px 0;
+}
+
+.inst-sum {
+  display: flex;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.inst-sum[hidden] {
+  display: none;
+}
+
+.inst-sum div {
+  flex: 1;
+  min-width: 0;
+}
+
+.inst-sum div + div {
+  padding-left: 14px;
+  border-left: 1px solid var(--line);
+}
+
+.inst-sum small {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--mut);
+  font-size: 12px;
+}
+
+.inst-sum b {
+  color: var(--gold);
+  font-size: 17px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.inst-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.inst-row:first-child {
+  border-top: 0;
+}
+
+.inst-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.inst-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.inst-top .n {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.inst-meta {
+  flex-shrink: 0;
+  color: var(--mut);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* İlerleme çubuğu: iz aynı rengin açık tonu */
+.inst-bar {
+  height: 4px;
+  margin-top: 8px;
+  border-radius: 2px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.inst-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--gold);
+}
+
+.inst-left {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.inst-left b {
+  display: block;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.inst-left small {
+  color: var(--mut);
+  font-size: 12px;
+}
+
+/* AYARLAR: dokununca panel açan satır (dönem hedefi) */
+.set-link {
+  width: 100%;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--line);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.set-value {
+  color: var(--mut);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.chev {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-left: -6px;
+  fill: none;
+  stroke: var(--mut-2);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* HEDEF PANELİ */
+.sheet-note {
+  margin: 4px 0 0;
+  color: var(--mut);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.sheet-head .save {
+  color: var(--gold);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.goal-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 0 16px;
+  border-radius: 14px;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  box-shadow: var(--inset);
+  transition: border-color 0.15s ease;
+}
+
+.goal-input:focus-within {
+  border-color: rgba(217, 184, 119, 0.6);
+}
+
+.goal-input input {
+  flex: 1;
+  min-width: 0;
+  height: 60px;
+  padding: 0;
+  background: none;
+  border: 0;
+  outline: none;
+  color: var(--tx);
+  font: 600 30px var(--ui);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.goal-input input::placeholder {
+  color: var(--surface-3);
 }
 
 /* KAYIT DETAYI: alttan açılan panel */

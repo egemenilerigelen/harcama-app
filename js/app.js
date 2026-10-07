@@ -5,8 +5,10 @@
 class App {
   #undo;
   #detail;
+  #goalSheet;
   #home;
   #list;
+  #summary;
   #settings;
   #tabs;
 
@@ -19,35 +21,47 @@ class App {
 
     this.#undo = new UndoBar({ onRestore: item => this.#restore(item) });
     this.#detail = new DetailSheet({ onDelete: id => this.#delete(id) });
+    this.#goalSheet = new GoalSheet({ onSave: goal => this.#setGoal(goal) });
     this.#home = new HomeView({ rowActions, onSeeAll: () => this.#seeAll() });
     this.#list = new ListView({ rowActions, onChange: () => this.refresh() });
+    this.#summary = new SummaryView({
+      onOpen: id => this.#openDetail(id),
+      onEditGoal: () => this.#editGoal()
+    });
     this.#settings = new SettingsView({
       onCutoffStep: d => this.#stepCutoff(d),
+      onEditGoal: () => this.#editGoal(),
       onClear: () => this.#clear()
     });
     this.#tabs = new TabBar({ onShow: name => this.#onTab(name) });
     new EntryPanel({ onAdd: entry => this.#add(entry) });
 
-    window.addEventListener('resize', () => this.#home.fit());
+    window.addEventListener('resize', () => this.#fit());
     // Fontlar yüklenince satır yükseklikleri değişebilir
-    if (document.fonts) document.fonts.ready.then(() => this.#home.fit());
+    if (document.fonts) document.fonts.ready.then(() => this.#fit());
 
     this.#settings.showCutoff(Store.getCutoff());
+    this.#settings.showGoal(Store.getGoal());
     this.refresh();
   }
 
-  // Tek yönlü render: veriyi bir kez okur, taksitleri bir kez açar, ekranlara dağıtır
+  // Tek yönlü render: veriyi bir kez okur, taksitleri bir kez açar, ekranlara dağıtır.
+  // items: ham kayıtlar (taksit planları için), rows: ekrandaki satırlar
   refresh() {
     const now = Date.now();
     const cutoff = Store.getCutoff();
+    const items = Store.all();
     const model = {
       now,
       cutoff,
+      goal: Store.getGoal(),
       periodStart: Domain.periodStart(now, cutoff),
-      rows: Domain.visibleRows(Store.all(), cutoff, now)
+      items,
+      rows: Domain.visibleRows(items, cutoff, now)
     };
     this.#home.render(model);
     this.#list.render(model);
+    this.#summary.render(model);
   }
 
   #add({ name, amt, inst }) {
@@ -81,6 +95,17 @@ class App {
     this.refresh();
   }
 
+  // Hedef paneli: dokunma olayının içinden açılır (klavye için)
+  #editGoal() {
+    this.#goalSheet.open(Store.getGoal());
+  }
+
+  #setGoal(goal) {
+    Store.setGoal(goal);
+    this.#settings.showGoal(goal);
+    this.refresh();
+  }
+
   #clear() {
     Store.clear();
     this.#undo.hide();
@@ -96,7 +121,15 @@ class App {
 
   #onTab(name) {
     this.#detail.close();
+    this.#goalSheet.close();
     if (name === 'home') this.#home.fit();
+    if (name === 'summary') this.#summary.redraw();
+  }
+
+  // Ölçüye bağlı bileşenler: son harcamalar ve grafik
+  #fit() {
+    this.#home.fit();
+    this.#summary.redraw();
   }
 }
 

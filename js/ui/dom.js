@@ -8,3 +8,10 @@ function el(tag, className, text) {
   if (text !== undefined) node.textContent = text;
   return node;
 }
+
+// SVG elemanı oluşturur (grafikler için)
+function svgEl(tag, attrs = {}) {
+  const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  Object.keys(attrs).forEach(k => node.setAttribute(k, attrs[k]));
+  return node;
+}

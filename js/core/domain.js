@@ -72,6 +72,59 @@ const Domain = Object.freeze({
     return rows.reduce((s, r) => s + r.displayAmt, 0);
   },
 
+  // Dönemin her günü için toplam (gün başı ts ile): [{ ts, total }]
+  dailyTotals(rows, start, end) {
+    const byDay = Domain.groupByDay(rows.filter(r => r.ts >= start && r.ts < end));
+    const days = [];
+    for (let d = new Date(start); d.getTime() < end; d.setDate(d.getDate() + 1)) {
+      days.push({ ts: d.getTime(), total: Domain.sum(byDay[Domain.dayKey(d)] || []) });
+    }
+    return days;
+  },
+
+  // Son `count` dönemin toplamı, eskiden yeniye; son eleman bu dönem: [{ start, end, total }]
+  periodTotals(rows, now, cutoff, count) {
+    const periods = [];
+    for (let k = 1 - count; k <= 0; k++) {
+      const start = Domain.periodStart(now, cutoff, k).getTime();
+      const end = Domain.periodStart(now, cutoff, k + 1).getTime();
+      periods.push({ start, end, total: Domain.sum(rows.filter(r => r.ts >= start && r.ts < end)) });
+    }
+    return periods;
+  },
+
+  // Hedef ilerlemesi: oran, kalan (eksiyse aşım), kalan gün ve hedefte kalmak için günlük tutar
+  goalProgress(spent, goal, start, end, now) {
+    const daysLeft = Math.max(1, Domain.periodDays(start, end, end) - Domain.periodDays(start, end, now) + 1);
+    const remaining = goal - spent;
+    return {
+      ratio: goal ? spent / goal : 0,
+      remaining,
+      daysLeft,
+      perDay: remaining > 0 ? remaining / daysLeft : 0
+    };
+  },
+
+  // Devam eden taksitli alışverişler, kalan borcu büyükten küçüğe:
+  // [{ id, name, paid (yansıyan taksit), parts, single, remaining }]
+  activeInstallments(items, cutoff, now) {
+    return items
+      .filter(item => Math.max(1, Number(item.inst) || 1) > 1)
+      .map(item => {
+        const parts = Domain.expand([item], cutoff);
+        const paid = parts.filter(p => p.ts <= now).length;
+        const single = parts[0].amt;
+        return { id: item.id, name: item.name, paid, parts: parts.length, single, remaining: (parts.length - paid) * single };
+      })
+      .filter(i => i.paid < i.parts)
+      .sort((a, b) => b.remaining - a.remaining);
+  },
+
+  // Bir aralığa düşen taksitlerin toplamı (ör. gelecek ekstreye şimdiden yazılanlar)
+  installmentsBetween(items, cutoff, start, end) {
+    return Domain.sum(Domain.expand(items, cutoff).filter(r => r.parts && r.ts >= start && r.ts < end));
+  },
+
   // Satırları gün anahtarına göre gruplar; sıralı listeden geldiği için gün sırası korunur
   groupByDay(rows) {
     const groups = {};

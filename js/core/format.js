@@ -55,6 +55,22 @@ const Format = Object.freeze({
     return d.toLocaleDateString('tr-TR', { month: 'long' }) + year + ' ekstresi';
   },
 
+  // Yüzde: Türkçede işaret önde ("%62")
+  percent(ratio) {
+    return '%' + Math.round(ratio * 100);
+  },
+
+  // Ekstrenin hedefe göre durumu: "%33 · hedef ₺9.500" ya da "₺1.200 aştı · hedef ₺9.500"
+  goalNote(total, goal) {
+    const status = total > goal ? Format.money(total - goal) + ' aştı' : Format.percent(total / goal);
+    return status + ' · hedef ' + Format.money(goal);
+  },
+
+  // Kısa ay adı: "Eki" (ekstre grafiği ekseni)
+  monthShort(ts) {
+    return new Date(ts).toLocaleDateString('tr-TR', { month: 'short' });
+  },
+
   installment(n) {
     return n === 1 ? 'Tek çekim' : n + ' taksit';
   },
