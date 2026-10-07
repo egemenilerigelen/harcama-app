@@ -19,7 +19,7 @@ js/core/              ÇEKİRDEK: DOM'a dokunmaz
 
 js/ui/                ARAYÜZ YARDIMCILARI ve ortak bileşenler
   dom.js              $ (id ile seçim), el (eleman oluşturma, textContent ile)
-  touch.js            Touch: haptic, bindPress, bindSwipe
+  touch.js            Touch: haptic, bindPress, trackHorizontal (ortak yatay sürükleme), bindSwipe, bindPager
   row.js              ExpenseRow: harcama satırı (ana sayfa ve Harcamalar ortak)
   undo.js             UndoBar: geri alma şeridi
   detail.js           DetailSheet: kayıt detay paneli
@@ -90,9 +90,9 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
 - Taksit: isim alanının yanında tek düğme (`#instChip`); dokununca `.inst-selector` aynı satırı kaplar (`#entry.picking`), seçince ya da dışarı dokununca kapanır. Seçim `EntryPanel` içinde tutulur, düğme etiketi `Format.installment`.
 - Satır: solda saat (Harcamalar) / tarih (ana sayfa) sütunu, ortada isim + taksit etiketi yan yana (satır yüksekliği her yerde aynı), sağda tutar. ✕ yok.
 - Rakam renkleri: altın = toplamlar (dönem, gün), beyaz kalın = tek harcama, gri = bağlam (saat, ortalama).
-- Silme: satırlar `.swipe` sarmalayıcısında; sola kaydırınca (`Touch.bindSwipe`, eşik `Config.SWIPE_DELETE_PX` / `SWIPE_DELETE_RATIO`) `onDelete` çağrılır, `App` siler ve geri alma şeridini açar.
+- Silme: satırlar `.swipe` sarmalayıcısında; sola kaydırınca (`Touch.bindSwipe`, eşik `Config.SWIPE_DELETE_PX` / `SWIPE_DELETE_RATIO`) `onDelete` çağrılır, `App` siler ve geri alma şeridini açar. Kırmızı "Sil" zemini sadece satırın açtığı alanda (`--reveal` genişliğinde `::before`), satırın arkasında kırmızı yok. Kaydırma sadece başlatan parmağı (`pointerId`) izler.
 - Detay: satıra dokununca (kaydırma değilse) `onOpen` → `App` kaydı bulur → `DetailSheet.open(item, cutoff, now)` alttan panel açar: toplam tutar, tarih, ödeme (tek çekim / n taksit × tutar), kalan taksit, "Harcamayı sil". Kayıt düzenleme ileride buraya gelir.
-- Harcamalar sekmesi: dönem kartı (`.period`) ‹ › ile hesap dönemleri arasında gezer (`ListView` içindeki offset: 0 bu dönem, -1 geçen ...; en eski kaydın dönemine kadar). Kartta toplam ve altında "Günlük ort." var (ana sayfadaki toplamla çakışmasın diye bağlam). Arama başlıktaki ikonla açılır, dönem kartının yerini alır ve tüm dönemlerde arar.
+- Harcamalar sekmesi: dönem kartı (`.period`) ‹ › ile hesap dönemleri arasında gezer (`ListView` içindeki offset: 0 bu dönem, -1 geçen ...; en eski kaydın dönemine kadar). Kart yatay kaydırılarak da gezilir (`Touch.bindPager`: parmak sağa = önceki ekstre, sola = sonraki; sınırda %35 dirençle lastik; eşik `Config.PAGER_COMMIT_PX`; sadece kartta çalışır, satır silme ile çakışmaz; sınırlar okların `disabled` durumundan okunur). Kart etiketi: bu dönem "Bu dönem", geçmişler bittiği ayın ekstresi ("Eylül ekstresi", başka yılsa "Aralık 2025 ekstresi"; `Format.periodName`). Kartta toplam ve altında "Günlük ort." var (ana sayfadaki toplamla çakışmasın diye bağlam). Arama başlıktaki ikonla açılır, dönem kartının yerini alır ve tüm dönemlerde arar. Özet satırında adet yok: boşken "Tüm zamanlar · ₺X", yazınca eşleşenlerin "Toplam · ₺X".
 - Boşluk ölçüsü `:root`'ta: `--edge` 16px (yan kenar), `--gap` 12px (bloklar arası), `--gap-s` 8px (bileşen içi). Bölüm başlıkları (`.sec-head`, `.sec-title`, `#list h2`) tek kuralı paylaşır. Kaydırma çubukları gizli. Küçük ekran sıkılaştırmaları `@media (max-height: 620px)` bloğunda.
 - Hedef ekranlar: iPhone Safari içerik alanları 393×659 (iPhone 15), 430×739 (Pro Max), 375×548 (SE). Yatay kaydırma olmamalı, tuş takımı ve alt bar her birine sığmalı.
 - Dokunmatik: tuşlar, sekmeler, taksit düğmesi, dönem okları ve stepper `pointerdown` ile `Touch.bindPress` üzerinden tetiklenir ve titreşim verir (`Config.HAPTIC_MS`). Yeni tuşlarda aynı yardımcıyı kullan.

@@ -46,11 +46,13 @@ const Format = Object.freeze({
     return Format.range(a, b) + (y !== new Date().getFullYear() ? ' ' + y : '');
   },
 
-  // Dönem gezgini etiketi: 0 bu dönem, -1 geçen dönem, -n "n dönem önce"
-  periodName(offset) {
+  // Dönem gezgini etiketi: bu dönem "Bu dönem", geçmişler bittiği ayın ekstresi
+  // ("Eylül ekstresi"); başka yıldaysa yıl da yazılır ("Aralık 2025 ekstresi")
+  periodName(offset, lastDay) {
     if (offset === 0) return 'Bu dönem';
-    if (offset === -1) return 'Geçen dönem';
-    return -offset + ' dönem önce';
+    const d = new Date(lastDay);
+    const year = d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : '';
+    return d.toLocaleDateString('tr-TR', { month: 'long' }) + year + ' ekstresi';
   },
 
   installment(n) {

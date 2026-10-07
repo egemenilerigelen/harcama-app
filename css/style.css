@@ -11,6 +11,7 @@
   --gold: #d9b877;
   --gold-soft: rgba(217, 184, 119, 0.14);
   --danger: #e88f8f;
+  --danger-bg: #b54a4a;
 
   /* DERİNLİK: ışık tek yerden (yukarıdan); kabarık = basılan, gömük = yazılan. Gölgeler nötr */
   --raised: linear-gradient(180deg, #1c1f26, #15171c);
@@ -99,6 +100,7 @@ button {
 .view {
   display: none;
   height: 100%;
+  overflow: hidden; /* kayan dönem kartı ekran dışına taşmasın */
   flex-direction: column;
   padding: calc(env(safe-area-inset-top, 0px) + var(--gap)) var(--edge) var(--gap);
 }
@@ -547,6 +549,16 @@ body.has-amt .pad .add.pressed {
   border: 1px solid var(--line);
   box-shadow: var(--hl), var(--elev);
   text-align: center;
+  /* Yatay kaydırarak dönem değişir (Touch.bindPager); süre Config.PAGER_SLIDE_MS ile aynı */
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.18s var(--ease), opacity 0.18s ease;
+}
+
+/* Parmak sürüklerken kart gecikmesiz izler */
+.period.dragging {
+  transition: none;
 }
 
 .period-nav {
@@ -655,7 +667,8 @@ body.has-amt .pad .add.pressed {
   overflow: hidden;
 }
 
-/* SOLA KAYDIRARAK SİLME: satırın arkasında kırmızı "Sil" zemini */
+/* SOLA KAYDIRARAK SİLME: kırmızı "Sil" zemini sadece satırın açtığı alanda (--reveal),
+   satırın arkasında kırmızı yok ki kenarlardan sızmasın */
 .swipe {
   position: relative;
   border-top: 1px solid var(--line);
@@ -665,8 +678,20 @@ body.has-amt .pad .add.pressed {
   border-top: 0;
 }
 
-.swipe.on {
-  background: #b54a4a;
+.swipe::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--reveal, 0px);
+  background: var(--danger-bg);
+  transition: width 0.2s var(--ease);
+}
+
+/* Parmak sürüklerken zemin satırı gecikmesiz izler */
+.swipe.dragging::before {
+  transition: none;
 }
 
 .swipe.on::after {
@@ -692,7 +717,7 @@ body.has-amt .pad .add.pressed {
   transition: transform 0.2s var(--ease);
 }
 
-/* Kayarken satır opak olur ki arkadaki kırmızı görünsün */
+/* Kayarken satır opak: arkadaki "Sil" yazısı sadece açılan alanda görünsün */
 .swipe.on .row {
   background: #191b21;
 }

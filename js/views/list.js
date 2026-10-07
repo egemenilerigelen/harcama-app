@@ -8,6 +8,7 @@ class ListView {
   #rowActions;
   #onChange;
   #view = document.querySelector('[data-view="list"]');
+  #card = document.querySelector('.period');
   #list = $('list');
   #search = $('search');
   #prev = $('perPrev');
@@ -19,6 +20,14 @@ class ListView {
 
     Touch.bindPress(this.#prev, () => { if (!this.#prev.disabled) this.#step(-1); });
     Touch.bindPress(this.#next, () => { if (!this.#next.disabled) this.#step(1); });
+
+    // Dönem kartını kaydırarak da gezilir; sınırlar okların durumundan okunur
+    Touch.bindPager(this.#card, {
+      canPrev: () => !this.#prev.disabled,
+      canNext: () => !this.#next.disabled,
+      onPrev: () => this.#step(-1),
+      onNext: () => this.#step(1)
+    });
 
     $('searchBtn').onclick = () => this.#setSearch(!this.#searching);
     $('searchCancel').onclick = () => this.#setSearch(false);
@@ -41,12 +50,12 @@ class ListView {
     this.#renderDays(items, empty);
   }
 
-  // Arama: tüm dönemlerde isimle eşleşenler
+  // Arama: tüm dönemlerde isimle eşleşenler. Özet: boşken tüm zamanların, yazınca eşleşenlerin toplamı
   #renderSearch(rows) {
     const q = this.#query.trim().toLocaleLowerCase('tr-TR');
     const items = q ? rows.filter(r => (r.name || '').toLocaleLowerCase('tr-TR').includes(q)) : rows;
     $('searchSum').textContent = items.length
-      ? items.length + (q ? ' sonuç · ' : ' harcama · ') + Format.money(Domain.sum(items))
+      ? (q ? 'Toplam · ' : 'Tüm zamanlar · ') + Format.money(Domain.sum(items))
       : '';
     return items;
   }
@@ -58,8 +67,9 @@ class ListView {
     const items = rows.filter(r => r.ts >= start && r.ts < end);
     const total = Domain.sum(items);
 
-    $('perName').textContent = Format.periodName(this.#offset);
-    $('listRange').textContent = Format.rangeWithYear(start, end - Config.DAY_MS);
+    const lastDay = end - Config.DAY_MS;
+    $('perName').textContent = Format.periodName(this.#offset, lastDay);
+    $('listRange').textContent = Format.rangeWithYear(start, lastDay);
     $('perTotal').textContent = Format.money(total);
     $('listSum').textContent = items.length
       ? 'Günlük ort. ' + Format.money(Math.round(total / Domain.periodDays(start, end, now)))

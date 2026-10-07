@@ -15,10 +15,22 @@ const Config = Object.freeze({
   CONFIRM_MS: 2500,
   HAPTIC_MS: 12,
 
-  // Kaydırarak silme: yön belirleme payı ve silme eşiği
+  // Yatay sürükleme: yön belirleme payı
   SWIPE_SLOP_PX: 8,
+
+  // Kaydırarak silme: eşik ve animasyon süreleri
   SWIPE_DELETE_PX: 90,
   SWIPE_DELETE_RATIO: 0.3,
+  SWIPE_OUT_MS: 160,
+  SWIPE_BACK_MS: 200,
+
+  // Dönem kartını kaydırma: geçiş eşiği, sınırda direnç, çıkış mesafesi, kayma süresi
+  // (PAGER_SLIDE_MS, CSS'teki .period geçiş süresiyle aynı olmalı)
+  PAGER_COMMIT_PX: 60,
+  PAGER_COMMIT_RATIO: 0.25,
+  PAGER_RESIST: 0.35,
+  PAGER_OUT_RATIO: 1.1,
+  PAGER_SLIDE_MS: 180,
 
   // Tutar ekranında yazının küçüldüğü karakter sayıları
   AMOUNT_SM_LEN: 9,
