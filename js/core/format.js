@@ -120,6 +120,11 @@ const Format = Object.freeze({
     return p.state === 'warn' ? 'Hızlı gidiyorsun · günde ' + perDay : 'Günde ' + perDay;
   },
 
+  // Hedef önerisi: "Son 3 ekstre ortalaması ≈ ₺8.900" / "Geçen ekstre ≈ ₺8.900"
+  goalSuggestion({ count, amount }) {
+    return (count === 1 ? 'Geçen ekstre' : 'Son ' + count + ' ekstre ortalaması') + ' ≈ ' + Format.money(amount);
+  },
+
   // Günlük grafikte dönemin ilk gününün notu: "+₺7.000 önceki taksitler"
   carriedNote(amount) {
     return '+' + Format.money(amount) + ' önceki taksitler';

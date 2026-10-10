@@ -128,6 +128,19 @@ const Domain = Object.freeze({
     };
   },
 
+  // Hedef önerisi: ilk kayıttan beri biten son Config.GOAL_SUGGEST_PERIODS ekstrenin ortalaması,
+  // Config.GOAL_SUGGEST_ROUND'a yuvarlanmış: { count, amount }. Biten ekstre ya da harcama yoksa null.
+  goalSuggestion(items, rows, now, cutoff) {
+    const since = Domain.dataSince(items, cutoff, now);
+    const done = Domain.periodTotals(rows, now, cutoff, Config.GOAL_SUGGEST_PERIODS + 1)
+      .slice(0, -1)
+      .filter(p => p.start >= since);
+    if (!done.length) return null;
+    const avg = done.reduce((s, p) => s + p.total, 0) / done.length;
+    const amount = Math.round(avg / Config.GOAL_SUGGEST_ROUND) * Config.GOAL_SUGGEST_ROUND;
+    return amount > 0 ? { count: done.length, amount } : null;
+  },
+
   // Devam eden taksitli alışverişler, kalan borcu büyükten küçüğe:
   // [{ id, name, paid (yansıyan taksit), parts, single, remaining }]
   activeInstallments(items, cutoff, now) {

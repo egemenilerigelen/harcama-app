@@ -24,7 +24,7 @@ js/ui/                ARAYÜZ YARDIMCILARI ve ortak bileşenler
   undo.js             UndoBar: geri alma şeridi
   sheet.js            BottomSheet: alttan açılan panel (temel sınıf; [data-close] kapatır)
   detail.js           DetailSheet extends BottomSheet: kayıt detay paneli
-  goal-sheet.js       GoalSheet extends BottomSheet: dönem hedefi girme/kaldırma
+  goal-sheet.js       GoalSheet extends BottomSheet: dönem hedefi girme/kaldırma, geçmiş ekstrelerden öneri
   cutoff-sheet.js     CutoffSheet extends BottomSheet: kesim günü seçimi (ayın 1–28. günleri + dönem önizlemesi)
   ring.js             GoalRing: hedef ilerleme halkası (SVG)
   barchart.js         BarChart: tek serili sütun grafik (SVG, adım sayacı tarzı)
@@ -111,6 +111,7 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
 - Dokunmatik: tuşlar, sekmeler, taksit düğmesi, dönem okları ve kesim günü seçicisi `pointerdown` ile `Touch.bindPress` üzerinden tetiklenir ve titreşim verir (`Config.HAPTIC_MS`). Yeni tuşlarda aynı yardımcıyı kullan.
 - Ayarlar sekmesi: "Dönem" bölümünde iki satır, ikisi de aynı kalıp (değer + "›", dokununca alttan panel):
   - **Hesap kesim günü** ("Ayın 13'ü", `Format.cutoffDay`): `CutoffSheet` ayın 1–28. günlerini 7 sütunda tam 4 satır gösterir (iOS Hatırlatıcılar "her ay" seçicisi gibi; stepper yok: 15'ten 1'e 14 dokunuş olurdu). Gün adı ve ay başlığı yok: kesim belirli bir tarih değil her ay tekrar eden gün, gerçek takvim yanlış ipucu verir (haftanın günü, "Ekim 2026", boş hücreler, seçilemeyen 29–31). Kutusuz düz rakamlar; seçili gün metalik altın daire (EKLE ile aynı malzeme), bugün rakamın altında nokta. Tarih bilgisini alttaki iki satır taşır: "Bu dönem" aralığı ve "Sonraki kesim" (`Format.nextCutoff`: "12 Eki · 2 gün sonra"). Her dokunuşta anında güncellenir, "Kaydet"e kadar uygulanmaz. Not satırı kesim gününün dahil olduğunu ve geçmiş dönemlerin yeniden hesaplandığını söyler.
+  - **Dönem hedefi** ("Her ekstre için harcama sınırın"): `GoalSheet`. Geçmiş veri varsa kutunun altında öneri: biten son `Config.GOAL_SUGGEST_PERIODS` ekstrenin ortalaması, `GOAL_SUGGEST_ROUND`'a yuvarlı ("Son 3 ekstre ortalaması ≈ ₺8.900 · Kullan", `Domain.goalSuggestion`). "Hedefi kaldır" kırmızı değil sade yazı düğmesi (`.plain-btn`): geri alınabilir iş; kırmızı (`.danger`) sadece silmede.
 - "Tümünü sil" Ayarlar'dadır ve iki dokunuşla onaylanır (2,5 sn içinde).
 - Arayüz dili Türkçe; sayı biçimi `tr-TR`, para birimi ₺.
 

@@ -41,6 +41,10 @@ const Config = Object.freeze({
   GOAL_PACE_SLACK: 0.1,
   GOAL_MAX_DIGITS: 9,
 
+  // Hedef önerisi: son kaç bitmiş ekstrenin ortalaması, kaça yuvarlanır
+  GOAL_SUGGEST_PERIODS: 3,
+  GOAL_SUGGEST_ROUND: 100,
+
   // Sütun grafik: çizim alanı yüksekliği, üst boşluk (ölçek etiketi), x ekseni bandı,
   // sütun en fazla genişliği, sütunlar arası boşluk, uç yuvarlaklığı, ekstre görünümünde kaç dönem
   CHART_H: 132,

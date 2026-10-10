@@ -12,7 +12,7 @@ Kredi kartı harcamalarını hızlıca kaydetmek için geliştirilmiş, mobil ö
 - **Son harcamalar:** Ana sayfada en son eklenen kayıtlar; "Tümünü gör" ile Harcamalar sekmesine geçilir.
 - **Harcamalar sekmesi:** Hesap dönemleri (ekstreler) arasında ‹ › ile ya da dönem kartını kaydırarak gezinme, dönem toplamı ve günlük ortalama, günlere göre gruplu liste. Arama ikonu tüm dönemlerde arar.
 - **Kayıt detayı:** Satıra dokununca toplam tutar, tarih, taksit planı ve kalan taksitler. Silme detaydan ya da satırı sola kaydırarak; silme geri alınabilir.
-- **Ayarlar:** Hesap kesim günü (1–28, gün seçiciden tek dokunuşla; seçilen dönemin aralığı ve sonraki kesim tarihi önizlenir), dönem hedefi ve iki dokunuşla onaylanan "Tümünü sil".
+- **Ayarlar:** Hesap kesim günü (1–28, gün seçiciden tek dokunuşla; seçilen dönemin aralığı ve sonraki kesim tarihi önizlenir), dönem hedefi (geçmiş ekstrelerin ortalamasından öneriyle) ve iki dokunuşla onaylanan "Tümünü sil".
 - **Dokunmatik uyumlu:** Tuşlarda titreşim geri bildirimi ve basma efekti. Sayfa kaymaz, sadece listeler kayar.
 - **Çevrimdışı:** Veriler tarayıcının `localStorage` alanında tutulur.
 - **Sade koyu tema:** Düz yüzeyler, altın sadece vurgu için. Sistem fontu, çevrimdışı da aynı görünür.

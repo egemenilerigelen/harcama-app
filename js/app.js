@@ -7,6 +7,7 @@ class App {
   #detail;
   #goalSheet;
   #cutSheet;
+  #model = null;
   #home;
   #list;
   #summary;
@@ -53,7 +54,7 @@ class App {
     const now = Date.now();
     const cutoff = Store.getCutoff();
     const items = Store.all();
-    const model = {
+    const model = this.#model = {
       now,
       cutoff,
       goal: Store.getGoal(),
@@ -101,9 +102,10 @@ class App {
     this.refresh();
   }
 
-  // Hedef paneli: dokunma olayının içinden açılır (klavye için)
+  // Hedef paneli: dokunma olayının içinden açılır (klavye için); geçmiş ekstrelerden öneri verir
   #editGoal() {
-    this.#goalSheet.open(Store.getGoal());
+    const { now, cutoff, items, rows } = this.#model;
+    this.#goalSheet.open(Store.getGoal(), Domain.goalSuggestion(items, rows, now, cutoff));
   }
 
   #setGoal(goal) {

@@ -1373,6 +1373,58 @@ body.has-amt .pad .add.pressed {
   color: var(--surface-3);
 }
 
+/* Geçmiş ekstrelerden öneri: satırın tamamı dokunulur, "Kullan" altın bağlantı */
+.suggest {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 0 2px;
+  background: none;
+  border: 0;
+  color: var(--mut);
+  font: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.15s ease;
+}
+
+.suggest b {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* İkincil eylem: geri alınabilir işler için sade yazı düğmesi (kırmızı sadece silmede) */
+.plain-btn {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 8px;
+  background: none;
+  border: 0;
+  color: var(--mut);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.15s ease;
+}
+
+.suggest:active, .plain-btn:active {
+  opacity: 0.55;
+}
+
+.suggest[hidden], .plain-btn[hidden] {
+  display: none;
+}
+
 /* KESİM GÜNÜ PANELİ: ayın 1–28. günleri, 7 sütunda tam 4 satır (iOS Hatırlatıcılar "her ay" seçicisi gibi).
    Kutusuz düz rakamlar; kesim günü metalik altın daire (EKLE ile aynı malzeme), bugün rakamın altında nokta. */
 .cal-grid {

@@ -160,7 +160,7 @@
           <button class="set-row set-link" id="goalRow">
             <span class="set-info">
               <b>Dönem hedefi</b>
-              <small>Özet'teki halka bu tutara göre dolar</small>
+              <small>Her ekstre için harcama sınırın</small>
             </span>
             <span class="set-value" id="goalValue">Yok</span>
             <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg>
@@ -239,9 +239,10 @@
       <p class="sheet-note">Her ekstre bu tutarla ölçülür. İstediğin zaman değiştirebilirsin.</p>
       <label class="goal-input">
         <span class="cur">₺</span>
-        <input id="goalInput" inputmode="numeric" enterkeyhint="done" autocomplete="off" placeholder="10.000" aria-label="Hedef tutarı">
+        <input id="goalInput" inputmode="numeric" enterkeyhint="done" autocomplete="off" placeholder="0" aria-label="Hedef tutarı">
       </label>
-      <button class="danger wide" id="goalClear">Hedefi kaldır</button>
+      <button class="suggest" id="goalSuggest" hidden><span id="goalSuggestText"></span><b>Kullan</b></button>
+      <button class="plain-btn" id="goalClear">Hedefi kaldır</button>
     </div>
   </div>
 

@@ -1,9 +1,11 @@
-// HEDEF PANELİ: dönem hedefini girer, değiştirir ya da kaldırır.
+// HEDEF PANELİ: dönem hedefini girer, değiştirir ya da kaldırır; geçmiş ekstrelerden öneri gösterir.
 // Nereye kaydedileceğini bilmez; sonucu onSave(tutar) ile dışarı verir (0 = hedef yok).
 // Bağımlılık: BottomSheet, Config, Format, $
 class GoalSheet extends BottomSheet {
   #input = $('goalInput');
   #clear = $('goalClear');
+  #suggest = $('goalSuggest');
+  #suggested = 0;
   #digits = '';
   #onSave;
 
@@ -17,16 +19,25 @@ class GoalSheet extends BottomSheet {
       if (e.key === 'Enter') this.#save();
     });
     $('goalSave').onclick = () => this.#save();
+    // Öneriyi kutuya yazar; klavye açık kalsın diye odak kutuda
+    this.#suggest.onclick = () => {
+      this.#setDigits(String(this.#suggested));
+      this.#input.focus();
+    };
     this.#clear.onclick = () => {
       this.close();
       this.#onSave(0);
     };
   }
 
-  // Dokunma olayının içinden çağrılmalı ki iPhone klavyeyi açsın
-  open(goal) {
+  // Dokunma olayının içinden çağrılmalı ki iPhone klavyeyi açsın.
+  // suggestion: Domain.goalSuggestion ({ count, amount }) ya da null; mevcut hedefle aynıysa gösterilmez
+  open(goal, suggestion) {
     this.#setDigits(goal ? String(Math.round(goal)) : '');
     this.#clear.hidden = !goal;
+    this.#suggested = suggestion && suggestion.amount !== goal ? suggestion.amount : 0;
+    this.#suggest.hidden = !this.#suggested;
+    if (this.#suggested) $('goalSuggestText').textContent = Format.goalSuggestion(suggestion);
     super.open();
     this.#input.focus();
   }
