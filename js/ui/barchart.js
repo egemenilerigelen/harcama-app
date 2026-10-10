@@ -71,13 +71,15 @@ class BarChart {
       svg.append(mark);
     });
 
-    // X ekseni etiketleri (seçici; her sütuna değil)
+    // X ekseni etiketleri (seçici; her sütuna değil): sütunun tam altında ortalı,
+    // sadece grafiğin dışına taşacaksa kenara kadar kaydırılır (dar günlük sütunlarda ilk/son gün)
     this.#bars.forEach((b, i) => {
       if (!b.tick) return;
       const cx = i * slot + slot / 2;
-      const anchor = i === 0 ? 'start' : i === this.#bars.length - 1 ? 'end' : 'middle';
-      const tx = anchor === 'start' ? i * slot : anchor === 'end' ? (i + 1) * slot : cx;
-      svg.append(BarChart.#text(b.tick, tx, H + 15, anchor));
+      const t = BarChart.#text(b.tick, cx, H + 15, 'middle');
+      svg.append(t);
+      const half = t.getComputedTextLength() / 2;
+      t.setAttribute('x', Math.min(Math.max(cx, half), width - half));
     });
 
     // Dokunma alanları: sütunun tamamı ve slotun genişliği kadar (işaretten büyük)
