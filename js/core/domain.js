@@ -7,11 +7,13 @@ const Domain = Object.freeze({
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   },
 
-  // Tarihin içinde bulunduğu hesap döneminin başı; offset ile önceki (-1) / sonraki (+1) dönemler
+  // Tarihin içinde bulunduğu hesap döneminin başı; offset ile önceki (-1) / sonraki (+1) dönemler.
+  // Bankalardaki gibi kesim günü dahil: kesim günü 12 ise dönem 13 Eyl – 12 Eki, yeni dönem ertesi gün başlar.
+  // (Kesim 28'se Şubat'ta 29. gün 1 Mart'a taşar; Date bunu kendisi yapar, dönem doğru kalır.)
   periodStart(date, cutoff, offset = 0) {
     const d = new Date(date);
-    const month = d.getDate() >= cutoff ? d.getMonth() : d.getMonth() - 1;
-    return new Date(d.getFullYear(), month + offset, cutoff);
+    const month = d.getDate() > cutoff ? d.getMonth() : d.getMonth() - 1;
+    return new Date(d.getFullYear(), month + offset, cutoff + 1);
   },
 
   // Dönemde sayılan gün: süren dönemde bugüne kadar, biten dönemde tamamı
@@ -68,7 +70,7 @@ const Domain = Object.freeze({
       .sort((a, b) => b.ts - a.ts);
   },
 
-  // Önceki dönemlerde yapılmış alışverişin bu döneme yansıyan taksiti (2. taksit ve sonrası, kesim gününe düşer)
+  // Önceki dönemlerde yapılmış alışverişin bu döneme yansıyan taksiti (2. taksit ve sonrası, dönemin ilk gününe düşer)
   isCarried(row) {
     return row.part > 1;
   },

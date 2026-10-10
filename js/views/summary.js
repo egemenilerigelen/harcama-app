@@ -85,7 +85,7 @@ class SummaryView {
 
     if (this.#mode === 'day') {
       // Sütun o gün yapılan harcama. Önceki alışverişlerin bu döneme yansıyan taksitleri sütuna girmez
-      // (kesim gününde tek dev sütun olup diğer günleri ezerdi); düştükleri günün okuma notunda yazar.
+      // (dönemin ilk gününde tek dev sütun olup diğer günleri ezerdi); düştükleri günün okuma notunda yazar.
       const inPeriod = rows.filter(r => r.ts >= start && r.ts < end);
       const days = Domain.dailyTotals(inPeriod.filter(r => !Domain.isCarried(r)), start, end);
       const carried = Domain.dailyTotals(inPeriod.filter(Domain.isCarried), start, end);

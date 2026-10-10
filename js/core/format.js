@@ -108,7 +108,7 @@ const Format = Object.freeze({
     return p.state === 'warn' ? 'Hızlı gidiyorsun · günde ' + perDay : 'Günde ' + perDay;
   },
 
-  // Günlük grafikte kesim gününün notu: "+₺7.000 önceki taksitler"
+  // Günlük grafikte dönemin ilk gününün notu: "+₺7.000 önceki taksitler"
   carriedNote(amount) {
     return '+' + Format.money(amount) + ' önceki taksitler';
   },
