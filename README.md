@@ -29,7 +29,7 @@ Derleme veya kurulum gerekmez.
    ```
 2. `index.html` dosyasını tarayıcıda aç.
 
-Telefonda kullanmak için uygulamanın bir adreste (https) yayınlanması gerekir. Adresi iPhone'da Safari ile aç, Paylaş → "Ana Ekrana Ekle" de; uygulama ana ekrandan kendi ikonuyla açılır. Bilgisayardaki kayıtları taşımak için orada "Yedekle", telefonda "Yedekten geri yükle".
+Telefonda kullanmak için **https://egemenilerigelen.github.io/harcama-app/** adresini iPhone'da Safari ile aç, Paylaş → "Ana Ekrana Ekle" de; uygulama ana ekrandan kendi ikonuyla açılır. Bilgisayardaki kayıtları taşımak için orada "Yedekle", telefonda "Yedekten geri yükle".
 
 Masaüstünde denemek için geliştirici araçlarından mobil görünüme geç. Çevrimdışı katman (service worker) sadece `http(s)` üzerinden çalışır, `file://` ile açınca devre dışıdır. Dış font yüklenmez; cihazın sistem fontu kullanılır.
 

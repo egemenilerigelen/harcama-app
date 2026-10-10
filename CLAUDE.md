@@ -141,7 +141,7 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
 
 ## Bilinen sınırlar / fikirler
 
-Uygulamanın telefona kurulabilmesi için bir adreste (https) yayınlanması gerekir; yayın yolu henüz seçilmedi. Sıradaki fikirler: kayıt düzenleme, tarih seçerek ekleme, sık kullanılan isimler, son ödeme günü, kart limiti, iade; sonra kategoriler ve çoklu kart.
+Yayın: GitHub Pages, https://egemenilerigelen.github.io/harcama-app/ (repo herkese açık; `main`'e her push'ta birkaç dakika içinde güncellenir, `.nojekyll` dosyaları işlemeden yayınlatır). Gönderilen her değişiklik uygulamayı kullanan herkese gider: push'tan önce önizlemede doğrulanır. Veri her kullanıcının kendi cihazında kalır, sunucuya gelmez. Commit e-postası GitHub'ın gizli adresi (`git config user.email` bu repoda ayarlı). Sıradaki fikirler: kayıt düzenleme, tarih seçerek ekleme, sık kullanılan isimler, son ödeme günü, kart limiti, iade; sonra kategoriler ve çoklu kart.
 
 ### Sunucuya / gerçek zamanlı veriye geçiş (tasarım ve Faz 3'ten sonra)
 
