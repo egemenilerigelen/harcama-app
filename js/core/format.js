@@ -84,6 +84,14 @@ const Format = Object.freeze({
     return p.state === 'warn' ? 'Hızlı gidiyorsun · günde ' + perDay : 'Günde ' + perDay;
   },
 
+  // Günlük grafikte kesim gününün notu: "+₺7.000 önceki taksitler"
+  carriedNote(amount) {
+    return '+' + Format.money(amount) + ' önceki taksitler';
+  },
+
+  // Ekstre grafiğinde ilk kayıttan önceki dönemler
+  noRecord: 'Kayıt yok',
+
   // Kısa ay adı: "Eki" (ekstre grafiği ekseni)
   monthShort(ts) {
     return new Date(ts).toLocaleDateString('tr-TR', { month: 'short' });

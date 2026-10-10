@@ -1135,6 +1135,11 @@ body.has-amt .pad .add.pressed {
   fill: var(--surface-3);
 }
 
+/* Verisi olmayan dönem seçilince iz biraz belirginleşir */
+.chart .stub.sel {
+  fill: var(--mut-2);
+}
+
 .chart .stub.zero {
   fill: var(--gold);
   opacity: 0.25;

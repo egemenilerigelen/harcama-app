@@ -73,6 +73,12 @@ const Domain = Object.freeze({
     return row.part > 1;
   },
 
+  // İlk kaydın döneminin başı: daha eski dönemlerde veri yok (₺0 değil). Kayıt yoksa bu dönem.
+  dataSince(items, cutoff, now) {
+    const first = items.reduce((min, i) => Math.min(min, i.ts), now);
+    return Domain.periodStart(first, cutoff).getTime();
+  },
+
   // Bir kaydın henüz gelmemiş taksit sayısı
   remainingParts(item, cutoff, now) {
     return Domain.expand([item], cutoff).filter(r => r.ts > now).length;

@@ -80,18 +80,23 @@ class SummaryView {
 
   // SÜTUN GRAFİK: günlük (bu dönemin günleri) ya da ekstre (son dönemler)
   #renderChart() {
-    const { now, cutoff, rows, goal } = this.#model;
+    const { now, cutoff, items, rows, goal } = this.#model;
+    const { start, end } = this.#period();
 
     if (this.#mode === 'day') {
-      const { start, end } = this.#period();
-      const days = Domain.dailyTotals(rows, start, end);
+      // Sütun o gün yapılan harcama. Önceki alışverişlerin bu döneme yansıyan taksitleri sütuna girmez
+      // (kesim gününde tek dev sütun olup diğer günleri ezerdi); düştükleri günün okuma notunda yazar.
+      const inPeriod = rows.filter(r => r.ts >= start && r.ts < end);
+      const days = Domain.dailyTotals(inPeriod.filter(r => !Domain.isCarried(r)), start, end);
+      const carried = Domain.dailyTotals(inPeriod.filter(Domain.isCarried), start, end);
       const today = Domain.dayKey(now);
       const last = days.length - 1, mid = Math.floor(last / 2);
       const bars = days.map((d, i) => ({
         value: d.total,
         future: d.ts > now,
         label: Format.shortWhen(d.ts),
-        tick: i === 0 || i === mid || i === last ? Format.shortDate(d.ts) : ''
+        tick: i === 0 || i === mid || i === last ? Format.shortDate(d.ts) : '',
+        note: carried[i].total ? Format.carriedNote(carried[i].total) : ''
       }));
       // Günlük görünümde bütçe çizgisi yok: hedef kartındaki "günde ₺X" ile çelişen ikinci bir sayı olurdu
       this.#chart.render(bars, {
@@ -102,16 +107,22 @@ class SummaryView {
       return;
     }
 
+    // İlk kayıttan önceki dönemler ₺0 değil "Kayıt yok"; süren dönem bitmişlerle eşit sanılmasın diye kalan günüyle
     const periods = Domain.periodTotals(rows, now, cutoff, Config.CHART_PERIODS);
+    const since = Domain.dataSince(items, cutoff, now);
+    const current = Format.periodName(0) + ' · ' + Format.daysLeft(Domain.daysLeft(start, end, now));
     const bars = periods.map((p, i) => {
+      const offset = i - (periods.length - 1);
       const lastDay = p.end - Config.DAY_MS;
+      const missing = p.start < since;
       return {
         value: p.total,
         future: false,
-        label: Format.periodName(i - (periods.length - 1), lastDay),
+        missing,
+        label: offset === 0 ? current : Format.periodName(offset, lastDay),
         tick: Format.monthShort(lastDay),
         // Hedef grafiğe çizilmez; dokunulan ekstrenin hedefe göre durumu okuma satırında
-        note: goal ? Format.goalNote(p.total, goal) : ''
+        note: missing ? Format.noRecord : goal ? Format.goalNote(p.total, goal) : ''
       };
     });
     this.#chart.render(bars, {

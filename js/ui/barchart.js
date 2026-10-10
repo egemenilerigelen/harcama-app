@@ -1,7 +1,8 @@
 // SÜTUN GRAFİK (adım sayacı tarzı): tek seri, ince altın sütunlar, grafiğin içinde çizgi/yazı kalabalığı yok.
 // Dokunulan sütunun etiketi, değeri ve varsa notu (ör. hedefe göre durumu) üstteki okuma satırında görünür;
 // seçili sütun tam, diğerleri soluk.
-// Veriyi bilmez: render(bars, opts) ile çizer. bar: { value, label, tick, future, note? }
+// Veriyi bilmez: render(bars, opts) ile çizer. bar: { value, label, tick, future, missing?, note? }
+// future: henüz gelmemiş (iz, dokunulmaz); missing: verisi yok (iz, dokununca değer yerine "—")
 // opts: { key, selected, title }
 // Bağımlılık: Config, Format, svgEl
 class BarChart {
@@ -43,20 +44,22 @@ class BarChart {
 
     const { title } = this.#opts;
     const H = Config.CHART_H, TOP = Config.CHART_TOP;
-    const max = BarChart.#niceMax(Math.max(...this.#bars.map(b => b.value)));
+    const top = Math.max(...this.#bars.map(b => b.value));
+    const max = BarChart.#niceMax(top);
     const y = v => H - (v / max) * (H - TOP);
 
     svg.innerHTML = '';
     svg.setAttribute('viewBox', '0 0 ' + width + ' ' + (H + Config.CHART_AXIS_H));
     svg.setAttribute('height', H + Config.CHART_AXIS_H);
-    svg.setAttribute('aria-label', title + ', ölçek ' + Format.money(max));
+    svg.setAttribute('aria-label', top ? title + ', ölçek ' + Format.money(max) : title);
 
-    // Ölçek: üstte tek silik çizgi + değeri, altta taban çizgisi
+    // Ölçek: üstte tek silik çizgi + değeri, altta taban çizgisi. Hiç değer yoksa ölçek
+    // değeri yazılmaz (veriden gelmeyen uydurma bir sayı olurdu)
     svg.append(
       svgEl('line', { class: 'grid', x1: 0, x2: width, y1: TOP, y2: TOP }),
-      BarChart.#text(Format.money(max), width, TOP - 5, 'end'),
       svgEl('line', { class: 'grid', x1: 0, x2: width, y1: H + 0.5, y2: H + 0.5 })
     );
+    if (top) svg.append(BarChart.#text(Format.money(max), width, TOP - 5, 'end'));
 
     // Sütunlar: slot içinde ortalı, en fazla BAR_MAX_W, aralarda BAR_GAP boşluk
     const slot = width / this.#bars.length;
@@ -64,8 +67,8 @@ class BarChart {
     this.#bars.forEach((b, i) => {
       const x = i * slot + (slot - barW) / 2;
       const h = H - y(b.value);
-      const mark = b.future || !b.value
-        ? svgEl('rect', { class: b.future ? 'stub' : 'stub zero', x, y: H - 2, width: barW, height: 2 })
+      const mark = b.future || b.missing || !b.value
+        ? svgEl('rect', { class: b.future || b.missing ? 'stub' : 'stub zero', x, y: H - 2, width: barW, height: 2 })
         : svgEl('path', { class: 'bar', d: BarChart.#barPath(x, H, barW, h) });
       mark.dataset.i = i;
       svg.append(mark);
@@ -103,7 +106,7 @@ class BarChart {
     this.#svg.querySelectorAll('[data-i]').forEach(m => m.classList.toggle('sel', Number(m.dataset.i) === this.#selected));
     const b = this.#bars[this.#selected];
     this.#label.textContent = b ? b.label : '';
-    this.#value.textContent = b ? Format.money(b.value) : '';
+    this.#value.textContent = !b ? '' : b.missing ? '—' : Format.money(b.value);
     this.#note.textContent = (b && b.note) || '';
   }
 
