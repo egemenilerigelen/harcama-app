@@ -55,6 +55,11 @@ const Format = Object.freeze({
     return d.toLocaleDateString('tr-TR', { month: 'long' }) + year + ' ekstresi';
   },
 
+  // "3 gün kaldı"
+  daysLeft(n) {
+    return n + ' gün kaldı';
+  },
+
   // Yüzde: Türkçede işaret önde ("%62")
   percent(ratio) {
     return '%' + Math.round(ratio * 100);
@@ -64,6 +69,19 @@ const Format = Object.freeze({
   goalNote(total, goal) {
     const status = total > goal ? Format.money(total - goal) + ' aştı' : Format.percent(total / goal);
     return status + ' · hedef ' + Format.money(goal);
+  },
+
+  // Hedef kartının alt satırı: ne yapmalı. p: Domain.goalProgress (hedef yoksa null),
+  // carried: bu döneme yansıyan önceki taksitler. Aşımda tutarı tekrar etmez (halka ve "Aşım" satırı söylüyor).
+  goalHint(p, carried) {
+    if (!p) return 'Halkaya dokunup bir dönem hedefi koy; her ekstre bu tutarla ölçülür.';
+    const days = Format.daysLeft(p.daysLeft);
+    if (p.state === 'over') {
+      return carried ? Format.money(carried) + ' önceki taksitlerden · ' + days : 'Dönemin bitmesine ' + p.daysLeft + ' gün var';
+    }
+    if (p.perDay < 1) return 'Hedefin sınırındasın · ' + days;
+    const perDay = Format.money(Math.floor(p.perDay)) + ' ile hedefte kalırsın · ' + days;
+    return p.state === 'warn' ? 'Hızlı gidiyorsun · günde ' + perDay : 'Günde ' + perDay;
   },
 
   // Kısa ay adı: "Eki" (ekstre grafiği ekseni)

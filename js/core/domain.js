@@ -21,6 +21,11 @@ const Domain = Object.freeze({
       : Math.round((end - start) / Config.DAY_MS);
   },
 
+  // Dönemin kalan günü (bugün dahil, en az 1)
+  daysLeft(start, end, now) {
+    return Math.max(1, Domain.periodDays(start, end, end) - Domain.periodDays(start, end, now) + 1);
+  },
+
   clampCutoff(day) {
     return Math.min(Config.CUTOFF_MAX, Math.max(Config.CUTOFF_MIN, day));
   },
@@ -63,6 +68,11 @@ const Domain = Object.freeze({
       .sort((a, b) => b.ts - a.ts);
   },
 
+  // Önceki dönemlerde yapılmış alışverişin bu döneme yansıyan taksiti (2. taksit ve sonrası, kesim gününe düşer)
+  isCarried(row) {
+    return row.part > 1;
+  },
+
   // Bir kaydın henüz gelmemiş taksit sayısı
   remainingParts(item, cutoff, now) {
     return Domain.expand([item], cutoff).filter(r => r.ts > now).length;
@@ -93,15 +103,20 @@ const Domain = Object.freeze({
     return periods;
   },
 
-  // Hedef ilerlemesi: oran, kalan (eksiyse aşım), kalan gün ve hedefte kalmak için günlük tutar
+  // Hedef ilerlemesi: oran, kalan (eksiyse aşım), kalan gün, hedefte kalmak için günlük tutar ve durum.
+  // Durum tempoya bakar, sadece orana değil: dönemin sonunda %80 normal, başında %50 alarm.
+  // 'over' hedef aşıldı, 'warn' harcama dönemin geçen kısmının Config.GOAL_PACE_SLACK'ten fazla önünde, 'ok'
   goalProgress(spent, goal, start, end, now) {
-    const daysLeft = Math.max(1, Domain.periodDays(start, end, end) - Domain.periodDays(start, end, now) + 1);
+    const daysLeft = Domain.daysLeft(start, end, now);
     const remaining = goal - spent;
+    const ratio = goal ? spent / goal : 0;
+    const elapsed = Domain.periodDays(start, end, now) / Domain.periodDays(start, end, end);
     return {
-      ratio: goal ? spent / goal : 0,
+      ratio,
       remaining,
       daysLeft,
-      perDay: remaining > 0 ? remaining / daysLeft : 0
+      perDay: remaining > 0 ? remaining / daysLeft : 0,
+      state: ratio > 1 ? 'over' : ratio > elapsed + Config.GOAL_PACE_SLACK ? 'warn' : 'ok'
     };
   },
 

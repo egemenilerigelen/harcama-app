@@ -36,6 +36,6 @@ class GoalRing {
     this.#arc.style.opacity = filled > 0 ? '' : '0'; // %0'da yuvarlak uç nokta gibi görünmesin
 
     this.#pct.textContent = state === 'none' ? 'Hedef' : Format.percent(ratio);
-    this.#sub.textContent = state === 'none' ? 'koy' : 'doldu';
+    this.#sub.textContent = state === 'none' ? 'koy' : state === 'over' ? 'aşıldı' : 'doldu';
   }
 }

@@ -36,8 +36,9 @@ const Config = Object.freeze({
   AMOUNT_SM_LEN: 9,
   AMOUNT_XS_LEN: 12,
 
-  // Dönem hedefi: bu orandan sonra halka uyarı rengine döner; en fazla hane
-  GOAL_WARN_RATIO: 0.8,
+  // Dönem hedefi: harcama oranı dönemin geçen kısmını bu paydan fazla geçerse halka uyarı rengine döner
+  // (ör. dönemin %30'u geçmişken hedefin %40'ından fazlası harcandıysa); en fazla hane
+  GOAL_PACE_SLACK: 0.1,
   GOAL_MAX_DIGITS: 9,
 
   // Sütun grafik: çizim alanı yüksekliği, üst boşluk (ölçek etiketi), x ekseni bandı,

@@ -54,7 +54,8 @@ class SummaryView {
   #renderGoal() {
     const { now, rows, goal } = this.#model;
     const { start, end } = this.#period();
-    const spent = Domain.sum(rows.filter(r => r.ts >= start));
+    const period = rows.filter(r => r.ts >= start);
+    const spent = Domain.sum(period);
 
     $('sumRange').textContent = Format.range(start, end - Config.DAY_MS);
     $('gSpent').textContent = Format.money(spent);
@@ -64,20 +65,17 @@ class SummaryView {
       $('gGoal').textContent = '—';
       $('gLeftLabel').textContent = 'Kalan';
       $('gLeft').textContent = '—';
-      $('gHint').textContent = 'Halkaya dokunup bir dönem hedefi koy; her ekstre bu tutarla ölçülür.';
+      $('gHint').textContent = Format.goalHint(null);
       return;
     }
 
     const p = Domain.goalProgress(spent, goal, start, end, now);
-    const state = p.ratio > 1 ? 'over' : p.ratio >= Config.GOAL_WARN_RATIO ? 'warn' : 'ok';
-    this.#ring.render(p.ratio, state);
+    this.#ring.render(p.ratio, p.state);
 
     $('gGoal').textContent = Format.money(goal);
     $('gLeftLabel').textContent = p.remaining < 0 ? 'Aşım' : 'Kalan';
     $('gLeft').textContent = Format.money(Math.abs(p.remaining));
-    $('gHint').textContent = p.remaining < 0
-      ? 'Hedefi ' + Format.money(-p.remaining) + ' aştın.'
-      : 'Günde ' + Format.money(Math.floor(p.perDay)) + ' ile hedefte kalırsın · ' + p.daysLeft + ' gün kaldı';
+    $('gHint').textContent = Format.goalHint(p, Domain.sum(period.filter(Domain.isCarried)));
   }
 
   // SÜTUN GRAFİK: günlük (bu dönemin günleri) ya da ekstre (son dönemler)
