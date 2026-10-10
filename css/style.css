@@ -859,6 +859,12 @@ body.has-amt .pad .add.pressed {
   font-size: 13px;
 }
 
+.note.version {
+  margin-top: 6px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
 /* 5. ÖZET */
 
 /* MODÜL KARTI BAŞLIĞI (Apple Sağlık tarzı, ikonsuz): başlık kartın içinde, solda beyaz başlık,

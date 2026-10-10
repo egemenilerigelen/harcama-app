@@ -136,6 +136,7 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
 - Commit mesajları Türkçe ve kısa (örn. `UI font güncellemeleri: ...`).
 - Commit mesajlarına ve PR açıklamalarına `Co-Authored-By` veya benzeri atıf satırı ekleme.
 - Commit ve push sadece kullanıcı isteyince yapılır. Ana dal `main`. Commit'ler konu konu: her commit tek bir karar/özellik ve kendi başına çalışır.
+- Her yayında (push) `Config.VERSION` artırılır (`YYYY.AA.GG-n`); Ayarlar'ın en altında görünür, telefonda yeni sürümün geldiği buradan kontrol edilir. `sw.js` ağdan alırken HTTP önbelleğini atlar (`cache: 'no-cache'`), değişince `CACHE` adı da artırılır.
 - Yeni bir dosya (js, css, ikon) eklenince `sw.js`'teki `ASSETS` listesine de eklenir; eksik ya da yanlış yol service worker kurulumunu bozar (internetsiz açılış çalışmaz).
 - README ve bu dosya kodla uyumlu kalmalı; mimari değişirse ikisini de güncelle.
 

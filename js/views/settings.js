@@ -18,6 +18,7 @@ class SettingsView {
     $('backupRow').onclick = onBackup;
     $('importRow').onclick = onImport;
     $('csvRow').onclick = onExportCsv;
+    $('appVersion').textContent = 'Sürüm ' + Config.VERSION;
 
     this.#clear.onclick = () => {
       if (!this.#armed) {

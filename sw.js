@@ -1,8 +1,9 @@
 // ÇEVRİMDIŞI KATMAN (service worker): önce ağ, olmazsa önbellek.
 // İnternet varken her açılışta güncel sürüm gelir (push edilen değişiklikler telefona ulaşır),
-// yokken son açılan sürüm çalışır. Veriye dokunmaz; sadece uygulama dosyalarını saklar.
+// yokken son açılan sürüm çalışır. Ağdan alırken tarayıcının HTTP önbelleği atlanır (no-cache:
+// sunucuya "değişti mi" diye sorulur); GitHub Pages dosyaları 10 dk önbelleklenebilir işaretliyor. Veriye dokunmaz; sadece uygulama dosyalarını saklar.
 // Yeni dosya eklenince ASSETS listesine de eklenir (eksik dosya kurulumu bozar).
-const CACHE = 'harcama-v1';
+const CACHE = 'harcama-v2';
 const ASSETS = [
   './',
   'index.html',
@@ -53,8 +54,10 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  // Sayfa açılışı (navigate) isteğine RequestInit verilemeyebilir; adresle yeniden istenir
+  const fresh = req.mode === 'navigate' ? fetch(req.url, { cache: 'no-cache' }) : fetch(req, { cache: 'no-cache' });
   e.respondWith(
-    fetch(req)
+    fresh
       .then(res => {
         if (res.ok) {
           const copy = res.clone();
