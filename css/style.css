@@ -44,8 +44,7 @@
 }
 
 html, body {
-  height: 100vh;
-  height: 100dvh;
+  height: 100%;
   margin: 0;
   overflow: hidden;
   overscroll-behavior: none;
@@ -81,14 +80,16 @@ button {
   font-family: inherit;
 }
 
+/* Uygulama ekranın dört kenarına sabitlenir; yükseklik vh/dvh'den alınmaz: iOS ana ekran
+   uygulamasında (durum çubuğu içeriğin üstünde) 100dvh üstteki güvenli alan kadar kısa çıkıyor
+   ve altta o kadar boşluk kalıyordu. Geniş ekranda ortalanır. */
 .app {
+  position: fixed;
+  inset: 0;
   max-width: 420px;
-  width: 100%;
-  height: 100vh;
-  height: 100dvh;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  position: relative;
 }
 
 /* SEKME GÖRÜNÜMLERİ: aynı anda sadece biri görünür */
