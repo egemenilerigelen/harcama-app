@@ -28,8 +28,10 @@
   /* Tuş yüksekliği ekran boyuna göre esner (küçük telefonda sıkışmasın) */
   --key-h: 48px;
 
-  /* Alt sekme çubuğunun yüksekliği (güvenli alan hariç) */
-  --tab-h: 54px;
+  /* Alt sekme çubuğu: iOS'un kendi çubuğu gibi 49pt; altındaki ana ekran çizgisi payının (34pt) 10pt'si
+     çubuğa verilir, ikon ve yazılar çizginin üstünde kalarak aşağı oturur */
+  --tab-h: 49px;
+  --tab-safe: max(env(safe-area-inset-bottom, 0px) - 10px, 0px);
 
   /* BOŞLUK ÖLÇÜSÜ: kenar 16, bloklar arası 12, bileşen içi 8 */
   --edge: 16px;
@@ -1639,7 +1641,7 @@ body.has-amt .pad .add.pressed {
   position: absolute;
   left: var(--edge);
   right: var(--edge);
-  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tab-h) + var(--gap));
+  bottom: calc(var(--tab-safe) + var(--tab-h) + var(--gap));
   z-index: 5;
   display: none;
   align-items: center;
@@ -1680,8 +1682,8 @@ body.has-amt .pad .add.pressed {
 .tabbar {
   flex-shrink: 0;
   display: flex;
-  height: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px));
-  padding: 0 6px env(safe-area-inset-bottom, 0px);
+  height: calc(var(--tab-h) + var(--tab-safe));
+  padding: 0 6px var(--tab-safe);
   background: linear-gradient(180deg, #121318, #0d0e12);
   border-top: 1px solid var(--line);
   box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.35);
@@ -1735,7 +1737,7 @@ body.has-amt .pad .add.pressed {
 
 /* Küçük ekran (iPhone SE vb.): tuş takımını ve kartları sıkılaştır */
 @media (max-height: 620px) {
-  :root { --key-h: 40px; --tab-h: 52px; --gap: 10px; --gap-s: 6px; }
+  :root { --key-h: 40px; --tab-h: 48px; --gap: 10px; --gap-s: 6px; }
   .totals { padding: 10px 14px 11px; }
   .tot-main b { font-size: 25px; }
   .tot-side b { font-size: 15px; }
