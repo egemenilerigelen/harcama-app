@@ -1,6 +1,6 @@
 # Harcama — proje notları
 
-Mobil öncelikli, tek sayfalık (alt sekme çubuklu) kredi kartı harcama takip uygulaması. Framework, derleme adımı ve dış JS bağımlılığı yok. Çalıştırmak için `index.html` tarayıcıda açılır (`file://` ile de çalışır).
+Mobil öncelikli, tek sayfalık (alt sekme çubuklu) kredi kartı harcama takip uygulaması. Framework, derleme adımı ve dış JS bağımlılığı yok. Çalıştırmak için `index.html` tarayıcıda açılır (`file://` ile de çalışır). Telefonda ana ekrana eklenen uygulama (PWA) olarak kullanılır: bir adresten bir kez Safari'de açılıp "Ana Ekrana Ekle" denir; sonra kendi ikonuyla tam ekran, internetsiz açılır.
 
 ## Dosya yapısı
 
@@ -9,6 +9,9 @@ Katmanlar; script sırası = bağımlılık yönü (bir dosya sadece kendinden �
 ```
 index.html            iskelet (4 sekme görünümü + alt bar + detay paneli) + script sırası
 css/style.css         tüm tasarım; renk, font ve boşluk değişkenleri :root'ta
+manifest.webmanifest  ana ekran uygulaması: ad, ikon, tam ekran (standalone), renkler
+sw.js                 çevrimdışı katman (service worker): önce ağ, olmazsa önbellek; ASSETS listesi
+icons/                uygulama ikonu (apple-touch-icon 180, 192, 512; koyu zemin + metalik altın kart)
 
 js/core/              ÇEKİRDEK: DOM'a dokunmaz
   config.js           Config: sabitler (gün ms, kesim günü, süreler, eşikler)
@@ -20,7 +23,7 @@ js/core/              ÇEKİRDEK: DOM'a dokunmaz
 
 js/ui/                ARAYÜZ YARDIMCILARI ve ortak bileşenler
   dom.js              $ (id ile seçim), el (eleman oluşturma, textContent ile)
-  device.js           Device: dosya paylaş/seç (paylaşım menüsü ya da indirme, dosya seçici)
+  device.js           Device: ana ekran algılama, service worker kaydı, kalıcı depolama, dosya paylaş/seç
   touch.js            Touch: haptic, bindPress, trackHorizontal (ortak yatay sürükleme), bindSwipe, bindPager
   row.js              ExpenseRow: harcama satırı (ana sayfa ve Harcamalar ortak)
   undo.js             UndoBar: geri alma şeridi
@@ -117,11 +120,13 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
 - Ayarlar sekmesi: "Dönem" bölümünde iki satır, ikisi de aynı kalıp (değer + "›", dokununca alttan panel):
   - **Hesap kesim günü** ("Ayın 13'ü", `Format.cutoffDay`): `CutoffSheet` ayın 1–28. günlerini 7 sütunda tam 4 satır gösterir (iOS Hatırlatıcılar "her ay" seçicisi gibi; stepper yok: 15'ten 1'e 14 dokunuş olurdu). Gün adı ve ay başlığı yok: kesim belirli bir tarih değil her ay tekrar eden gün, gerçek takvim yanlış ipucu verir (haftanın günü, "Ekim 2026", boş hücreler, seçilemeyen 29–31). Kutusuz düz rakamlar; seçili gün metalik altın daire (EKLE ile aynı malzeme), bugün rakamın altında nokta. Tarih bilgisini alttaki iki satır taşır: "Bu dönem" aralığı ve "Sonraki kesim" (`Format.nextCutoff`: "12 Eki · 2 gün sonra"). Her dokunuşta anında güncellenir, "Kaydet"e kadar uygulanmaz. Not satırı kesim gününün dahil olduğunu ve geçmiş dönemlerin yeniden hesaplandığını söyler.
   - **Dönem hedefi** ("Her ekstre için harcama sınırın"): `GoalSheet`. Geçmiş veri varsa kutunun altında öneri: biten son `Config.GOAL_SUGGEST_PERIODS` ekstrenin ortalaması, `GOAL_SUGGEST_ROUND`'a yuvarlı ("Son 3 ekstre ortalaması ≈ ₺8.900 · Kullan", `Domain.goalSuggestion`). "Hedefi kaldır" kırmızı değil sade yazı düğmesi (`.plain-btn`): geri alınabilir iş; kırmızı (`.danger`) sadece silmede.
+- Ayarlar'ın başında "Uygulama" bölümü: uygulama ana ekrandan açılmadıysa (`Device.isStandalone`) "Ana ekrana ekle" yönergesi (Safari'deki Paylaş işaretiyle); iPhone bunu kendisi önermez. Ana ekrandan açılınca gizlenir.
 - "Veri" bölümü (satırlar `click` ile: paylaşım menüsü ve dosya seçici ancak dokunuşun içinden açılır):
   - **Yedekle:** harcamalar + kesim günü + hedef tek JSON (`harcama-yedek-2026-10-10.json`). Dokunmatikte iPhone paylaşım menüsü (Dosyalar, iCloud, mesaj), bilgisayarda indirme (`Device.saveFile`). Paylaşımdan vazgeçilirse yedek sayılmaz. Altında "Son yedek: 12 gün önce"; kayıt varken hiç yedek yoksa ya da `Config.BACKUP_WARN_DAYS` (30) geçtiyse uyarı rengi (`Domain.backupDue`).
   - **Yedekten geri yükle:** dosya seçilir, kayıtlar birleştirilir (`Backup.merge`: aynı id iki kez eklenmez), yedekteki kesim günü ve hedef alınır (hedef yedekte yoksa mevcut korunur). Sonuç kartın altındaki durum satırında ("12 kayıt eklendi · 3 kayıt zaten vardı"); bozuk dosyada kırmızı hata. Telefon değiştirme ve bilgisayardan telefona taşıma bu yolla.
   - **CSV olarak dışa aktar:** alışveriş başına satır; Türkçe Excel için `;` ayırıcı, ondalık virgül, binlik ayraç yok, UTF-8 BOM.
 - "Tümünü sil" Ayarlar'dadır ve iki dokunuşla onaylanır (2,5 sn içinde).
+- Ana ekran uygulaması: `index.html`'de iOS meta etiketleri (tam ekran, durum çubuğu `black-translucent`: içerik altına girer, üst boşluk `safe-area-inset-top` ile), `manifest.webmanifest`, `apple-touch-icon`. `App` açılışta `Device.registerOffline()` (sadece http(s); `file://`'da yok) ve `Device.persistStorage()` çağırır. Safari, ana ekrana eklenmemiş sitelerin verisini 7 gün kullanılmazsa silebilir; ana ekran uygulaması bundan muaf, yedekleme ikinci güvence.
 - Arayüz dili Türkçe; sayı biçimi `tr-TR`, para birimi ₺.
 
 ## Çalışma kuralları
@@ -131,11 +136,12 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
 - Commit mesajları Türkçe ve kısa (örn. `UI font güncellemeleri: ...`).
 - Commit mesajlarına ve PR açıklamalarına `Co-Authored-By` veya benzeri atıf satırı ekleme.
 - Commit ve push sadece kullanıcı isteyince yapılır. Ana dal `main`. Commit'ler konu konu: her commit tek bir karar/özellik ve kendi başına çalışır.
+- Yeni bir dosya (js, css, ikon) eklenince `sw.js`'teki `ASSETS` listesine de eklenir; eksik ya da yanlış yol service worker kurulumunu bozar (internetsiz açılış çalışmaz).
 - README ve bu dosya kodla uyumlu kalmalı; mimari değişirse ikisini de güncelle.
 
 ## Bilinen sınırlar / fikirler
 
-PWA dosyaları (manifest, service worker) henüz yok. Sıradaki fikirler: kayıt düzenleme, tarih seçerek ekleme, sık kullanılan isimler, son ödeme günü, kart limiti, iade; sonra kategoriler ve çoklu kart.
+Uygulamanın telefona kurulabilmesi için bir adreste (https) yayınlanması gerekir; yayın yolu henüz seçilmedi. Sıradaki fikirler: kayıt düzenleme, tarih seçerek ekleme, sık kullanılan isimler, son ödeme günü, kart limiti, iade; sonra kategoriler ve çoklu kart.
 
 ### Sunucuya / gerçek zamanlı veriye geçiş (tasarım ve Faz 3'ten sonra)
 

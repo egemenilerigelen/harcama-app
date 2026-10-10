@@ -1301,6 +1301,22 @@ body.has-amt .pad .add.pressed {
   color: var(--warn);
 }
 
+/* Ana ekrana ekleme yönergesindeki Paylaş işareti (Safari'deki düğmenin aynısı) */
+.share-ico {
+  width: 15px;
+  height: 15px;
+  vertical-align: -2px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#installSec[hidden] {
+  display: none;
+}
+
 /* Veri işlemlerinin sonucu (geri yükleme, hata): kartın altında birkaç saniye */
 .set-status {
   margin: 8px var(--gap) 0;

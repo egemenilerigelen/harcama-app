@@ -48,7 +48,12 @@ class App {
 
     this.#settings.showCutoff(Store.getCutoff());
     this.#settings.showGoal(Store.getGoal());
+    this.#settings.showInstall(!Device.isStandalone());
     this.refresh();
+
+    // Ana ekran uygulaması: internetsiz açılsın, veriler kendiliğinden silinmesin
+    Device.registerOffline();
+    Device.persistStorage();
   }
 
   // Tek yönlü render: veriyi bir kez okur, taksitleri bir kez açar, ekranlara dağıtır.

@@ -1,6 +1,6 @@
 # Harcama
 
-Kredi kartı harcamalarını hızlıca kaydetmek için geliştirilmiş, mobil öncelikli ve framework'süz bir web uygulaması. Tutarı hesap makinesi tuş takımıyla gir, isim ver, taksit seç ve ekle. Veriler cihazında kalır, sunucu gerekmez.
+Kredi kartı harcamalarını hızlıca kaydetmek için geliştirilmiş, mobil öncelikli ve framework'süz bir web uygulaması. Tutarı hesap makinesi tuş takımıyla gir, isim ver, taksit seç ve ekle. Veriler cihazında kalır, sunucu gerekmez. iPhone'da ana ekrana eklenip kurulu bir uygulama gibi, internetsiz kullanılır.
 
 ## Özellikler
 
@@ -15,6 +15,7 @@ Kredi kartı harcamalarını hızlıca kaydetmek için geliştirilmiş, mobil ö
 - **Ayarlar:** Hesap kesim günü (1–28, gün seçiciden tek dokunuşla; seçilen dönemin aralığı ve sonraki kesim tarihi önizlenir), dönem hedefi (geçmiş ekstrelerin ortalamasından öneriyle) ve iki dokunuşla onaylanan "Tümünü sil".
 - **Dokunmatik uyumlu:** Tuşlarda titreşim geri bildirimi ve basma efekti. Sayfa kaymaz, sadece listeler kayar.
 - **Yedekleme:** Tek dokunuşla JSON yedeği (iPhone paylaşım menüsüyle Dosyalar'a ya da iCloud'a), yedekten geri yükleme (kayıtlar birleştirilir, aynısı iki kez eklenmez) ve Excel'de açılan CSV. Uzun süre yedek alınmazsa hatırlatır.
+- **Ana ekran uygulaması (PWA):** Kendi ikonu ve adıyla tam ekran açılır, internetsiz çalışır; internet varken her açılışta güncel sürümü alır.
 - **Çevrimdışı:** Veriler cihazdaki `localStorage` alanında tutulur.
 - **Sade koyu tema:** Düz yüzeyler, altın sadece vurgu için. Sistem fontu, çevrimdışı da aynı görünür.
 
@@ -28,7 +29,9 @@ Derleme veya kurulum gerekmez.
    ```
 2. `index.html` dosyasını tarayıcıda aç.
 
-Telefonda denemek için sayfayı mobil tarayıcıda aç ya da masaüstü tarayıcıda geliştirici araçlarından mobil görünüme geç. Dış font yüklenmez; cihazın sistem fontu kullanılır.
+Telefonda kullanmak için uygulamanın bir adreste (https) yayınlanması gerekir. Adresi iPhone'da Safari ile aç, Paylaş → "Ana Ekrana Ekle" de; uygulama ana ekrandan kendi ikonuyla açılır. Bilgisayardaki kayıtları taşımak için orada "Yedekle", telefonda "Yedekten geri yükle".
+
+Masaüstünde denemek için geliştirici araçlarından mobil görünüme geç. Çevrimdışı katman (service worker) sadece `http(s)` üzerinden çalışır, `file://` ile açınca devre dışıdır. Dış font yüklenmez; cihazın sistem fontu kullanılır.
 
 ## Proje yapısı
 
@@ -77,10 +80,10 @@ Hesap kesim günü `cutoff_day_v1` (varsayılan 15), dönem hedefi `goal_v1`, so
 - [x] Günlük / ekstre harcama grafiği
 - [x] JSON yedekleme / geri yükleme
 - [x] CSV dışa aktarma
+- [x] PWA (manifest ve service worker) ile ana ekrana ekleme
 - [ ] Kayıt düzenleme
 - [ ] Kategoriler
 - [ ] Çoklu kart
-- [ ] PWA (manifest ve service worker) ile ana ekrana ekleme
 
 ## Teknoloji
 

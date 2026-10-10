@@ -1,7 +1,24 @@
-// CİHAZ: dosya paylaşma / seçme.
+// CİHAZ: ana ekran uygulaması, çevrimdışı katman, kalıcı depolama, dosya paylaşma / seçme.
 // Tarayıcı yeteneklerine tek kapı; desteklenmeyen yerde (file://, eski tarayıcı) sessizce geri çekilir.
 // Bağımlılık: yok
 const Device = Object.freeze({
+  // Ana ekrana eklenmiş uygulama olarak mı açıldı
+  isStandalone() {
+    return navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+  },
+
+  // Çevrimdışı katman: sadece http(s) üzerinden (file:// ile açılınca yok)
+  registerOffline() {
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  },
+
+  // Tarayıcıdan verilerin kendiliğinden silinmemesini ister (destekleniyorsa)
+  persistStorage() {
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  },
+
   // Dosyayı verir: dokunmatik cihazda paylaşım menüsü (iPhone: Dosyalar'a kaydet, iCloud, mesaj),
   // bilgisayarda indirme. Kullanıcı paylaşımdan vazgeçerse false. Dokunma olayının içinden çağrılmalı.
   async saveFile(name, type, text) {

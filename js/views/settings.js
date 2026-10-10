@@ -1,4 +1,4 @@
-// AYARLAR: hesap kesim günü, dönem hedefi, yedekleme / geri yükleme / CSV
+// AYARLAR: ana ekrana ekleme yönergesi, hesap kesim günü, dönem hedefi, yedekleme / geri yükleme / CSV
 // ve iki dokunuşla onaylanan "Tümünü sil".
 // Veriyi kendisi değiştirmez; istekleri geri çağrılarla dışarı verir.
 // Bağımlılık: Config, Format, Touch, $
@@ -43,6 +43,11 @@ class SettingsView {
     const age = $('backupAge');
     age.textContent = Format.backupAge(ts, now);
     age.classList.toggle('warn', due);
+  }
+
+  // Ana ekrana ekleme yönergesi: uygulama zaten ana ekrandan açıldıysa gizli
+  showInstall(visible) {
+    $('installSec').hidden = !visible;
   }
 
   // Veri işlemlerinin sonucu kartın altında birkaç saniye görünür
