@@ -1273,6 +1273,47 @@ body.has-amt .pad .add.pressed {
   font-size: 12px;
 }
 
+/* Taksit listesini açan / kapatan satır: listenin devamı, beyaz bağlantı yazısı (ana sayfadaki "Tümünü gör" gibi) */
+.inst-more {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--line);
+  color: var(--tx);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.15s ease;
+}
+
+.inst-more:active {
+  opacity: 0.55;
+}
+
+/* Aşağı ok: liste açıkken yukarı döner */
+.inst-more svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--mut);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.inst-more[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
 /* AYARLAR: dokununca panel açan satır (dönem hedefi) */
 .set-link {
   width: 100%;

@@ -48,5 +48,8 @@ const Config = Object.freeze({
   BAR_MAX_W: 24,
   BAR_GAP: 2,
   BAR_RADIUS: 4,
-  CHART_PERIODS: 6
+  CHART_PERIODS: 6,
+
+  // Devam eden taksitler kartında kapalıyken görünen satır sayısı (fazlası "n taksit daha" ile açılır)
+  INST_VISIBLE: 3
 });

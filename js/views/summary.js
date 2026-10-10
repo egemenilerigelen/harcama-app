@@ -1,8 +1,9 @@
 // ÖZET: dönem hedefi halkası, günlük / ekstre sütun grafiği, devam eden taksitler.
 // Hedefi kendisi değiştirmez (onEditGoal); taksite dokununca detayı açtırır (onOpen).
-// Bağımlılık: Config, Domain, Format, GoalRing, BarChart, Touch, $, el
+// Bağımlılık: Config, Domain, Format, GoalRing, BarChart, Touch, $, el, svgEl
 class SummaryView {
   #mode = 'day'; // 'day' günlük, 'period' ekstre
+  #instOpen = false; // taksit listesi tamamen açık mı
   #model = null;
   #ring;
   #chart;
@@ -122,7 +123,8 @@ class SummaryView {
     });
   }
 
-  // DEVAM EDEN TAKSİTLER: gelecek ekstreye yazılan, toplam kalan, alışveriş başına ilerleme
+  // DEVAM EDEN TAKSİTLER: gelecek ekstreye yazılan, toplam kalan, alışveriş başına ilerleme.
+  // İlk Config.INST_VISIBLE satır görünür, fazlası kartın içinde "n taksit daha" ile açılır (özetler hepsini kapsar)
   #renderInstallments() {
     const { now, cutoff, items } = this.#model;
     const active = Domain.activeInstallments(items, cutoff, now);
@@ -140,7 +142,10 @@ class SummaryView {
       return;
     }
 
-    active.forEach(i => {
+    const hidden = active.length - Config.INST_VISIBLE;
+    const shown = this.#instOpen || hidden <= 0 ? active : active.slice(0, Config.INST_VISIBLE);
+
+    shown.forEach(i => {
       const row = el('div', 'inst-row');
       const info = el('div', 'inst-info');
       const top = el('div', 'inst-top');
@@ -158,5 +163,20 @@ class SummaryView {
       row.onclick = () => this.#onOpen(i.id);
       list.appendChild(row);
     });
+
+    if (hidden <= 0) return;
+    // click (pointerdown değil): ekran kayarken yanlışlıkla açılmasın.
+    // Aşağı ok listenin bu kartın içinde açılacağını söyler (açıkken yukarı döner; "›" başka ekrana geçiştir)
+    const more = el('button', 'inst-more');
+    const chev = svgEl('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true' });
+    chev.append(svgEl('path', { d: 'm6 9.5 6 6 6-6' }));
+    more.append(el('span', '', Format.instToggle(hidden, this.#instOpen)), chev);
+    more.setAttribute('aria-expanded', this.#instOpen);
+    more.onclick = () => {
+      this.#instOpen = !this.#instOpen;
+      Touch.haptic();
+      this.#renderInstallments();
+    };
+    list.appendChild(more);
   }
 }

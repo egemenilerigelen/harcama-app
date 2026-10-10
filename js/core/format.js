@@ -79,6 +79,11 @@ const Format = Object.freeze({
     return no + '/' + of + ' taksit';
   },
 
+  // Taksit listesini açan / kapatan satır: "5 taksit daha" / "Daha az göster"
+  instToggle(hidden, open) {
+    return open ? 'Daha az göster' : hidden + ' taksit daha';
+  },
+
   // Tutar girişi: binlik ayracı (.) ve ondalık virgül (,); ham değer Calc'ta kalır
   amountInput(raw) {
     if (!raw) return '';
