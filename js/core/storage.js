@@ -4,6 +4,7 @@ const Store = {
   KEY: 'expenses_v1',
   CUTOFF_KEY: 'cutoff_day_v1',
   GOAL_KEY: 'goal_v1',
+  BACKUP_KEY: 'backup_at_v1',
 
   all() {
     try {
@@ -44,6 +45,11 @@ const Store = {
     localStorage.removeItem(this.KEY);
   },
 
+  // Tüm kayıtları yazar (yedekten geri yükleme; birleştirme Backup.merge'te)
+  replaceAll(items) {
+    localStorage.setItem(this.KEY, JSON.stringify(items));
+  },
+
   getCutoff() {
     return Number(localStorage.getItem(this.CUTOFF_KEY)) || Config.DEFAULT_CUTOFF;
   },
@@ -60,5 +66,14 @@ const Store = {
   setGoal(amount) {
     if (amount > 0) localStorage.setItem(this.GOAL_KEY, amount);
     else localStorage.removeItem(this.GOAL_KEY);
+  },
+
+  // Son yedeğin zamanı (ms); hiç alınmadıysa 0
+  getBackupAt() {
+    return Number(localStorage.getItem(this.BACKUP_KEY)) || 0;
+  },
+
+  setBackupAt(ts) {
+    localStorage.setItem(this.BACKUP_KEY, ts);
   }
 };

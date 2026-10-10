@@ -1,15 +1,23 @@
-// AYARLAR: hesap kesim günü, dönem hedefi ve iki dokunuşla onaylanan "Tümünü sil"
+// AYARLAR: hesap kesim günü, dönem hedefi, yedekleme / geri yükleme / CSV
+// ve iki dokunuşla onaylanan "Tümünü sil".
 // Veriyi kendisi değiştirmez; istekleri geri çağrılarla dışarı verir.
 // Bağımlılık: Config, Format, Touch, $
 class SettingsView {
   #clear = $('clear');
+  #status = $('dataStatus');
   #armed = false;
   #timer = null;
+  #statusTimer = null;
 
-  // onEditCutoff(): kesim günü panelini aç, onEditGoal(): hedef panelini aç, onClear(): tüm kayıtları sil
-  constructor({ onEditCutoff, onEditGoal, onClear }) {
+  // onEditCutoff / onEditGoal: panelleri aç, onBackup: yedek al, onImport: yedekten geri yükle,
+  // onExportCsv: CSV ver, onClear: tüm kayıtları sil
+  constructor({ onEditCutoff, onEditGoal, onBackup, onImport, onExportCsv, onClear }) {
     $('cutRow').onclick = onEditCutoff;
     $('goalRow').onclick = onEditGoal; // click: iPhone klavyesi açılabilsin
+    // click: paylaşım menüsü ve dosya seçici ancak dokunuşun içinden açılır
+    $('backupRow').onclick = onBackup;
+    $('importRow').onclick = onImport;
+    $('csvRow').onclick = onExportCsv;
 
     this.#clear.onclick = () => {
       if (!this.#armed) {
@@ -28,6 +36,21 @@ class SettingsView {
 
   showGoal(goal) {
     $('goalValue').textContent = goal ? Format.money(goal) : 'Yok';
+  }
+
+  // Son yedek; due: hatırlatma zamanı geldi (uyarı rengi)
+  showBackup(ts, now, due) {
+    const age = $('backupAge');
+    age.textContent = Format.backupAge(ts, now);
+    age.classList.toggle('warn', due);
+  }
+
+  // Veri işlemlerinin sonucu kartın altında birkaç saniye görünür
+  flash(text, isError = false) {
+    this.#status.textContent = text;
+    this.#status.classList.toggle('err', isError);
+    clearTimeout(this.#statusTimer);
+    this.#statusTimer = setTimeout(() => { this.#status.textContent = ''; }, Config.STATUS_MS);
   }
 
   // İlk dokunuş: onay ister, süre dolarsa vazgeçer

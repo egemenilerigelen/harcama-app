@@ -16,9 +16,11 @@ js/core/              ÇEKİRDEK: DOM'a dokunmaz
   calc.js             Calc: tutar girişi durumu (tuş takımı mantığı)
   domain.js           Domain: saf iş mantığı (dönem, taksit açma, toplam, gruplama)
   format.js           Format: ekran metinleri (para, tarih, etiketler)
+  backup.js           Backup: JSON yedeği yazma/okuma/doğrulama, birleştirme, CSV (saf)
 
 js/ui/                ARAYÜZ YARDIMCILARI ve ortak bileşenler
   dom.js              $ (id ile seçim), el (eleman oluşturma, textContent ile)
+  device.js           Device: dosya paylaş/seç (paylaşım menüsü ya da indirme, dosya seçici)
   touch.js            Touch: haptic, bindPress, trackHorizontal (ortak yatay sürükleme), bindSwipe, bindPager
   row.js              ExpenseRow: harcama satırı (ana sayfa ve Harcamalar ortak)
   undo.js             UndoBar: geri alma şeridi
@@ -72,6 +74,9 @@ Ek anahtarlar:
 
 - `cutoff_day_v1` — hesap kesim günü, varsayılan 15. Ayarlar sekmesinden 1–28 arası değiştirilir (29–31 her ayda olmadığı için kapalı).
 - `goal_v1` — dönem hedefi (₺, tam sayı); her ekstre aynı hedefle ölçülür. Yoksa hedef yok (`Store.getGoal()` 0 döner). Özet'teki halkadan ya da Ayarlar'dan değiştirilir.
+- `backup_at_v1` — son yedeğin zamanı (ms); Ayarlar'daki "Son yedek" ve hatırlatma için.
+
+Yedek dosyası (`Backup.json`): `{ app: 'harcama', version: 1, exportedAt, cutoff, goal, expenses: [...] }`. Geri yüklemede (`Backup.parse`) her kayıt doğrulanır (id, isim, sayısal tutar ve zaman), ham `expenses_v1` dizisi de kabul edilir; şema değişirse `version` artırılır ve eski sürümler okunmaya devam eder.
 
 Veri şemasını değiştirirsen eski kayıtları bozma. `Domain.expand` ve `DetailSheet` eksik `inst` ve `amt` için varsayılan kullanıyor.
 
@@ -112,6 +117,10 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
 - Ayarlar sekmesi: "Dönem" bölümünde iki satır, ikisi de aynı kalıp (değer + "›", dokununca alttan panel):
   - **Hesap kesim günü** ("Ayın 13'ü", `Format.cutoffDay`): `CutoffSheet` ayın 1–28. günlerini 7 sütunda tam 4 satır gösterir (iOS Hatırlatıcılar "her ay" seçicisi gibi; stepper yok: 15'ten 1'e 14 dokunuş olurdu). Gün adı ve ay başlığı yok: kesim belirli bir tarih değil her ay tekrar eden gün, gerçek takvim yanlış ipucu verir (haftanın günü, "Ekim 2026", boş hücreler, seçilemeyen 29–31). Kutusuz düz rakamlar; seçili gün metalik altın daire (EKLE ile aynı malzeme), bugün rakamın altında nokta. Tarih bilgisini alttaki iki satır taşır: "Bu dönem" aralığı ve "Sonraki kesim" (`Format.nextCutoff`: "12 Eki · 2 gün sonra"). Her dokunuşta anında güncellenir, "Kaydet"e kadar uygulanmaz. Not satırı kesim gününün dahil olduğunu ve geçmiş dönemlerin yeniden hesaplandığını söyler.
   - **Dönem hedefi** ("Her ekstre için harcama sınırın"): `GoalSheet`. Geçmiş veri varsa kutunun altında öneri: biten son `Config.GOAL_SUGGEST_PERIODS` ekstrenin ortalaması, `GOAL_SUGGEST_ROUND`'a yuvarlı ("Son 3 ekstre ortalaması ≈ ₺8.900 · Kullan", `Domain.goalSuggestion`). "Hedefi kaldır" kırmızı değil sade yazı düğmesi (`.plain-btn`): geri alınabilir iş; kırmızı (`.danger`) sadece silmede.
+- "Veri" bölümü (satırlar `click` ile: paylaşım menüsü ve dosya seçici ancak dokunuşun içinden açılır):
+  - **Yedekle:** harcamalar + kesim günü + hedef tek JSON (`harcama-yedek-2026-10-10.json`). Dokunmatikte iPhone paylaşım menüsü (Dosyalar, iCloud, mesaj), bilgisayarda indirme (`Device.saveFile`). Paylaşımdan vazgeçilirse yedek sayılmaz. Altında "Son yedek: 12 gün önce"; kayıt varken hiç yedek yoksa ya da `Config.BACKUP_WARN_DAYS` (30) geçtiyse uyarı rengi (`Domain.backupDue`).
+  - **Yedekten geri yükle:** dosya seçilir, kayıtlar birleştirilir (`Backup.merge`: aynı id iki kez eklenmez), yedekteki kesim günü ve hedef alınır (hedef yedekte yoksa mevcut korunur). Sonuç kartın altındaki durum satırında ("12 kayıt eklendi · 3 kayıt zaten vardı"); bozuk dosyada kırmızı hata. Telefon değiştirme ve bilgisayardan telefona taşıma bu yolla.
+  - **CSV olarak dışa aktar:** alışveriş başına satır; Türkçe Excel için `;` ayırıcı, ondalık virgül, binlik ayraç yok, UTF-8 BOM.
 - "Tümünü sil" Ayarlar'dadır ve iki dokunuşla onaylanır (2,5 sn içinde).
 - Arayüz dili Türkçe; sayı biçimi `tr-TR`, para birimi ₺.
 
@@ -121,12 +130,12 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
 - Derleme, paket yöneticisi veya test altyapısı yok. Doğrulama için tarayıcıda aç; mobil görünüm için dar viewport kullan.
 - Commit mesajları Türkçe ve kısa (örn. `UI font güncellemeleri: ...`).
 - Commit mesajlarına ve PR açıklamalarına `Co-Authored-By` veya benzeri atıf satırı ekleme.
-- Commit ve push sadece kullanıcı isteyince yapılır. Ana dal `main`.
+- Commit ve push sadece kullanıcı isteyince yapılır. Ana dal `main`. Commit'ler konu konu: her commit tek bir karar/özellik ve kendi başına çalışır.
 - README ve bu dosya kodla uyumlu kalmalı; mimari değişirse ikisini de güncelle.
 
 ## Bilinen sınırlar / fikirler
 
-PWA dosyaları (manifest, service worker) henüz yok. Sıradaki: Ayarlar sekmesinin toparlanması ve yedekleme / CSV dışa aktarma (Faz 3). Kayıt düzenleme, kategoriler ve çoklu kart planlanan fikirler.
+PWA dosyaları (manifest, service worker) henüz yok. Sıradaki fikirler: kayıt düzenleme, tarih seçerek ekleme, sık kullanılan isimler, son ödeme günü, kart limiti, iade; sonra kategoriler ve çoklu kart.
 
 ### Sunucuya / gerçek zamanlı veriye geçiş (tasarım ve Faz 3'ten sonra)
 

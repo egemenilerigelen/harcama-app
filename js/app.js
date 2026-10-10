@@ -34,6 +34,9 @@ class App {
     this.#settings = new SettingsView({
       onEditCutoff: () => this.#editCutoff(),
       onEditGoal: () => this.#editGoal(),
+      onBackup: () => this.#backup(),
+      onImport: () => this.#import(),
+      onExportCsv: () => this.#exportCsv(),
       onClear: () => this.#clear()
     });
     this.#tabs = new TabBar({ onShow: name => this.#onTab(name) });
@@ -65,6 +68,7 @@ class App {
     this.#home.render(model);
     this.#list.render(model);
     this.#summary.render(model);
+    this.#settings.showBackup(Store.getBackupAt(), now, Domain.backupDue(Store.getBackupAt(), now, items.length > 0));
   }
 
   #add({ name, amt, inst }) {
@@ -112,6 +116,49 @@ class App {
     Store.setGoal(goal);
     this.#settings.showGoal(goal);
     this.refresh();
+  }
+
+  // YEDEK: harcamalar + kesim günü + hedef tek dosyada; paylaşımdan vazgeçilirse yedek sayılmaz
+  async #backup() {
+    const now = Date.now();
+    const text = Backup.json({ items: Store.all(), cutoff: Store.getCutoff(), goal: Store.getGoal() }, now);
+    if (!await Device.saveFile(Format.backupName(now), 'application/json', text)) return;
+    Store.setBackupAt(now);
+    this.refresh();
+  }
+
+  // GERİ YÜKLEME: kayıtlar birleştirilir (aynısı iki kez eklenmez); yedekteki kesim günü ve hedef alınır
+  async #import() {
+    const text = await Device.pickFile('.json,application/json');
+    if (text == null) return;
+    let data;
+    try {
+      data = Backup.parse(text);
+    } catch (e) {
+      this.#settings.flash(e.message, true);
+      return;
+    }
+    const { items, added } = Backup.merge(Store.all(), data.items);
+    Store.replaceAll(items);
+    if (data.cutoff) {
+      Store.setCutoff(data.cutoff);
+      this.#settings.showCutoff(data.cutoff);
+    }
+    if (data.goal) {
+      Store.setGoal(data.goal);
+      this.#settings.showGoal(data.goal);
+    }
+    this.refresh();
+    this.#settings.flash(Format.importResult(added, data.items.length - added));
+  }
+
+  #exportCsv() {
+    const items = Store.all();
+    if (!items.length) {
+      this.#settings.flash('Dışa aktarılacak kayıt yok', true);
+      return;
+    }
+    Device.saveFile(Format.csvName(Date.now()), 'text/csv', Backup.csv(items));
   }
 
   #clear() {

@@ -813,10 +813,6 @@ body.has-amt .pad .add.pressed {
   border-top: 0;
 }
 
-.set-row.off {
-  opacity: 0.5;
-}
-
 .set-info {
   flex: 1;
   min-width: 0;
@@ -833,16 +829,6 @@ body.has-amt .pad .add.pressed {
   color: var(--mut);
   font-size: 13px;
   line-height: 1.35;
-}
-
-.soon {
-  padding: 3px 9px;
-  border-radius: 6px;
-  background: var(--surface-2);
-  color: var(--mut);
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
 }
 
 .danger {
@@ -1292,7 +1278,7 @@ body.has-amt .pad .add.pressed {
   transform: rotate(180deg);
 }
 
-/* AYARLAR: dokununca panel açan satır (dönem hedefi) */
+/* AYARLAR: dokununca panel açan ya da işlem yapan satır */
 .set-link {
   width: 100%;
   margin: 0;
@@ -1304,6 +1290,31 @@ body.has-amt .pad .add.pressed {
   text-align: left;
   cursor: pointer;
   touch-action: manipulation;
+}
+
+.set-link:active {
+  background: var(--surface-2);
+}
+
+/* Yedek hatırlatması: uzun süredir yedek yoksa uyarı rengi */
+.set-info small.warn {
+  color: var(--warn);
+}
+
+/* Veri işlemlerinin sonucu (geri yükleme, hata): kartın altında birkaç saniye */
+.set-status {
+  margin: 8px var(--gap) 0;
+  color: var(--mut);
+  font-size: 13px;
+  text-align: center;
+}
+
+.set-status:empty {
+  display: none;
+}
+
+.set-status.err {
+  color: var(--danger);
 }
 
 .set-value {

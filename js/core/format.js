@@ -70,9 +70,31 @@ const Format = Object.freeze({
 
   // Sonraki ekstre kesimi: "12 Eki · 2 gün sonra" / "· yarın" / "· bugün"
   nextCutoff(lastDay, now) {
-    const a = new Date(lastDay), b = new Date(now);
-    const n = Math.round((new Date(a.getFullYear(), a.getMonth(), a.getDate()) - new Date(b.getFullYear(), b.getMonth(), b.getDate())) / Config.DAY_MS);
+    const n = Domain.daysBetween(now, lastDay);
     return Format.shortDate(lastDay) + ' · ' + (n === 0 ? 'bugün' : n === 1 ? 'yarın' : n + ' gün sonra');
+  },
+
+  // Ayarlar'daki yedek satırı: "Son yedek: bugün" / "dün" / "12 gün önce" / "Henüz yedek alınmadı"
+  backupAge(ts, now) {
+    if (!ts) return 'Henüz yedek alınmadı';
+    const n = Domain.daysBetween(ts, now);
+    return 'Son yedek: ' + (n === 0 ? 'bugün' : n === 1 ? 'dün' : n + ' gün önce');
+  },
+
+  // Geri yükleme sonucu: "12 kayıt eklendi · 3 kayıt zaten vardı"
+  importResult(added, skipped) {
+    const parts = [added ? added + ' kayıt eklendi' : 'Yeni kayıt yok'];
+    if (skipped) parts.push(skipped + ' kayıt zaten vardı');
+    return parts.join(' · ');
+  },
+
+  // Dosya adları: "harcama-yedek-2026-10-10.json", "harcama-2026-10-10.csv"
+  backupName(now) {
+    return 'harcama-yedek-' + Domain.dayKey(now) + '.json';
+  },
+
+  csvName(now) {
+    return 'harcama-' + Domain.dayKey(now) + '.csv';
   },
 
   // "3 gün kaldı"

@@ -23,6 +23,17 @@ const Domain = Object.freeze({
       : Math.round((end - start) / Config.DAY_MS);
   },
 
+  // İki an arasındaki takvim günü farkı (saatten bağımsız): dün → bugün = 1
+  daysBetween(a, b) {
+    const day = ts => { const d = new Date(ts); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
+    return Math.round((day(b) - day(a)) / Config.DAY_MS);
+  },
+
+  // Yedek hatırlatması: kayıt varken hiç yedek yoksa ya da son yedek Config.BACKUP_WARN_DAYS'ten eskiyse
+  backupDue(lastBackup, now, hasData) {
+    return hasData && (!lastBackup || Domain.daysBetween(lastBackup, now) >= Config.BACKUP_WARN_DAYS);
+  },
+
   // Dönemin kalan günü (bugün dahil, en az 1)
   daysLeft(start, end, now) {
     return Math.max(1, Domain.periodDays(start, end, end) - Domain.periodDays(start, end, now) + 1);

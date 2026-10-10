@@ -14,7 +14,8 @@ Kredi kartı harcamalarını hızlıca kaydetmek için geliştirilmiş, mobil ö
 - **Kayıt detayı:** Satıra dokununca toplam tutar, tarih, taksit planı ve kalan taksitler. Silme detaydan ya da satırı sola kaydırarak; silme geri alınabilir.
 - **Ayarlar:** Hesap kesim günü (1–28, gün seçiciden tek dokunuşla; seçilen dönemin aralığı ve sonraki kesim tarihi önizlenir), dönem hedefi (geçmiş ekstrelerin ortalamasından öneriyle) ve iki dokunuşla onaylanan "Tümünü sil".
 - **Dokunmatik uyumlu:** Tuşlarda titreşim geri bildirimi ve basma efekti. Sayfa kaymaz, sadece listeler kayar.
-- **Çevrimdışı:** Veriler tarayıcının `localStorage` alanında tutulur.
+- **Yedekleme:** Tek dokunuşla JSON yedeği (iPhone paylaşım menüsüyle Dosyalar'a ya da iCloud'a), yedekten geri yükleme (kayıtlar birleştirilir, aynısı iki kez eklenmez) ve Excel'de açılan CSV. Uzun süre yedek alınmazsa hatırlatır.
+- **Çevrimdışı:** Veriler cihazdaki `localStorage` alanında tutulur.
 - **Sade koyu tema:** Düz yüzeyler, altın sadece vurgu için. Sistem fontu, çevrimdışı da aynı görünür.
 
 ## Başlarken
@@ -66,7 +67,7 @@ Harcamalar `localStorage` içinde `expenses_v1` anahtarıyla JSON dizisi olarak 
 | `inst` | Taksit sayısı (yoksa 1) |
 | `ts` | Eklenme zamanı (epoch ms) |
 
-Hesap kesim günü `cutoff_day_v1` (varsayılan 15), dönem hedefi `goal_v1` anahtarında tutulur; ikisi de Ayarlar'dan değiştirilir. `Store` nesnesi veri erişimini soyutladığı için ileride başka bir depolamaya geçmek kolaydır.
+Hesap kesim günü `cutoff_day_v1` (varsayılan 15), dönem hedefi `goal_v1`, son yedeğin zamanı `backup_at_v1` anahtarında tutulur. `Store` nesnesi veri erişimini soyutladığı için ileride başka bir depolamaya geçmek kolaydır.
 
 ## Yol haritası
 
@@ -74,10 +75,10 @@ Hesap kesim günü `cutoff_day_v1` (varsayılan 15), dönem hedefi `goal_v1` ana
 - [x] Alt sekme çubuğu ve ayrı Harcamalar ekranı
 - [x] Özet: dönem hedefi, ilerleme halkası, devam eden taksitler
 - [x] Günlük / ekstre harcama grafiği
-- [ ] JSON yedekleme / geri yükleme
-- [ ] Kategoriler
+- [x] JSON yedekleme / geri yükleme
+- [x] CSV dışa aktarma
 - [ ] Kayıt düzenleme
-- [ ] CSV dışa aktarma
+- [ ] Kategoriler
 - [ ] Çoklu kart
 - [ ] PWA (manifest ve service worker) ile ana ekrana ekleme
 

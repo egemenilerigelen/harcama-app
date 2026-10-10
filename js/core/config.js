@@ -13,6 +13,10 @@ const Config = Object.freeze({
   // Süreler (ms)
   UNDO_MS: 4000,
   CONFIRM_MS: 2500,
+  STATUS_MS: 4000,
+
+  // Yedek bu kadar gün eskiyse (ya da hiç alınmadıysa) Ayarlar'da uyarı rengiyle gösterilir
+  BACKUP_WARN_DAYS: 30,
   HAPTIC_MS: 12,
 
   // Yatay sürükleme: yön belirleme payı
