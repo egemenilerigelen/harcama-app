@@ -63,6 +63,18 @@ const Format = Object.freeze({
     return Format.statement(lastDay) + 'ne';
   },
 
+  // Kesim günü: "Ayın 13'ü"
+  cutoffDay(day) {
+    return 'Ayın ' + day + Format.possessive(day);
+  },
+
+  // Sonraki ekstre kesimi: "12 Eki · 2 gün sonra" / "· yarın" / "· bugün"
+  nextCutoff(lastDay, now) {
+    const a = new Date(lastDay), b = new Date(now);
+    const n = Math.round((new Date(a.getFullYear(), a.getMonth(), a.getDate()) - new Date(b.getFullYear(), b.getMonth(), b.getDate())) / Config.DAY_MS);
+    return Format.shortDate(lastDay) + ' · ' + (n === 0 ? 'bugün' : n === 1 ? 'yarın' : n + ' gün sonra');
+  },
+
   // "3 gün kaldı"
   daysLeft(n) {
     return n + ' gün kaldı';

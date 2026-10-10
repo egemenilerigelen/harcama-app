@@ -147,19 +147,16 @@
     <section class="view" data-view="settings">
       <header class="view-head"><h1>Ayarlar</h1></header>
       <div class="scroll">
-        <h2 class="sec-title">Kart</h2>
+        <h2 class="sec-title">Dönem</h2>
         <div class="card">
-          <div class="set-row">
-            <div class="set-info">
+          <button class="set-row set-link" id="cutRow">
+            <span class="set-info">
               <b>Hesap kesim günü</b>
               <small>Dönem toplamları ve taksitler bu güne göre hesaplanır</small>
-            </div>
-            <div class="stepper">
-              <button id="cutMinus" aria-label="Azalt">−</button>
-              <span id="cutDay">15</span>
-              <button id="cutPlus" aria-label="Arttır">+</button>
-            </div>
-          </div>
+            </span>
+            <span class="set-value" id="cutDay"></span>
+            <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg>
+          </button>
           <button class="set-row set-link" id="goalRow">
             <span class="set-info">
               <b>Dönem hedefi</b>
@@ -209,6 +206,24 @@
         <div class="kv" id="dRestRow"><span>Kalan</span><b id="dRest"></b></div>
       </div>
       <button class="danger wide" id="dDel">Harcamayı sil</button>
+    </div>
+  </div>
+
+  <!-- KESİM GÜNÜ PANELİ: ayın 1–28. günleri (kesim altın daire) + aralık ve sonraki kesim; Kaydet'e kadar uygulanmaz -->
+  <div class="sheet-wrap" id="cutSheet">
+    <div class="sheet-bg" data-close></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="cutTitle">
+      <div class="sheet-grip"></div>
+      <div class="sheet-head">
+        <h2 id="cutTitle">Hesap kesim günü</h2>
+        <button class="link save" id="cutSave">Kaydet</button>
+      </div>
+      <p class="sheet-note">Ekstrenin kesildiği gün; o günün harcamaları da ekstreye girer. Geçmiş dönemler de yeniden hesaplanır.</p>
+      <div class="cal-grid" id="cutGrid" role="radiogroup" aria-label="Kesim günü"></div>
+      <div class="card cut-preview">
+        <div class="kv"><span>Bu dönem</span><b id="cutRange"></b></div>
+        <div class="kv"><span>Sonraki kesim</span><b id="cutNext"></b></div>
+      </div>
     </div>
   </div>
 
@@ -267,6 +282,7 @@
 <script src="js/ui/sheet.js"></script>
 <script src="js/ui/detail.js"></script>
 <script src="js/ui/goal-sheet.js"></script>
+<script src="js/ui/cutoff-sheet.js"></script>
 <script src="js/ui/ring.js"></script>
 <script src="js/ui/barchart.js"></script>
 <script src="js/views/entry.js"></script>

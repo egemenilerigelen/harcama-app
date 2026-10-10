@@ -6,11 +6,9 @@ class SettingsView {
   #armed = false;
   #timer = null;
 
-  // onCutoffStep(+1 / -1): kesim gününü değiştir, onEditGoal(): hedef panelini aç,
-  // onClear(): tüm kayıtları sil
-  constructor({ onCutoffStep, onEditGoal, onClear }) {
-    Touch.bindPress($('cutMinus'), () => onCutoffStep(-1));
-    Touch.bindPress($('cutPlus'), () => onCutoffStep(1));
+  // onEditCutoff(): kesim günü panelini aç, onEditGoal(): hedef panelini aç, onClear(): tüm kayıtları sil
+  constructor({ onEditCutoff, onEditGoal, onClear }) {
+    $('cutRow').onclick = onEditCutoff;
     $('goalRow').onclick = onEditGoal; // click: iPhone klavyesi açılabilsin
 
     this.#clear.onclick = () => {
@@ -25,7 +23,7 @@ class SettingsView {
   }
 
   showCutoff(day) {
-    $('cutDay').textContent = day;
+    $('cutDay').textContent = Format.cutoffDay(day);
   }
 
   showGoal(goal) {

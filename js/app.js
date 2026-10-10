@@ -6,6 +6,7 @@ class App {
   #undo;
   #detail;
   #goalSheet;
+  #cutSheet;
   #home;
   #list;
   #summary;
@@ -22,6 +23,7 @@ class App {
     this.#undo = new UndoBar({ onRestore: item => this.#restore(item) });
     this.#detail = new DetailSheet({ onDelete: id => this.#delete(id) });
     this.#goalSheet = new GoalSheet({ onSave: goal => this.#setGoal(goal) });
+    this.#cutSheet = new CutoffSheet({ onSave: day => this.#setCutoff(day) });
     this.#home = new HomeView({ rowActions, onSeeAll: () => this.#seeAll() });
     this.#list = new ListView({ rowActions, onChange: () => this.refresh() });
     this.#summary = new SummaryView({
@@ -29,7 +31,7 @@ class App {
       onEditGoal: () => this.#editGoal()
     });
     this.#settings = new SettingsView({
-      onCutoffStep: d => this.#stepCutoff(d),
+      onEditCutoff: () => this.#editCutoff(),
       onEditGoal: () => this.#editGoal(),
       onClear: () => this.#clear()
     });
@@ -88,10 +90,14 @@ class App {
     if (item) this.#detail.open(item, Store.getCutoff(), Date.now());
   }
 
-  #stepCutoff(d) {
-    const day = Domain.clampCutoff(Store.getCutoff() + d);
-    Store.setCutoff(day);
-    this.#settings.showCutoff(day);
+  #editCutoff() {
+    this.#cutSheet.open(Store.getCutoff(), Date.now());
+  }
+
+  #setCutoff(day) {
+    const cutoff = Domain.clampCutoff(day);
+    Store.setCutoff(cutoff);
+    this.#settings.showCutoff(cutoff);
     this.refresh();
   }
 
@@ -122,6 +128,7 @@ class App {
   #onTab(name) {
     this.#detail.close();
     this.#goalSheet.close();
+    this.#cutSheet.close();
     if (name === 'home') this.#home.fit();
     if (name === 'summary') this.#summary.redraw();
   }

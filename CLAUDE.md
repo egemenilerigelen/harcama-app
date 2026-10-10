@@ -25,6 +25,7 @@ js/ui/                ARAYÜZ YARDIMCILARI ve ortak bileşenler
   sheet.js            BottomSheet: alttan açılan panel (temel sınıf; [data-close] kapatır)
   detail.js           DetailSheet extends BottomSheet: kayıt detay paneli
   goal-sheet.js       GoalSheet extends BottomSheet: dönem hedefi girme/kaldırma
+  cutoff-sheet.js     CutoffSheet extends BottomSheet: kesim günü seçimi (ayın 1–28. günleri + dönem önizlemesi)
   ring.js             GoalRing: hedef ilerleme halkası (SVG)
   barchart.js         BarChart: tek serili sütun grafik (SVG, adım sayacı tarzı)
 
@@ -33,7 +34,7 @@ js/views/             EKRANLAR: her biri kendi DOM'unu ve kendi durumunu yöneti
   home.js             HomeView: özet kartı, son harcamalar
   list.js             ListView: dönem gezgini, arama, günlere göre liste
   summary.js          SummaryView: hedef halkası, günlük/ekstre grafiği, devam eden taksitler
-  settings.js         SettingsView: kesim günü, tümünü sil
+  settings.js         SettingsView: kesim günü ve hedef satırları (panelleri açtırır), tümünü sil
   tabs.js             TabBar: alt sekme çubuğu
 
 js/app.js             App: bileşenleri kurar ve bağlar (composition root), veri akışını yönetir
@@ -89,7 +90,7 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
 ## Arayüz ve tasarım
 
 - Sade koyu tema ("siyah kart"): zemin `--bg`, yüzeyler `--surface` / `--surface-2` / `--surface-3`, kenar `--line`. Altın (`--gold`, `--gold-soft`) sadece sinyal: EKLE, seçili durumlar, ana toplamlar, bağlantılar.
-- Derinlik fiziksel mantıkla verilir, süs için değil: ışık tek yerden (yukarıdan, zemindeki nötr radial). Basılan şeyler kabarık (`--raised` + `--hl` + nötr gölge; tuşlarda alt kalınlık, basınca 2px iner), yazılan şeyler gömük (`--sunken` + `--inset`: inputlar, segment izi, stepper). EKLE metalik altın (dikey ton + koyu altın alt kenar), parlama yok. Gölgeler her zaman siyah/nötr, asla renkli.
+- Derinlik fiziksel mantıkla verilir, süs için değil: ışık tek yerden (yukarıdan, zemindeki nötr radial). Basılan şeyler kabarık (`--raised` + `--hl` + nötr gölge; tuşlarda alt kalınlık, basınca 2px iner), yazılan şeyler gömük (`--sunken` + `--inset`: inputlar, segment izi). EKLE metalik altın (dikey ton + koyu altın alt kenar), parlama yok. Gölgeler her zaman siyah/nötr, asla renkli.
 - Kaçınılacaklar ("AI slop" listesi): arka plan lekeleri, cam/blur efekti, renkli parlama gölgeleri, sürekli dönen animasyonlar, degrade yazı, dekoratif ışık çizgileri, kutu içinde kutu, geniş aralıklı BÜYÜK HARF mini etiketler, emoji ikonlar, başlığı tekrar eden süs ikonları (ikon ancak bilgi taşıyorsa: sekme çubuğu, oklar, arama), 4.5:1 altı kontrast. Hareket sadece bir şey olduğunda (ör. yeni kayıt `.row.enter`).
 - Font: sistem fontu (`--ui`; iPhone'da SF Pro). Dış font yüklenmez. Rakamlarda `font-variant-numeric: tabular-nums`. Etiketler normal yazım ("Son harcamalar"), en küçük yazı 11px.
 - Düzen sabit: `body { overflow: hidden }`, sayfa kaymaz. `.app` = `.views` (esner) + `.tabbar` (altta, `--tab-h` + `safe-area-inset-bottom`). Aynı anda tek `.view.active` görünür; içinde sadece `#list` / `.scroll` kaydırılır.
@@ -107,7 +108,9 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
   - **Devam eden taksitler:** üstte sonraki dönemin ekstresine şimdiden yazılan taksitler, ay adıyla ("Kasım ekstresine", `Format.intoStatement`; "gelecek ekstre" denmez, bankacılıkta o bu dönemin ekstresidir; `Domain.installmentsBetween`), hedef varsa altında payı ("hedefin %74'ü", `Format.goalShare`, iyelik eki `Format.possessive`), yanında "Toplam kalan"; altında alışveriş başına isim, `ödenen/toplam · taksit tutarı`, ince ilerleme çubuğu, kalan tutar (`Domain.activeInstallments`). Satıra dokununca kayıt detayı açılır. Liste kalan tutara göre sıralı; kapalıyken ilk `Config.INST_VISIBLE` (3) satır görünür, fazlası en alttaki "n taksit daha ⌄" satırıyla aynı kartın içinde açılır ("Daha az göster", ok yukarı döner; durum `SummaryView`'de). Aşağı ok "bu kartta açılır" demek, "›" başka ekrana geçiş. Kartın yeri sabit (hedef → grafik → taksitler).
 - Boşluk ölçüsü `:root`'ta: `--edge` 16px (yan kenar), `--gap` 12px (bloklar arası), `--gap-s` 8px (bileşen içi). Bölüm başlıkları (`.sec-head`, `.sec-title`, `#list h2`) tek kuralı paylaşır. Kaydırma çubukları gizli. Küçük ekran sıkılaştırmaları `@media (max-height: 620px)` bloğunda.
 - Hedef ekranlar: iPhone Safari içerik alanları 393×659 (iPhone 15), 430×739 (Pro Max), 375×548 (SE). Yatay kaydırma olmamalı, tuş takımı ve alt bar her birine sığmalı.
-- Dokunmatik: tuşlar, sekmeler, taksit düğmesi, dönem okları ve stepper `pointerdown` ile `Touch.bindPress` üzerinden tetiklenir ve titreşim verir (`Config.HAPTIC_MS`). Yeni tuşlarda aynı yardımcıyı kullan.
+- Dokunmatik: tuşlar, sekmeler, taksit düğmesi, dönem okları ve kesim günü seçicisi `pointerdown` ile `Touch.bindPress` üzerinden tetiklenir ve titreşim verir (`Config.HAPTIC_MS`). Yeni tuşlarda aynı yardımcıyı kullan.
+- Ayarlar sekmesi: "Dönem" bölümünde iki satır, ikisi de aynı kalıp (değer + "›", dokununca alttan panel):
+  - **Hesap kesim günü** ("Ayın 13'ü", `Format.cutoffDay`): `CutoffSheet` ayın 1–28. günlerini 7 sütunda tam 4 satır gösterir (iOS Hatırlatıcılar "her ay" seçicisi gibi; stepper yok: 15'ten 1'e 14 dokunuş olurdu). Gün adı ve ay başlığı yok: kesim belirli bir tarih değil her ay tekrar eden gün, gerçek takvim yanlış ipucu verir (haftanın günü, "Ekim 2026", boş hücreler, seçilemeyen 29–31). Kutusuz düz rakamlar; seçili gün metalik altın daire (EKLE ile aynı malzeme), bugün rakamın altında nokta. Tarih bilgisini alttaki iki satır taşır: "Bu dönem" aralığı ve "Sonraki kesim" (`Format.nextCutoff`: "12 Eki · 2 gün sonra"). Her dokunuşta anında güncellenir, "Kaydet"e kadar uygulanmaz. Not satırı kesim gününün dahil olduğunu ve geçmiş dönemlerin yeniden hesaplandığını söyler.
 - "Tümünü sil" Ayarlar'dadır ve iki dokunuşla onaylanır (2,5 sn içinde).
 - Arayüz dili Türkçe; sayı biçimi `tr-TR`, para birimi ₺.
 
