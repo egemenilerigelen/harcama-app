@@ -132,16 +132,20 @@ class SummaryView {
     });
   }
 
-  // DEVAM EDEN TAKSİTLER: gelecek ekstreye yazılan, toplam kalan, alışveriş başına ilerleme.
+  // DEVAM EDEN TAKSİTLER: sonraki ekstreye şimdiden yazılan (ve hedefe payı), toplam kalan, alışveriş başına ilerleme.
   // İlk Config.INST_VISIBLE satır görünür, fazlası kartın içinde "n taksit daha" ile açılır (özetler hepsini kapsar)
   #renderInstallments() {
-    const { now, cutoff, items } = this.#model;
+    const { now, cutoff, items, goal } = this.#model;
     const active = Domain.activeInstallments(items, cutoff, now);
     const next = Domain.periodStart(now, cutoff, 1).getTime();
     const after = Domain.periodStart(now, cutoff, 2).getTime();
+    const nextAmt = Domain.installmentsBetween(items, cutoff, next, after);
 
+    // "Gelecek ekstre" değil ay adı: bankacılıkta gelecek ekstre bu dönemin ekstresidir
     $('instSum').hidden = !active.length;
-    $('instNext').textContent = Format.money(Domain.installmentsBetween(items, cutoff, next, after));
+    $('instNextLabel').textContent = Format.intoStatement(after - Config.DAY_MS);
+    $('instNext').textContent = Format.money(nextAmt);
+    $('instNextNote').textContent = goal && nextAmt ? Format.goalShare(nextAmt, goal) : '';
     $('instTotal').textContent = Format.money(active.reduce((s, i) => s + i.remaining, 0));
 
     const list = $('instList');

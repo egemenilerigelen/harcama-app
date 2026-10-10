@@ -1207,6 +1207,19 @@ body.has-amt .pad .add.pressed {
   font-variant-numeric: tabular-nums;
 }
 
+/* Sonraki ekstreye yazılan taksitlerin hedefe payı (hedef yoksa boş, yer kaplamaz) */
+.inst-note {
+  display: block;
+  margin-top: 2px;
+  color: var(--mut);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.inst-note:empty {
+  display: none;
+}
+
 .inst-row {
   display: flex;
   align-items: center;

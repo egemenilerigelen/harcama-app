@@ -47,12 +47,20 @@ const Format = Object.freeze({
   },
 
   // Dönem gezgini etiketi: bu dönem "Bu dönem", geçmişler bittiği ayın ekstresi
-  // ("Eylül ekstresi"); başka yıldaysa yıl da yazılır ("Aralık 2025 ekstresi")
   periodName(offset, lastDay) {
-    if (offset === 0) return 'Bu dönem';
+    return offset === 0 ? 'Bu dönem' : Format.statement(lastDay);
+  },
+
+  // Bittiği ayın ekstresi: "Eylül ekstresi"; başka yıldaysa yıl da yazılır ("Aralık 2025 ekstresi")
+  statement(lastDay) {
     const d = new Date(lastDay);
     const year = d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : '';
     return d.toLocaleDateString('tr-TR', { month: 'long' }) + year + ' ekstresi';
+  },
+
+  // Taksitlerin şimdiden yazıldığı ekstre: "Kasım ekstresine"
+  intoStatement(lastDay) {
+    return Format.statement(lastDay) + 'ne';
   },
 
   // "3 gün kaldı"
@@ -63,6 +71,22 @@ const Format = Object.freeze({
   // Yüzde: Türkçede işaret önde ("%62")
   percent(ratio) {
     return '%' + Math.round(ratio * 100);
+  },
+
+  // Sayıya gelen iyelik eki, Türkçe okunuşun son kelimesine göre: 74 → "'ü" (dört), 50 → "'si" (elli), 6 → "'sı" (altı)
+  possessive(n) {
+    const ones = ['', "'i", "'si", "'ü", "'ü", "'i", "'sı", "'si", "'i", "'u"];
+    const tens = ['', "'u", "'si", "'u", "'ı", "'si", "'ı", "'i", "'i", "'ı"];
+    if (n === 0) return "'ı";
+    if (n % 10) return ones[n % 10];
+    if (n % 100) return tens[(n / 10) % 10];
+    return n % 1000 ? "'ü" : "'i"; // yüz / bin
+  },
+
+  // Tutarın hedefe payı: "hedefin %74'ü"
+  goalShare(amount, goal) {
+    const pct = Math.round(amount / goal * 100);
+    return 'hedefin %' + pct + Format.possessive(pct);
   },
 
   // Ekstrenin hedefe göre durumu: "%33 · hedef ₺9.500" ya da "₺1.200 aştı · hedef ₺9.500"
