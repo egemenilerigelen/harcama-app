@@ -165,7 +165,7 @@ button {
   font-weight: 400;
 }
 
-/* BU AY / BUGÜN TUTARLARI */
+/* BU DÖNEM / BUGÜN TUTARLARI */
 .totals b {
   display: block;
   overflow: hidden;
@@ -809,7 +809,7 @@ body.has-amt .pad .add.pressed {
   padding: 14px 0;
 }
 
-/* 3. AYARLAR */
+/* 4. AYARLAR */
 .set-row {
   display: flex;
   align-items: center;
@@ -874,7 +874,7 @@ body.has-amt .pad .add.pressed {
   font-variant-numeric: tabular-nums;
 }
 
-/* 5. ÖZET */
+/* 3. ÖZET */
 
 /* MODÜL KARTI BAŞLIĞI (Apple Sağlık tarzı, ikonsuz): başlık kartın içinde, solda beyaz başlık,
    sağda gri ikincil bilgi. Hiyerarşi: ekran başlığı → kart başlığı (beyaz) → kart içi etiketler (gri).
@@ -1685,7 +1685,6 @@ body.has-amt .pad .add.pressed {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 4. ALT SEKME ÇUBUĞU: iPhone home çubuğu için güvenli alan kadar uzar */
 /* ALT SEKME ÇUBUĞU: havada duran cam hap (iOS 26 sekme çubuğu gibi). AI slop listesindeki cam/blur
    yasağının tek istisnası: sistem çubuğu, içerik arkasından akar. Cam = bulanıklık + doygunluk,
    üst kenarda ışık çizgisi, kenarlarda hafif kırılma parıltısı; gölge nötr, renkli parlama yok. */

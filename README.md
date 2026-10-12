@@ -4,18 +4,18 @@ Kredi kartı harcamalarını hızlıca kaydetmek için geliştirilmiş, mobil ö
 
 ## Özellikler
 
-- **Hızlı giriş:** Üstte sabit hesap makinesi tuş takımı. En fazla 9 hane ve 2 ondalık.
+- **Hızlı giriş:** Ana sayfanın altında, başparmak bölgesinde hesap makinesi tuş takımı. En fazla 9 hane ve 2 ondalık.
 - **Taksit desteği:** İsim alanının yanındaki düğmeden tek çekim, 2x, 3x, 6x ve 12x. Taksitler hesap kesim günlerine göre aylara dağıtılır ve listede `1/3 taksit` gibi etiketlenir.
-- **Alt sekme çubuğu:** Ana Sayfa, Harcamalar, Özet ve Ayarlar. iPhone home çubuğu için güvenli alan bırakır.
-- **Özet kartı:** İçinde bulunulan hesap dönemi (kesim gününün ertesinden kesim gününe, kesim günü dahil) toplamı ve tarih aralığı, yanında bugünün toplamı.
-- **Özet sekmesi:** Dönem hedefi halkası (yüzde, kalan, "günde ₺X ile hedefte kalırsın"), adım sayacı tarzı günlük / ekstre sütun grafiği, devam eden taksitler (gelecek ekstreye yazılan, toplam kalan, alışveriş başına ilerleme).
+- **Alt sekme çubuğu:** Ana Sayfa, Harcamalar, Özet ve Ayarlar. iOS 26'daki gibi havada duran cam çubuk; içerik arkasından akar, seçili sekmenin kapsülü kayarak geçer.
+- **Özet kartı:** İçinde bulunulan hesap dönemi (kesim gününün ertesinden kesim gününe, kesim günü dahil) toplamı ve tarih aralığı, yanında bugün yapılan harcama (önceki alışverişlerin bu döneme düşen taksitleri hariç).
+- **Özet sekmesi:** Dönem hedefi halkası (yüzde, kalan, "günde ₺X ile hedefte kalırsın"), adım sayacı tarzı günlük / ekstre sütun grafiği, devam eden taksitler (sonraki ekstreye şimdiden yazılan, toplam kalan, alışveriş başına ilerleme).
 - **Son harcamalar:** Ana sayfada en son eklenen kayıtlar; "Tümünü gör" ile Harcamalar sekmesine geçilir.
 - **Harcamalar sekmesi:** Hesap dönemleri (ekstreler) arasında ‹ › ile ya da dönem kartını kaydırarak gezinme, dönem toplamı ve günlük ortalama, günlere göre gruplu liste. Arama ikonu tüm dönemlerde arar.
 - **Kayıt detayı:** Satıra dokununca toplam tutar, tarih, taksit planı ve kalan taksitler. Silme detaydan ya da satırı sola kaydırarak; silme geri alınabilir.
-- **Ayarlar:** Hesap kesim günü (1–28, gün seçiciden tek dokunuşla; seçilen dönemin aralığı ve sonraki kesim tarihi önizlenir), dönem hedefi (geçmiş ekstrelerin ortalamasından öneriyle) ve iki dokunuşla onaylanan "Tümünü sil".
+- **Ayarlar:** Ana ekrana ekleme yönergesi (Safari'den açılınca), hesap kesim günü (1–28, gün seçiciden tek dokunuşla; seçilen dönemin aralığı ve sonraki kesim tarihi önizlenir), dönem hedefi (geçmiş ekstrelerin ortalamasından öneriyle), yedekleme ve iki dokunuşla onaylanan "Tümünü sil". En altta sürüm etiketi.
 - **Dokunmatik uyumlu:** Tuşlarda titreşim geri bildirimi ve basma efekti. Sayfa kaymaz, sadece listeler kayar.
 - **Yedekleme:** Tek dokunuşla JSON yedeği (iPhone paylaşım menüsüyle Dosyalar'a ya da iCloud'a), yedekten geri yükleme (kayıtlar birleştirilir, aynısı iki kez eklenmez) ve Excel'de açılan CSV. Uzun süre yedek alınmazsa hatırlatır.
-- **Ana ekran uygulaması (PWA):** Kendi ikonu ve adıyla tam ekran açılır, internetsiz çalışır; internet varken her açılışta güncel sürümü alır.
+- **Ana ekran uygulaması (PWA):** Kendi ikonu ve adıyla tam ekran açılır, internetsiz çalışır; internet varken her açılışta güncel sürümü alır. Çekim zayıfsa 2,5 saniyeden fazla beklemez, kayıtlı sürümle açılır (yenisi sonraki açılışta gelir). Açılırken temaya uygun açılış ekranı (altın kart) görünür. Arka plandan dönünce ekran güncellenir (gün ya da dönem değişmiş olabilir).
 - **Çevrimdışı:** Veriler cihazdaki `localStorage` alanında tutulur.
 - **Sade koyu tema:** Düz yüzeyler, altın sadece vurgu için. Sistem fontu, çevrimdışı da aynı görünür.
 
@@ -37,22 +37,26 @@ Masaüstünde denemek için geliştirici araçlarından mobil görünüme geç. 
 
 ```
 harcama-app/
-├── index.html          iskelet ve script sırası
+├── index.html            iskelet, açılış ekranı ve script sırası
+├── manifest.webmanifest  ana ekran uygulaması: ad, ikon, renkler
+├── sw.js                 çevrimdışı katman (service worker)
+├── icons/                uygulama ikonu
 ├── css/
-│   └── style.css       tüm tasarım (renk, font ve boşluk değişkenleri :root'ta)
+│   └── style.css         tüm tasarım (renk, font ve boşluk değişkenleri :root'ta)
 └── js/
-    ├── core/           çekirdek, DOM'a dokunmaz
-    │   ├── config.js   sabitler
-    │   ├── storage.js  Store: localStorage katmanı
-    │   ├── calc.js     Calc: tutar girişi
-    │   ├── domain.js   iş mantığı: dönem, taksit, toplamlar (saf fonksiyonlar)
-    │   └── format.js   para ve tarih metinleri
-    ├── ui/             ortak bileşenler: dokunma, satır, geri alma, detay paneli
-    ├── views/          ekranlar: giriş paneli, ana sayfa, harcamalar, ayarlar, sekmeler
-    └── app.js          bileşenleri kurar ve bağlar
+    ├── core/             çekirdek, DOM'a dokunmaz
+    │   ├── config.js     sabitler
+    │   ├── storage.js    Store: localStorage katmanı
+    │   ├── calc.js       Calc: tutar girişi
+    │   ├── domain.js     iş mantığı: dönem, taksit, toplamlar, hedef (saf fonksiyonlar)
+    │   ├── format.js     para ve tarih metinleri (saf)
+    │   └── backup.js     JSON yedeği ve CSV
+    ├── ui/               ortak bileşenler: dokunma, cihaz, satır, geri alma, alttan paneller, halka, grafik
+    ├── views/            ekranlar: giriş paneli, ana sayfa, harcamalar, özet, ayarlar, sekmeler
+    └── app.js            bileşenleri kurar ve bağlar
 ```
 
-Katmanlar tek yönlü bağımlıdır: `core → ui → views → app`. Veriye sadece `app.js` erişir; ekranlar birbirini tanımaz, geri çağrılarla konuşur. Dosyalar ES modülü değildir (her biri tek bir global tanımlar); bu sayede `file://` ile doğrudan açılır. Script sırası `index.html`'dedir.
+Katmanlar tek yönlü bağımlıdır: `core → ui → views → app`. Veriye sadece `app.js` erişir; ekranlar birbirini tanımaz, geri çağrılarla konuşur. Durumu sahibi tutar (global değişebilir durum yok); iş mantığı ve metinler zamanı parametre olarak alır. Dosyalar ES modülü değildir (her biri tek bir global tanımlar); bu sayede `file://` ile doğrudan açılır. Script sırası `index.html`'dedir. Ayrıntılı kurallar `CLAUDE.md`'de.
 
 ## Veri modeli
 

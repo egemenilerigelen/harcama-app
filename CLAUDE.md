@@ -7,22 +7,22 @@ Mobil öncelikli, tek sayfalık (alt sekme çubuklu) kredi kartı harcama takip 
 Katmanlar; script sırası = bağımlılık yönü (bir dosya sadece kendinden önce yüklenenlere bağımlı olabilir):
 
 ```
-index.html            iskelet (4 sekme görünümü + alt bar + detay paneli) + script sırası
+index.html            iskelet (açılış ekranı + 4 sekme görünümü + alt bar + paneller) + script sırası
 css/style.css         tüm tasarım; renk, font ve boşluk değişkenleri :root'ta
 manifest.webmanifest  ana ekran uygulaması: ad, ikon, tam ekran (standalone), renkler
-sw.js                 çevrimdışı katman (service worker): önce ağ, olmazsa önbellek; ASSETS listesi
+sw.js                 çevrimdışı katman (service worker): önce ağ, geç kalırsa ya da yoksa önbellek; ASSETS listesi
 icons/                uygulama ikonu (apple-touch-icon 180, 192, 512; koyu zemin + metalik altın kart)
 
 js/core/              ÇEKİRDEK: DOM'a dokunmaz
   config.js           Config: sabitler (gün ms, kesim günü, süreler, eşikler)
   storage.js          Store: localStorage katmanı (veriye tek kapı)
-  calc.js             Calc: tutar girişi durumu (tuş takımı mantığı)
+  calc.js             Calc (sınıf): tutar girişi durumu (tuş takımı mantığı); örneğini EntryPanel tutar
   domain.js           Domain: saf iş mantığı (dönem, taksit açma, toplam, gruplama)
-  format.js           Format: ekran metinleri (para, tarih, etiketler)
+  format.js           Format: ekran metinleri (para, tarih, etiketler; saf, "bugün" için now alır)
   backup.js           Backup: JSON yedeği yazma/okuma/doğrulama, birleştirme, CSV (saf)
 
 js/ui/                ARAYÜZ YARDIMCILARI ve ortak bileşenler
-  dom.js              $ (id ile seçim), el (eleman oluşturma, textContent ile)
+  dom.js              $ (id ile seçim), el (eleman oluşturma, textContent ile), svgEl (SVG elemanı)
   device.js           Device: ana ekran algılama, service worker kaydı, kalıcı depolama, dosya paylaş/seç
   touch.js            Touch: haptic, bindPress, trackHorizontal (ortak yatay sürükleme), bindSwipe, bindPager
   row.js              ExpenseRow: harcama satırı (ana sayfa ve Harcamalar ortak)
@@ -53,10 +53,10 @@ Bu kurallar her yeni özellikte uygulanır (OOP, clean code, loose coupling):
 - **Bağımlılık tek yönlü:** `core → ui → views → app`. Alt katman üst katmanı asla çağırmaz. Her dosyanın başında `// Bağımlılık:` satırı vardır; güncel tutulur.
 - **Veriye sadece `App` erişir.** `Store` çağrıları `app.js`'te. Görünümler ve bileşenler Store'u bilmez; `localStorage` sadece `storage.js`'te.
 - **Bileşenler birbirini tanımaz.** İletişim constructor'da verilen geri çağrılarla (`onAdd`, `onDelete`, `onOpen`, `onChange`, `onSeeAll` ...) olur; bağlantıyı `App` kurar.
-- **Durumu sahibi tutar.** Her sınıf kendi durumunu private alanlarda (`#`) tutar: seçili taksit `EntryPanel`'de, dönem/arama `ListView`'de, geri alma kaydı `UndoBar`'da. Global değişebilir durum yok.
-- **İş mantığı saf.** `Domain` veriyi ve zamanı (`now`, `cutoff`) parametre olarak alır; DOM, Store ve `Date.now()` kullanmaz. Dönem hesabı tek yerde: `Domain.periodStart(date, cutoff, offset)`.
+- **Durumu sahibi tutar.** Her sınıf kendi durumunu private alanlarda (`#`) tutar: seçili taksit ve tutar girişi (`Calc` örneği) `EntryPanel`'de, dönem/arama `ListView`'de, geri alma kaydı `UndoBar`'da. Global değişebilir durum yok.
+- **İş mantığı saf.** `Domain` veriyi ve zamanı (`now`, `cutoff`) parametre olarak alır; DOM, Store ve `Date.now()` kullanmaz. Dönem hesabı tek yerde: `Domain.periodStart(date, cutoff, offset)`. `Format` da saf: "Bugün / Dün" ve "başka yılsa yıl" gibi metinler `now`'ı parametre alır (görünümler modeldeki `now`'ı verir); zamanı sadece `App` okur.
 - **Metin ve sabit tek yerde.** Ekranda görünen sayı/tarih/etiket metinleri `Format`'ta; sayılar `Config`'te (sihirli sayı yok).
-- **Render tek yönlü.** Veri değişince `App.refresh()` çağrılır: veriyi bir kez okur, `model = { now, cutoff, goal, periodStart, items, rows }` kurar (`items` ham kayıtlar, `rows` ekrandaki satırlar), `HomeView`, `ListView` ve `SummaryView`'in `render`'ına verir; listeler baştan kurulur. Görünüm kendi durumu değişince `onChange` ile yeniden çizim ister.
+- **Render tek yönlü.** Veri değişince `App.refresh()` çağrılır: veriyi bir kez okur, `model = { now, cutoff, goal, periodStart, items, rows }` kurar (`items` ham kayıtlar, `rows` ekrandaki satırlar), `HomeView`, `ListView` ve `SummaryView`'in `render`'ına verir; listeler baştan kurulur. Görünüm kendi durumu değişince `onChange` ile yeniden çizim ister. Uygulama öne gelince de (`visibilitychange`) `refresh()` çağrılır: ana ekran uygulaması kapanmadan arka planda bekler, döndüğünde gün ya da dönem değişmiş olabilir.
 - **Güvenli DOM.** Kullanıcı metni `textContent` (veya `el(tag, cls, text)`) ile yazılır; `innerHTML`'e veri konmaz (sadece temizlemek için boş string).
 - **Refactor kanıtlanır.** Yapısal değişiklikte görünüm ve davranış aynı kalmalı; önizlemede önce/sonra DOM karşılaştırmasıyla doğrulanır.
 
@@ -93,7 +93,7 @@ Veri şemasını değiştirirsen eski kayıtları bozma. `Domain.expand` ve `Det
 
 ## Tuş takımı (`calc.js`)
 
-Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham değer `Calc.raw()`, sayısal değer `Calc.value()`.
+`Calc` sınıfı; durumu örnekte, örneği `EntryPanel` tutar (global durum yok). Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham değer `raw()`, sayısal değer `value()`.
 
 ## Arayüz ve tasarım
 
@@ -103,7 +103,7 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
 - Font: sistem fontu (`--ui`; iPhone'da SF Pro). Dış font yüklenmez. Rakamlarda `font-variant-numeric: tabular-nums`. Etiketler normal yazım ("Son harcamalar"), en küçük yazı 11px.
 - Düzen sabit: `body { overflow: hidden }`, sayfa kaymaz. `.app` = `.views` (tüm ekran) + `.tabbar`: havada duran cam hap (iOS 26 gibi; `--bar-h` 62pt, kenarlardan `--edge` içeride, alttan `--bar-bottom`: ana ekran çizgisinin hemen üstü). Cam: `backdrop-filter` bulanıklık + doygunluk, üstte ışık çizgisi, kenarlarda hafif parıltı, nötr gölge; seçili sekmede cam kapsül (`.tab-pill`, `TabBar` `--tab-i` ile kaydırır, yaylı geçiş). Kayan sekmeler (Harcamalar, Özet, Ayarlar) ekranın altına kadar uzanır, içerik çubuğun arkasından akar; kayan alanların sonunda `--bar-space` boşluk var. Ana sayfada tuş takımı çubuğun üstünde (`padding-bottom: var(--bar-space)`). "Saydamlığı Azalt" açıksa ya da bulanıklık yoksa çubuk düz koyu. `.app` ekranın dört kenarına sabit (`position: fixed; inset: 0`); yükseklik için vh/dvh kullanılmaz. Ana ekran uygulamasında durum çubuğu düz siyah (`apple-mobile-web-app-status-bar-style: black`): `black-translucent`'ta iOS sayfa yüksekliğini üst güvenli alan kadar kısa hesaplıyor ve altta boşluk kalıyordu. Aynı anda tek `.view.active` görünür; içinde sadece `#list` / `.scroll` kaydırılır.
 - Sekmeler: Ana Sayfa (`home`), Harcamalar (`list`), Özet (`summary`), Ayarlar (`settings`). Geçiş `TabBar.show(name)` ile; router/hash yok.
-- Ana sayfa sırası: tek özet kartı ("Bu dönem" + dönem aralığı büyük, "Bugün" sağda küçük) → son harcamalar → giriş paneli (tuş takımı altta, başparmak bölgesinde). Son harcamalar kaymaz, panele yaslanır (artan boşluk üstte); `HomeView.fit()` en fazla `Config.RECENT_MAX` (3) satırdan tam sığanları gösterir (iPhone 15 ve Pro Max'te 3, SE'de 1). Satırlarda saat değil tarih etiketi (`Format.shortWhen`: Bugün / Dün / 5 Eki).
+- Ana sayfa sırası: tek özet kartı ("Bu dönem" + dönem aralığı büyük, "Bugün" sağda küçük; "Bugün" o gün yapılan harcama, önceki alışverişlerin dönemin ilk gününe düşen taksitleri girmez, `Domain.isCarried`) → son harcamalar → giriş paneli (tuş takımı altta, başparmak bölgesinde). Son harcamalar kaymaz, panele yaslanır (artan boşluk üstte); `HomeView.fit()` en fazla `Config.RECENT_MAX` (3) satırdan tam sığanları gösterir (ana ekran uygulamasında iPhone 15 ve Pro Max'te 3; Safari'de iPhone 15'te 2, Pro Max'te 3; SE'de 1). Satırlarda saat değil tarih etiketi (`Format.shortWhen`: Bugün / Dün / 5 Eki).
 - Taksit: isim alanının yanında tek düğme (`#instChip`); dokununca `.inst-selector` aynı satırı kaplar (`#entry.picking`), seçince ya da dışarı dokununca kapanır. Seçim `EntryPanel` içinde tutulur, düğme etiketi `Format.installment`.
 - Satır: solda saat (Harcamalar) / tarih (ana sayfa) sütunu, ortada isim + taksit etiketi yan yana (satır yüksekliği her yerde aynı), sağda tutar. ✕ yok.
 - Rakam renkleri: altın = toplamlar (dönem, gün), beyaz kalın = tek harcama, gri = bağlam (saat, ortalama).
@@ -126,7 +126,9 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
   - **Yedekten geri yükle:** dosya seçilir, kayıtlar birleştirilir (`Backup.merge`: aynı id iki kez eklenmez), yedekteki kesim günü ve hedef alınır (hedef yedekte yoksa mevcut korunur). Sonuç kartın altındaki durum satırında ("12 kayıt eklendi · 3 kayıt zaten vardı"); bozuk dosyada kırmızı hata. Telefon değiştirme ve bilgisayardan telefona taşıma bu yolla.
   - **CSV olarak dışa aktar:** alışveriş başına satır; Türkçe Excel için `;` ayırıcı, ondalık virgül, binlik ayraç yok, UTF-8 BOM.
 - "Tümünü sil" Ayarlar'dadır ve iki dokunuşla onaylanır (2,5 sn içinde).
-- Ana ekran uygulaması: `index.html`'de iOS meta etiketleri (tam ekran, durum çubuğu `black-translucent`: içerik altına girer, üst boşluk `safe-area-inset-top` ile), `manifest.webmanifest`, `apple-touch-icon`. Durum çubuğu düz siyah (yukarıdaki düzen notu). `App` açılışta `Device.registerOffline()` (sadece http(s); `file://`'da yok) ve `Device.persistStorage()` çağırır. Safari, ana ekrana eklenmemiş sitelerin verisini 7 gün kullanılmazsa silebilir; ana ekran uygulaması bundan muaf, yedekleme ikinci güvence.
+- Ana ekran uygulaması: `index.html`'de iOS meta etiketleri (tam ekran, durum çubuğu `black`: düz siyah, içerik altından başlar; sebebi yukarıdaki düzen notunda), `manifest.webmanifest`, `apple-touch-icon`. `App` açılışta `Device.registerOffline()` (sadece http(s); `file://`'da yok) ve `Device.persistStorage()` çağırır. Safari, ana ekrana eklenmemiş sitelerin verisini 7 gün kullanılmazsa silebilir; ana ekran uygulaması bundan muaf, yedekleme ikinci güvence.
+- Çevrimdışı katman (`sw.js`): önce ağ (yeni sürüm hemen gelsin), ama ağ `NETWORK_WAIT_MS` (2,5 sn) içinde yanıt vermezse önbellekteki sürümle açılır (kasada zayıf çekimde açılış takılmasın); geç gelen yanıt yine önbelleğe yazılır, yeni sürüm sonraki açılışta gelir. İnternet hiç yoksa doğrudan önbellek.
+- Açılış ekranı (`#splash`): `App` kurulana kadar `--bg` zeminde ikondaki metalik altın kart; dönen/bekleme animasyonu yok. Stili `index.html`'de satır içi (style.css'i beklemesin). `App` kurulumun sonunda `body.ready` verir, kısa geçişle kalkar; kurulum hata verirse 6 sn sonra kendiliğinden çekilir.
 - Arayüz dili Türkçe; sayı biçimi `tr-TR`, para birimi ₺.
 
 ## Çalışma kuralları
@@ -143,6 +145,12 @@ Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham de
 ## Bilinen sınırlar / fikirler
 
 Yayın: GitHub Pages, https://egemenilerigelen.github.io/harcama-app/ (repo herkese açık; `main`'e her push'ta birkaç dakika içinde güncellenir, `.nojekyll` dosyaları işlemeden yayınlatır). Gönderilen her değişiklik uygulamayı kullanan herkese gider: push'tan önce önizlemede doğrulanır. Veri her kullanıcının kendi cihazında kalır, sunucuya gelmez. Commit e-postası GitHub'ın gizli adresi (`git config user.email` bu repoda ayarlı). Sıradaki fikirler: kayıt düzenleme, tarih seçerek ekleme, sık kullanılan isimler, son ödeme günü, kart limiti, iade; sonra kategoriler ve çoklu kart.
+
+Bekleyen bilinen konular (2026-10-12 genel kontrolünden):
+
+- Giriş paneli kullanışlılığı ayrı bir turda ele alınacak; ilk madde: isim alanında iPhone klavyesinin Return'ü bir şey yapmıyor, klavye tuş takımını kapatıyor (aday çözüm `enterkeyhint="done"` + Enter'da klavyeyi kapatmak).
+- Harcamalar listesinde önceki alışverişlerin taksit satırları saat sütununda "00:00" gösteriyor (dönem başına düştükleri için); şimdilik bilerek böyle.
+- Hedef önerisi (`Domain.goalSuggestion`) ve ekstre grafiği, kayıtların başladığı yarım ilk dönemi tam ekstre gibi sayıyor; öneri olduğundan düşük çıkabilir. Şimdilik bekliyor.
 
 ### Sunucuya / gerçek zamanlı veriye geçiş (tasarım ve Faz 3'ten sonra)
 
