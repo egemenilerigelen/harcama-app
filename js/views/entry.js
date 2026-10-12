@@ -4,6 +4,7 @@
 class EntryPanel {
   static #KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'EKLE'];
 
+  #calc = new Calc(); // tutar girişinin durumu
   #inst = 1;
   #onAdd;
   #entry = $('entry');
@@ -16,7 +17,7 @@ class EntryPanel {
     this.#buildPad();
     this.#bindInstallments();
     Touch.bindPress($('back'), () => {
-      Calc.back();
+      this.#calc.back();
       this.#renderAmount();
     });
     this.#renderAmount();
@@ -26,7 +27,7 @@ class EntryPanel {
     EntryPanel.#KEYS.forEach(k => {
       const b = el('button', k === 'EKLE' ? 'add' : '', k === 'EKLE' ? 'Ekle' : k);
       Touch.bindPress(b, k === 'EKLE' ? () => this.#add() : () => {
-        Calc.press(k);
+        this.#calc.press(k);
         this.#renderAmount();
       });
       $('pad').appendChild(b);
@@ -59,21 +60,21 @@ class EntryPanel {
   }
 
   #renderAmount() {
-    const text = Format.amountInput(Calc.raw());
+    const text = Format.amountInput(this.#calc.raw());
     this.#amt.textContent = text;
     this.#amt.classList.toggle('sm', text.length > Config.AMOUNT_SM_LEN && text.length <= Config.AMOUNT_XS_LEN);
     this.#amt.classList.toggle('xs', text.length > Config.AMOUNT_XS_LEN);
-    document.body.classList.toggle('has-amt', Calc.value() > 0);
+    document.body.classList.toggle('has-amt', this.#calc.value() > 0);
   }
 
   #add() {
-    const amt = Calc.value();
+    const amt = this.#calc.value();
     if (amt <= 0) return;
 
     const entry = { name: this.#name.value.trim() || 'Adsız', amt, inst: this.#inst };
 
     // Paneli sıfırla: tutar, isim, taksit tek çekime
-    Calc.reset();
+    this.#calc.reset();
     this.#name.value = '';
     this.#setInst(1);
     this.#renderAmount();
