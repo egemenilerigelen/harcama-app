@@ -1,7 +1,9 @@
 // BİÇİMLENDİRME: ekranda görünen sayı ve tarih metinleri (tr-TR)
 // Bağımlılık: Config, Domain
 const Format = Object.freeze({
-  money(n) {
+  // Önce kuruşa yuvarlanır: taksit paylarının toplamı 6,999999… çıkıp "₺7,00" yazılmasın
+  money(amount) {
+    const n = Math.round(amount * 100) / 100;
     return '₺' + n.toLocaleString('tr-TR', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 });
   },
 
