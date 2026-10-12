@@ -42,6 +42,10 @@ class App {
     this.#tabs = new TabBar({ onShow: name => this.#onTab(name) });
     new EntryPanel({ onAdd: entry => this.#add(entry) });
 
+    // Ana ekran uygulaması kapanmadan arka planda bekler; öne gelince gün ya da dönem değişmiş olabilir
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) this.refresh();
+    });
     window.addEventListener('resize', () => this.#fit());
     // Fontlar yüklenince satır yükseklikleri değişebilir
     if (document.fonts) document.fonts.ready.then(() => this.#fit());
