@@ -47,9 +47,14 @@ class HomeView {
     }
   }
 
-  // Yeni kaydı listede kısa bir hareketle göster
+  // Yeni kaydı listede kısa bir hareketle göster (bir kez). Bitince ya da yarıda kalınca (bitmeden
+  // sekme değişti) sınıf kalkar: kalırsa ana sayfa yeniden göründükçe tarayıcı animasyonu baştan oynatır
   flashNewest() {
     const first = this.#recent.querySelector('.row');
-    if (first) first.classList.add('enter');
+    if (!first) return;
+    const done = () => first.classList.remove('enter');
+    first.addEventListener('animationend', done, { once: true });
+    first.addEventListener('animationcancel', done, { once: true });
+    first.classList.add('enter');
   }
 }
