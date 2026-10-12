@@ -15,7 +15,9 @@ class HomeView {
     const next = Domain.periodStart(now, cutoff, 1).getTime();
     const today = Domain.dayKey(now);
 
-    $('sToday').textContent = Format.money(Domain.sum(rows.filter(r => Domain.dayKey(r.ts) === today)));
+    // Bugün: bugün yapılan harcama. Önceki alışverişlerin taksitleri (dönemin ilk gününe düşer) girmez,
+    // yoksa dönemin ilk günü hiç harcama yokken "Bugün" taksit toplamını gösterirdi (dönem toplamında var)
+    $('sToday').textContent = Format.money(Domain.sum(rows.filter(r => !Domain.isCarried(r) && Domain.dayKey(r.ts) === today)));
     $('sMonth').textContent = Format.money(Domain.sum(rows.filter(r => r.ts >= start)));
     $('sPeriod').textContent = '· ' + Format.range(start, next - Config.DAY_MS);
 
