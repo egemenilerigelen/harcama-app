@@ -47,7 +47,7 @@ class ListView {
     const empty = this.#searching
       ? (this.#query.trim() ? 'Sonuç yok' : 'Henüz harcama yok')
       : 'Bu dönemde harcama yok';
-    this.#renderDays(items, empty);
+    this.#renderDays(items, empty, now);
   }
 
   // Arama: tüm dönemlerde isimle eşleşenler. Özet: boşken tüm zamanların, yazınca eşleşenlerin toplamı
@@ -68,8 +68,8 @@ class ListView {
     const total = Domain.sum(items);
 
     const lastDay = end - Config.DAY_MS;
-    $('perName').textContent = Format.periodName(this.#offset, lastDay);
-    $('listRange').textContent = Format.rangeWithYear(start, lastDay);
+    $('perName').textContent = Format.periodName(this.#offset, lastDay, now);
+    $('listRange').textContent = Format.rangeWithYear(start, lastDay, now);
     $('perTotal').textContent = Format.money(total);
     $('listSum').textContent = items.length
       ? 'Günlük ort. ' + Format.money(Math.round(total / Domain.periodDays(start, end, now)))
@@ -82,7 +82,7 @@ class ListView {
     return items;
   }
 
-  #renderDays(items, emptyText) {
+  #renderDays(items, emptyText, now) {
     this.#list.innerHTML = '';
     const groups = Domain.groupByDay(items);
     const days = Object.keys(groups);
@@ -94,7 +94,7 @@ class ListView {
 
     days.forEach(k => {
       const head = el('h2');
-      head.append(el('span', '', Format.dayLabel(k)), el('span', '', Format.money(Domain.sum(groups[k]))));
+      head.append(el('span', '', Format.dayLabel(k, now)), el('span', '', Format.money(Domain.sum(groups[k]))));
       this.#list.appendChild(head);
 
       const box = el('div', 'day');

@@ -21,16 +21,16 @@ class HomeView {
     $('sMonth').textContent = Format.money(Domain.sum(rows.filter(r => r.ts >= start)));
     $('sPeriod').textContent = '· ' + Format.range(start, next - Config.DAY_MS);
 
-    this.#renderRecent(rows.slice(0, Config.RECENT_MAX));
+    this.#renderRecent(rows.slice(0, Config.RECENT_MAX), now);
   }
 
-  #renderRecent(rows) {
+  #renderRecent(rows, now) {
     this.#recent.innerHTML = '';
     if (!rows.length) {
       this.#recent.appendChild(el('div', 'empty', 'Henüz harcama yok'));
     } else {
       const box = el('div', 'day');
-      rows.forEach(r => box.appendChild(ExpenseRow.create(r, Format.shortWhen(r.ts), this.#rowActions)));
+      rows.forEach(r => box.appendChild(ExpenseRow.create(r, Format.shortWhen(r.ts, now), this.#rowActions)));
       this.#recent.appendChild(box);
     }
     this.fit();

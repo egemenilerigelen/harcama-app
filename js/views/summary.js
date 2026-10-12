@@ -94,7 +94,7 @@ class SummaryView {
       const bars = days.map((d, i) => ({
         value: d.total,
         future: d.ts > now,
-        label: Format.shortWhen(d.ts),
+        label: Format.shortWhen(d.ts, now),
         tick: i === 0 || i === mid || i === last ? Format.shortDate(d.ts) : '',
         note: carried[i].total ? Format.carriedNote(carried[i].total) : ''
       }));
@@ -119,7 +119,7 @@ class SummaryView {
         value: p.total,
         future: false,
         missing,
-        label: offset === 0 ? current : Format.periodName(offset, lastDay),
+        label: offset === 0 ? current : Format.periodName(offset, lastDay, now),
         tick: Format.monthShort(lastDay),
         // Hedef grafiğe çizilmez; dokunulan ekstrenin hedefe göre durumu okuma satırında
         note: missing ? Format.noRecord : goal ? Format.goalNote(p.total, goal) : ''
@@ -143,7 +143,7 @@ class SummaryView {
 
     // "Gelecek ekstre" değil ay adı: bankacılıkta gelecek ekstre bu dönemin ekstresidir
     $('instSum').hidden = !active.length;
-    $('instNextLabel').textContent = Format.intoStatement(after - Config.DAY_MS);
+    $('instNextLabel').textContent = Format.intoStatement(after - Config.DAY_MS, now);
     $('instNext').textContent = Format.money(nextAmt);
     $('instNextNote').textContent = goal && nextAmt ? Format.goalShare(nextAmt, goal) : '';
     $('instTotal').textContent = Format.money(active.reduce((s, i) => s + i.remaining, 0));

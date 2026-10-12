@@ -1,4 +1,5 @@
-// BİÇİMLENDİRME: ekranda görünen sayı ve tarih metinleri (tr-TR)
+// BİÇİMLENDİRME: ekranda görünen sayı ve tarih metinleri (tr-TR).
+// Saf: "bugün" ve "bu yıl" gerektiren metinler zamanı (now) parametre olarak alır, Date.now() kullanmaz.
 // Bağımlılık: Config, Domain
 const Format = Object.freeze({
   // Önce kuruşa yuvarlanır: taksit paylarının toplamı 6,999999… çıkıp "₺7,00" yazılmasın
@@ -21,19 +22,19 @@ const Format = Object.freeze({
   },
 
   // Gün başlığı: "Bugün, 7 Ekim Sal" / "Dün, ..." / "5 Ekim Pzt"
-  dayLabel(key) {
+  dayLabel(key, now) {
     const [Y, M, D] = key.split('-');
     const label = new Date(Y, M - 1, D).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'short' });
-    if (key === Domain.dayKey(Date.now())) return 'Bugün, ' + label;
-    if (key === Domain.dayKey(Date.now() - Config.DAY_MS)) return 'Dün, ' + label;
+    if (key === Domain.dayKey(now)) return 'Bugün, ' + label;
+    if (key === Domain.dayKey(now - Config.DAY_MS)) return 'Dün, ' + label;
     return label;
   },
 
   // Kısa tarih etiketi: "Bugün", "Dün" ya da "5 Eki"
-  shortWhen(ts) {
+  shortWhen(ts, now) {
     const key = Domain.dayKey(ts);
-    if (key === Domain.dayKey(Date.now())) return 'Bugün';
-    if (key === Domain.dayKey(Date.now() - Config.DAY_MS)) return 'Dün';
+    if (key === Domain.dayKey(now)) return 'Bugün';
+    if (key === Domain.dayKey(now - Config.DAY_MS)) return 'Dün';
     return Format.shortDate(ts);
   },
 
@@ -43,26 +44,26 @@ const Format = Object.freeze({
   },
 
   // Dönem aralığı; başka yıldaysa yıl da yazılır
-  rangeWithYear(a, b) {
+  rangeWithYear(a, b, now) {
     const y = new Date(b).getFullYear();
-    return Format.range(a, b) + (y !== new Date().getFullYear() ? ' ' + y : '');
+    return Format.range(a, b) + (y !== new Date(now).getFullYear() ? ' ' + y : '');
   },
 
   // Dönem gezgini etiketi: bu dönem "Bu dönem", geçmişler bittiği ayın ekstresi
-  periodName(offset, lastDay) {
-    return offset === 0 ? 'Bu dönem' : Format.statement(lastDay);
+  periodName(offset, lastDay, now) {
+    return offset === 0 ? 'Bu dönem' : Format.statement(lastDay, now);
   },
 
   // Bittiği ayın ekstresi: "Eylül ekstresi"; başka yıldaysa yıl da yazılır ("Aralık 2025 ekstresi")
-  statement(lastDay) {
+  statement(lastDay, now) {
     const d = new Date(lastDay);
-    const year = d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : '';
+    const year = d.getFullYear() !== new Date(now).getFullYear() ? ' ' + d.getFullYear() : '';
     return d.toLocaleDateString('tr-TR', { month: 'long' }) + year + ' ekstresi';
   },
 
   // Taksitlerin şimdiden yazıldığı ekstre: "Kasım ekstresine"
-  intoStatement(lastDay) {
-    return Format.statement(lastDay) + 'ne';
+  intoStatement(lastDay, now) {
+    return Format.statement(lastDay, now) + 'ne';
   },
 
   // Kesim günü: "Ayın 13'ü"
