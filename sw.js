@@ -2,8 +2,11 @@
 // İnternet varken her açılışta güncel sürüm gelir (push edilen değişiklikler telefona ulaşır),
 // yokken son açılan sürüm çalışır. Ağdan alırken tarayıcının HTTP önbelleği atlanır (no-cache:
 // sunucuya "değişti mi" diye sorulur); GitHub Pages dosyaları 10 dk önbelleklenebilir işaretliyor. Veriye dokunmaz; sadece uygulama dosyalarını saklar.
+// Çekim zayıfsa ağ NETWORK_WAIT_MS içinde yanıt vermezse önbellekteki sürümle açılır; ağ yanıtı
+// yine önbelleğe yazılır, yeni sürüm bir sonraki açılışta gelir (kasada açılış takılmasın).
 // Yeni dosya eklenince ASSETS listesine de eklenir (eksik dosya kurulumu bozar).
-const CACHE = 'harcama-v2';
+const CACHE = 'harcama-v3';
+const NETWORK_WAIT_MS = 2500;
 const ASSETS = [
   './',
   'index.html',
@@ -55,16 +58,23 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
   // Sayfa açılışı (navigate) isteğine RequestInit verilemeyebilir; adresle yeniden istenir
-  const fresh = req.mode === 'navigate' ? fetch(req.url, { cache: 'no-cache' }) : fetch(req, { cache: 'no-cache' });
-  e.respondWith(
-    fresh
-      .then(res => {
-        if (res.ok) {
-          const copy = res.clone();
-          caches.open(CACHE).then(c => c.put(req, copy));
-        }
-        return res;
-      })
-      .catch(() => caches.match(req, { ignoreSearch: true }).then(hit => hit || caches.match('index.html')))
-  );
+  const network = req.mode === 'navigate' ? fetch(req.url, { cache: 'no-cache' }) : fetch(req, { cache: 'no-cache' });
+  // Ağ yanıtı önbelleğe yazılır (kopyası, sayfaya verilmeden önce alınır); geç gelse de yazılsın diye beklenir
+  const saved = network.then(res => {
+    if (!res.ok) return;
+    const copy = res.clone();
+    return caches.open(CACHE).then(c => c.put(req, copy));
+  });
+  e.waitUntil(saved.catch(() => {}));
+  const cached = () => caches.match(req, { ignoreSearch: true });
+
+  e.respondWith(new Promise(resolve => {
+    // Ağ geç kalırsa önbellekteki sürüm; önbellekte yoksa ağı beklemeye devam
+    const timer = setTimeout(() => cached().then(hit => hit && resolve(hit)), NETWORK_WAIT_MS);
+    network.then(
+      res => { clearTimeout(timer); resolve(res); },
+      // Ağ yoksa önbellek (sayfa hiç önbellekte yoksa ana sayfa)
+      () => { clearTimeout(timer); cached().then(hit => resolve(hit || caches.match('index.html'))); }
+    );
+  }));
 });
