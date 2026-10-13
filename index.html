@@ -73,23 +73,8 @@
         <div id="recent"></div>
       </section>
 
+      <!-- GİRİŞ (1. adım): tutar; Devam ile isim adımı (alttan panel) açılır -->
       <section class="panel">
-        <!-- İSİM + TAKSİT DÜĞMESİ; düğmeye dokununca seçenekler aynı satırda açılır -->
-        <div class="entry" id="entry">
-          <input id="name" type="text" placeholder="Ne aldın?" maxlength="60" autocomplete="off">
-          <button class="inst-chip" id="instChip" aria-label="Taksit seç">
-            <span id="instLabel">Tek çekim</span>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
-          </button>
-          <div class="inst-selector" id="instSelector">
-            <button class="inst-btn active" data-inst="1">Tek çekim</button>
-            <button class="inst-btn" data-inst="2">2x</button>
-            <button class="inst-btn" data-inst="3">3x</button>
-            <button class="inst-btn" data-inst="6">6x</button>
-            <button class="inst-btn" data-inst="12">12x</button>
-          </div>
-        </div>
-
         <div class="display">
           <span class="amt-line"><span class="cur">₺</span><span class="amt" id="amt"></span></span>
           <button id="back" aria-label="Sil">⌫</button>
@@ -311,6 +296,30 @@
     </div>
   </div>
 
+  <!-- İSİM ADIMI (girişin 2. adımı): tutardan sonra açılır; klavye açıkken klavyenin üstünde.
+       Çipe dokunmak kaydı hemen ekler; Ekle ya da klavyedeki Bitti yazılan isimle ekler -->
+  <div class="sheet-wrap" id="nameSheet">
+    <div class="sheet-bg" data-close></div>
+    <div class="sheet name-sheet" role="dialog" aria-modal="true" aria-label="Harcamanın adı">
+      <div class="sheet-head">
+        <button class="link back-link" data-close aria-label="Tutara dön">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6"/></svg>
+          <b id="nAmt"></b>
+        </button>
+        <button class="link save" id="nAdd">Ekle</button>
+      </div>
+      <input id="nName" type="text" placeholder="Ne aldın?" maxlength="60" autocomplete="off" enterkeyhint="done">
+      <div class="chips" id="nChips"></div>
+      <div class="inst-selector" id="nInst">
+        <button class="inst-btn active" data-inst="1">Tek çekim</button>
+        <button class="inst-btn" data-inst="2">2x</button>
+        <button class="inst-btn" data-inst="3">3x</button>
+        <button class="inst-btn" data-inst="6">6x</button>
+        <button class="inst-btn" data-inst="12">12x</button>
+      </div>
+    </div>
+  </div>
+
   <!-- SİLME GERİ ALMA ŞERİDİ -->
   <div id="undo"><span>Harcama silindi</span><button id="undoBtn">Geri al</button></div>
 
@@ -351,6 +360,7 @@
 <script src="js/ui/detail.js"></script>
 <script src="js/ui/goal-sheet.js"></script>
 <script src="js/ui/cutoff-sheet.js"></script>
+<script src="js/ui/name-sheet.js"></script>
 <script src="js/ui/ring.js"></script>
 <script src="js/ui/barchart.js"></script>
 <script src="js/views/entry.js"></script>

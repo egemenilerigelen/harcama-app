@@ -172,6 +172,25 @@ const Domain = Object.freeze({
     return Domain.sum(Domain.expand(items, cutoff).filter(r => r.parts && r.ts >= start && r.ts < end));
   },
 
+  // Sık kullanılan isimler (isim adımındaki çipler): en çok girilen önce, eşitse en son girilen.
+  // Büyük/küçük harf farkı aynı isim sayılır, en son yazılışı gösterilir; "Adsız" girmez.
+  frequentNames(items, limit) {
+    const byKey = new Map();
+    items.forEach(i => {
+      const name = String(i.name || '').trim();
+      if (!name || name === 'Adsız') return;
+      const key = name.toLocaleLowerCase('tr-TR');
+      const e = byKey.get(key) || { name, count: 0, last: 0 };
+      e.count++;
+      if (i.ts > e.last) { e.last = i.ts; e.name = name; }
+      byKey.set(key, e);
+    });
+    return [...byKey.values()]
+      .sort((a, b) => b.count - a.count || b.last - a.last)
+      .slice(0, limit)
+      .map(e => e.name);
+  },
+
   // Satırları gün anahtarına göre gruplar; sıralı listeden geldiği için gün sırası korunur
   groupByDay(rows) {
     const groups = {};

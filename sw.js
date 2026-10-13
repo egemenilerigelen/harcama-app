@@ -30,6 +30,7 @@ const ASSETS = [
   'js/ui/detail.js',
   'js/ui/goal-sheet.js',
   'js/ui/cutoff-sheet.js',
+  'js/ui/name-sheet.js',
   'js/ui/ring.js',
   'js/ui/barchart.js',
   'js/views/entry.js',

@@ -19,6 +19,16 @@ const Device = Object.freeze({
     if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   },
 
+  // Ekran klavyesinin sayfanın altından ne kadarını kapattığı (px); değişince cb(px).
+  // iPhone klavyesi sayfayı küçültmez, üstüne biner; görünen alan (visualViewport) küçülür.
+  watchKeyboard(cb) {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => cb(Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)));
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+  },
+
   // Dosyayı verir: dokunmatik cihazda paylaşım menüsü (iPhone: Dosyalar'a kaydet, iCloud, mesaj),
   // bilgisayarda indirme. Kullanıcı paylaşımdan vazgeçerse false. Dokunma olayının içinden çağrılmalı.
   async saveFile(name, type, text) {

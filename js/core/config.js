@@ -10,8 +10,11 @@ const Config = Object.freeze({
   CUTOFF_MIN: 1,
   CUTOFF_MAX: 28,
 
-  // Ana sayfada en fazla kaç son harcama gösterilir
-  RECENT_MAX: 3,
+  // Ana sayfada en fazla kaç son harcama gösterilir (sığdığı kadar; fazla yeri liste alır)
+  RECENT_MAX: 5,
+
+  // İsim adımında en fazla kaç sık kullanılan isim çipi
+  NAME_CHIPS_MAX: 12,
 
   // Süreler (ms)
   UNDO_MS: 4000,

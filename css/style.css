@@ -205,7 +205,7 @@ button {
   flex-shrink: 0;
 }
 
-#name, #search {
+#nName, #search {
   width: 100%;
   -webkit-appearance: none;
   appearance: none;
@@ -220,83 +220,16 @@ button {
   transition: border-color 0.15s ease;
 }
 
-#name::placeholder, #search::placeholder {
+#nName::placeholder, #search::placeholder {
   color: var(--mut-2);
 }
 
-#name:focus, #search:focus {
+#nName:focus, #search:focus {
   border-color: rgba(217, 184, 119, 0.6);
 }
 
 #search {
   margin-top: var(--gap-s);
-}
-
-/* İSİM + TAKSİT DÜĞMESİ */
-.entry {
-  position: relative;
-  display: flex;
-  gap: var(--gap-s);
-}
-
-.entry #name {
-  flex: 1;
-  min-width: 0;
-}
-
-.inst-chip {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  padding: 0 9px 0 12px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: var(--raised);
-  box-shadow: var(--hl), 0 1px 2px rgba(0, 0, 0, 0.4);
-  color: var(--mut);
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-  cursor: pointer;
-  touch-action: manipulation;
-  transition: background 0.05s ease-out, color 0.15s ease;
-}
-
-.inst-chip svg {
-  width: 15px;
-  height: 15px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.inst-chip.pressed {
-  background: var(--surface-2);
-}
-
-/* Taksit seçiliyse düğme altın */
-.inst-chip.set {
-  color: var(--gold);
-}
-
-/* Seçenekler açıkken şerit aynı satırı kaplar */
-.entry .inst-selector {
-  position: absolute;
-  inset: 0;
-  margin: 0;
-  display: none;
-}
-
-.entry.picking .inst-selector {
-  display: flex;
-  animation: viewIn 0.15s var(--ease);
-}
-
-.entry.picking #name, .entry.picking .inst-chip {
-  visibility: hidden;
 }
 
 #search::-webkit-search-cancel-button {
@@ -1534,6 +1467,90 @@ body.has-amt .pad .add.pressed {
   margin-top: 16px;
 }
 
+/* İSİM ADIMI: tutardan sonra alttan açılır. Klavye açıkken klavyenin hemen üstünde
+   (--kb: Device.watchKeyboard); o zaman alttaki güvenli alan payı gerekmez */
+.sheet.name-sheet {
+  bottom: var(--kb, 0px);
+}
+
+.sheet.name-sheet.kb {
+  padding-bottom: var(--gap);
+}
+
+/* Başlık: solda geri oku + girilen tutar (dokununca tutara döner), sağda Ekle */
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: -6px 0 -6px -8px;
+  padding: 0 8px 0 0;
+  color: var(--gold);
+}
+
+.back-link svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--mut);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.back-link b {
+  font-size: 24px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.name-sheet #nName {
+  margin-top: var(--gap);
+}
+
+/* Sık kullanılan isimler: yana kayan tek sıra çip; kenara kadar taşar (kesik çip "devamı var" der) */
+.chips {
+  display: flex;
+  gap: var(--gap-s);
+  margin: var(--gap) calc(-1 * var(--edge)) 0;
+  padding: 2px var(--edge) 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+
+.chips::-webkit-scrollbar {
+  display: none;
+}
+
+.chips[hidden] {
+  display: none;
+}
+
+.chip {
+  flex-shrink: 0;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 19px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  box-shadow: var(--hl), 0 1px 2px rgba(0, 0, 0, 0.4);
+  color: var(--tx);
+  font: 500 14px var(--ui);
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.05s ease-out;
+}
+
+.chip:active {
+  background: var(--surface-2);
+}
+
+.name-sheet .inst-selector {
+  margin-top: var(--gap);
+}
+
 /* KAYIT DETAYI: alttan açılan panel */
 .sheet-wrap {
   position: absolute;
@@ -1803,7 +1820,6 @@ body.has-amt .pad .add.pressed {
   .totals { padding: 10px 14px 11px; }
   .tot-main b { font-size: 25px; }
   .tot-side b { font-size: 15px; }
-  #name { padding: 8px 14px; }
   .inst-btn { min-height: 30px; }
   .display { min-height: 46px; }
   .amt { font-size: 34px; }

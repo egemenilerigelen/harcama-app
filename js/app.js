@@ -7,6 +7,8 @@ class App {
   #detail;
   #goalSheet;
   #cutSheet;
+  #nameSheet;
+  #entry;
   #model = null;
   #home;
   #list;
@@ -25,6 +27,7 @@ class App {
     this.#detail = new DetailSheet({ onDelete: id => this.#delete(id) });
     this.#goalSheet = new GoalSheet({ onSave: goal => this.#setGoal(goal) });
     this.#cutSheet = new CutoffSheet({ onSave: day => this.#setCutoff(day) });
+    this.#nameSheet = new NameSheet({ onAdd: entry => this.#add(entry) });
     this.#home = new HomeView({ rowActions, onSeeAll: () => this.#seeAll() });
     this.#list = new ListView({ rowActions, onChange: () => this.refresh() });
     this.#summary = new SummaryView({
@@ -40,7 +43,7 @@ class App {
       onClear: () => this.#clear()
     });
     this.#tabs = new TabBar({ onShow: name => this.#onTab(name) });
-    new EntryPanel({ onAdd: entry => this.#add(entry) });
+    this.#entry = new EntryPanel({ onNext: amt => this.#askName(amt) });
 
     // Ana ekran uygulaması kapanmadan arka planda bekler; öne gelince gün ya da dönem değişmiş olabilir
     document.addEventListener('visibilitychange', () => {
@@ -81,8 +84,14 @@ class App {
     this.#settings.showBackup(Store.getBackupAt(), now, Domain.backupDue(Store.getBackupAt(), now, items.length > 0));
   }
 
+  // Giriş 2. adımı: tutar girildi, isim paneli sık kullanılan isimlerle açılır (dokunma olayının içinden)
+  #askName(amt) {
+    this.#nameSheet.open(amt, Domain.frequentNames(this.#model.items, Config.NAME_CHIPS_MAX));
+  }
+
   #add({ name, amt, inst }) {
     Store.add(name, amt, inst);
+    this.#entry.clear();
     this.refresh();
     this.#home.flashNewest();
   }
@@ -188,6 +197,7 @@ class App {
     this.#detail.close();
     this.#goalSheet.close();
     this.#cutSheet.close();
+    this.#nameSheet.close();
     if (name === 'home') this.#home.fit();
     if (name === 'summary') this.#summary.redraw();
   }

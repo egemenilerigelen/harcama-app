@@ -1,21 +1,17 @@
-// GİRİŞ PANELİ: isim, taksit seçimi, tutar ekranı ve tuş takımı
-// Kaydın nereye yazılacağını bilmez; hazır kaydı onAdd ile dışarı verir.
+// GİRİŞ PANELİ (1. adım): tutar ekranı ve tuş takımı. İsim ve taksit 2. adımda (NameSheet).
+// Kaydın nereye gideceğini bilmez; girilen tutarı onNext ile dışarı verir.
 // Bağımlılık: Calc, Config, Format, Touch, $, el
 class EntryPanel {
-  static #KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'EKLE'];
+  static #KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'NEXT'];
 
   #calc = new Calc(); // tutar girişinin durumu
-  #inst = 1;
-  #onAdd;
-  #entry = $('entry');
-  #name = $('name');
+  #onNext;
   #amt = $('amt');
 
-  // onAdd({ name, amt, inst }): yeni kayıt
-  constructor({ onAdd }) {
-    this.#onAdd = onAdd;
+  // onNext(amt): tutar girildi, isim adımına geç
+  constructor({ onNext }) {
+    this.#onNext = onNext;
     this.#buildPad();
-    this.#bindInstallments();
     Touch.bindPress($('back'), () => {
       this.#calc.back();
       this.#renderAmount();
@@ -23,40 +19,30 @@ class EntryPanel {
     this.#renderAmount();
   }
 
+  // Kayıt eklendi: tutarı sıfırla. (İsim adımından vazgeçilirse tutar kalır, düzeltilebilir)
+  clear() {
+    this.#calc.reset();
+    this.#renderAmount();
+  }
+
   #buildPad() {
     EntryPanel.#KEYS.forEach(k => {
-      const b = el('button', k === 'EKLE' ? 'add' : '', k === 'EKLE' ? 'Ekle' : k);
-      Touch.bindPress(b, k === 'EKLE' ? () => this.#add() : () => {
+      if (k === 'NEXT') {
+        // Devam: basma efekti pointerdown'da, geçiş click'te; isim adımının klavyesi ancak
+        // dokunuşun içinden açılır (iPhone pointerdown'da odaklanınca klavyeyi açmıyor)
+        const b = el('button', 'add', 'Devam');
+        Touch.bindPress(b, () => {});
+        b.onclick = () => this.#next();
+        $('pad').appendChild(b);
+        return;
+      }
+      const b = el('button', '', k);
+      Touch.bindPress(b, () => {
         this.#calc.press(k);
         this.#renderAmount();
       });
       $('pad').appendChild(b);
     });
-  }
-
-  // Taksit: küçük düğme; dokununca seçenekler aynı satırda açılır, seçince kapanır
-  #bindInstallments() {
-    Touch.bindPress($('instChip'), () => this.#entry.classList.add('picking'));
-
-    document.querySelectorAll('#instSelector .inst-btn').forEach(btn => {
-      btn.onclick = () => {
-        this.#setInst(Number(btn.dataset.inst));
-        Touch.haptic();
-      };
-    });
-
-    // Seçenekler açıkken başka yere dokunulursa kapat
-    document.addEventListener('pointerdown', e => {
-      if (!e.target.closest('#entry')) this.#entry.classList.remove('picking');
-    });
-  }
-
-  #setInst(n) {
-    this.#inst = n;
-    document.querySelectorAll('#instSelector .inst-btn').forEach(b => b.classList.toggle('active', Number(b.dataset.inst) === n));
-    $('instLabel').textContent = Format.installment(n);
-    $('instChip').classList.toggle('set', n > 1);
-    this.#entry.classList.remove('picking');
   }
 
   #renderAmount() {
@@ -67,18 +53,8 @@ class EntryPanel {
     document.body.classList.toggle('has-amt', this.#calc.value() > 0);
   }
 
-  #add() {
+  #next() {
     const amt = this.#calc.value();
-    if (amt <= 0) return;
-
-    const entry = { name: this.#name.value.trim() || 'Adsız', amt, inst: this.#inst };
-
-    // Paneli sıfırla: tutar, isim, taksit tek çekime
-    this.#calc.reset();
-    this.#name.value = '';
-    this.#setInst(1);
-    this.#renderAmount();
-
-    this.#onAdd(entry);
+    if (amt > 0) this.#onNext(amt);
   }
 }
