@@ -1,20 +1,24 @@
-// GERİ ALMA ŞERİDİ: silinen kaydı kısa bir süre geri getirilebilir tutar
+// GERİ ALMA ŞERİDİ: son işlemi (silme, ekleme) kısa bir süre geri alınabilir tutar.
+// Neyin nasıl geri alınacağını bilmez; show(metin, geriAl) ile verilir.
 // Bağımlılık: Config, $
 class UndoBar {
   #bar = $('undo');
-  #item = null;
+  #text = $('undoText');
+  #undo = null;
   #timer = null;
 
-  // onRestore(item): geri alınan kaydı veriye geri koyar
-  constructor({ onRestore }) {
+  constructor() {
     $('undoBtn').onclick = () => {
-      if (this.#item) onRestore(this.#item);
+      const undo = this.#undo;
       this.hide();
+      if (undo) undo();
     };
   }
 
-  show(item) {
-    this.#item = item;
+  // text: ne oldu ("Harcama eklendi"), undo(): işlemi geri alır
+  show(text, undo) {
+    this.#text.textContent = text;
+    this.#undo = undo;
     this.#bar.classList.add('show');
     clearTimeout(this.#timer);
     this.#timer = setTimeout(() => this.hide(), Config.UNDO_MS);
@@ -22,7 +26,7 @@ class UndoBar {
 
   hide() {
     clearTimeout(this.#timer);
-    this.#item = null;
+    this.#undo = null;
     this.#bar.classList.remove('show');
   }
 }

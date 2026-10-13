@@ -23,7 +23,7 @@ class App {
       onDelete: id => this.#delete(id)
     };
 
-    this.#undo = new UndoBar({ onRestore: item => this.#restore(item) });
+    this.#undo = new UndoBar();
     this.#detail = new DetailSheet({ onDelete: id => this.#delete(id) });
     this.#goalSheet = new GoalSheet({ onSave: goal => this.#setGoal(goal) });
     this.#cutSheet = new CutoffSheet({ onSave: day => this.#setCutoff(day) });
@@ -43,7 +43,10 @@ class App {
       onClear: () => this.#clear()
     });
     this.#tabs = new TabBar({ onShow: name => this.#onTab(name) });
-    this.#entry = new EntryPanel({ onNext: amt => this.#askName(amt) });
+    this.#entry = new EntryPanel({
+      onNext: amt => this.#askName(amt),
+      onInput: () => this.#undo.hide() // yeni tutar yazılıyor: önceki işlem kabul edildi
+    });
 
     // Ana ekran uygulaması kapanmadan arka planda bekler; öne gelince gün ya da dönem değişmiş olabilir
     document.addEventListener('visibilitychange', () => {
@@ -89,18 +92,25 @@ class App {
     this.#nameSheet.open(amt, Domain.frequentNames(this.#model.items, Config.NAME_CHIPS_MAX));
   }
 
+  // Ekleme: geri alma şeridi açılır (yanlış çipe dokunulduysa); geri alınınca kayıt silinir,
+  // tutar tuş takımına döner, doğru isimle yeniden eklenebilir
   #add({ name, amt, inst }) {
-    Store.add(name, amt, inst);
+    const item = Store.add(name, amt, inst);
     this.#entry.clear();
     this.refresh();
     this.#home.flashNewest();
+    this.#undo.show(Format.undoAdded, () => {
+      Store.remove(item.id);
+      this.#entry.setAmount(amt);
+      this.refresh();
+    });
   }
 
   // Silme: taksitliyse asıl kayıt silinir; geri alma şeridi açılır
   #delete(id) {
     const removed = Store.all().find(e => e.id === id);
     Store.remove(id);
-    if (removed) this.#undo.show(removed);
+    if (removed) this.#undo.show(Format.undoDeleted, () => this.#restore(removed));
     this.refresh();
   }
 

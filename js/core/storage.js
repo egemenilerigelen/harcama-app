@@ -14,17 +14,19 @@ const Store = {
     }
   },
 
-  // inst (taksit sayısı) eklendi (varsayılan: 1)
+  // inst (taksit sayısı) eklendi (varsayılan: 1). Eklenen kaydı döner (geri alma için)
   add(name, amt, inst = 1) {
     const items = this.all();
-    items.unshift({
+    const item = {
       id: Date.now().toString(36) + Math.random().toString(36).substring(2, 5),
       name,
       amt: Number(amt),
       inst: Number(inst),
       ts: Date.now()
-    });
+    };
+    items.unshift(item);
     localStorage.setItem(this.KEY, JSON.stringify(items));
+    return item;
   },
 
   remove(id) {

@@ -158,6 +158,10 @@ const Format = Object.freeze({
   // Ekstre grafiğinde ilk kayıttan önceki dönemler
   noRecord: 'Kayıt yok',
 
+  // Geri alma şeridi
+  undoAdded: 'Harcama eklendi',
+  undoDeleted: 'Harcama silindi',
+
   // Kısa ay adı: "Eki" (ekstre grafiği ekseni)
   monthShort(ts) {
     return new Date(ts).toLocaleDateString('tr-TR', { month: 'short' });

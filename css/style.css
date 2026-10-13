@@ -1679,6 +1679,12 @@ body.has-amt .pad .add.pressed {
   color: var(--tx);
 }
 
+/* Ana sayfada çubuğun üstündeki tuş sırasını kapatmasın: tutar satırının yerinde durur
+   (eklemeden sonra tutar zaten boş; yeni tutar yazılınca şerit kalkar) */
+body:has(.view[data-view="home"].active) #undo {
+  bottom: calc(var(--bar-space) + 4 * var(--key-h) + 4 * var(--gap-s));
+}
+
 #undo.show {
   display: flex;
   animation: rise 0.25s var(--ease);

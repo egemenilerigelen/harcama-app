@@ -15,6 +15,8 @@ class Calc {
 
   back() { this.#v = this.#v.slice(0, -1); }
   reset() { this.#v = ''; }
+  // Tutarı geri koyar (eklemeyi geri alınca): 450 → "450", 12.5 → "12.5"
+  set(amount) { this.#v = amount > 0 ? String(amount) : ''; }
   raw() { return this.#v; }
   value() { return parseFloat(this.#v) || 0; }
 }
