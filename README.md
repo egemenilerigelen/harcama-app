@@ -4,12 +4,12 @@ Kredi kartı harcamalarını hızlıca kaydetmek için geliştirilmiş, mobil ö
 
 ## Özellikler
 
-- **Hızlı giriş:** Ana sayfanın altında, başparmak bölgesinde hesap makinesi tuş takımı. En fazla 9 hane ve 2 ondalık.
-- **Taksit desteği:** İsim alanının yanındaki düğmeden tek çekim, 2x, 3x, 6x ve 12x. Taksitler hesap kesim günlerine göre aylara dağıtılır ve listede `1/3 taksit` gibi etiketlenir.
+- **Hızlı giriş, iki adım:** Önce tutar: ana sayfanın altında, başparmak bölgesinde hesap makinesi tuş takımı (en fazla 9 hane ve 2 ondalık), "Devam". Sonra isim: alttan açılan panelde yazı alanı ve en sık girdiğin isimler; isme dokunmak kaydı hemen ekler. Eklemeden sonra birkaç saniye "Geri al".
+- **Taksit desteği:** İsim adımında tek çekim, 2x, 3x, 6x ve 12x. Taksitler hesap kesim günlerine göre aylara dağıtılır ve listede `1/3 taksit` gibi etiketlenir.
 - **Alt sekme çubuğu:** Ana Sayfa, Harcamalar, Özet ve Ayarlar. iOS 26'daki gibi havada duran cam çubuk; içerik arkasından akar, seçili sekmenin kapsülü kayarak geçer.
 - **Özet kartı:** İçinde bulunulan hesap dönemi (kesim gününün ertesinden kesim gününe, kesim günü dahil) toplamı ve tarih aralığı, yanında bugün yapılan harcama (önceki alışverişlerin bu döneme düşen taksitleri hariç).
 - **Özet sekmesi:** Dönem hedefi halkası (yüzde, kalan, "günde ₺X ile hedefte kalırsın"), adım sayacı tarzı günlük / ekstre sütun grafiği, devam eden taksitler (sonraki ekstreye şimdiden yazılan, toplam kalan, alışveriş başına ilerleme).
-- **Son harcamalar:** Ana sayfada en son eklenen kayıtlar; "Tümünü gör" ile Harcamalar sekmesine geçilir.
+- **Son harcamalar:** Ana sayfada ekrana sığdığı kadar (en fazla 5) son kayıt; "Tümünü gör" ile Harcamalar sekmesine geçilir.
 - **Harcamalar sekmesi:** Hesap dönemleri (ekstreler) arasında ‹ › ile ya da dönem kartını kaydırarak gezinme, dönem toplamı ve günlük ortalama, günlere göre gruplu liste. Arama ikonu tüm dönemlerde arar.
 - **Kayıt detayı:** Satıra dokununca toplam tutar, tarih, taksit planı ve kalan taksitler. Silme detaydan ya da satırı sola kaydırarak; silme geri alınabilir.
 - **Ayarlar:** Ana ekrana ekleme yönergesi (Safari'den açılınca), hesap kesim günü (1–28, gün seçiciden tek dokunuşla; seçilen dönemin aralığı ve sonraki kesim tarihi önizlenir), dönem hedefi (geçmiş ekstrelerin ortalamasından öneriyle), yedekleme ve iki dokunuşla onaylanan "Tümünü sil". En altta sürüm etiketi.

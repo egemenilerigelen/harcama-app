@@ -23,19 +23,20 @@ js/core/              ÇEKİRDEK: DOM'a dokunmaz
 
 js/ui/                ARAYÜZ YARDIMCILARI ve ortak bileşenler
   dom.js              $ (id ile seçim), el (eleman oluşturma, textContent ile), svgEl (SVG elemanı)
-  device.js           Device: ana ekran algılama, service worker kaydı, kalıcı depolama, dosya paylaş/seç
+  device.js           Device: ana ekran algılama, service worker kaydı, kalıcı depolama, dosya paylaş/seç, ekran klavyesi yüksekliği
   touch.js            Touch: haptic, bindPress, trackHorizontal (ortak yatay sürükleme), bindSwipe, bindPager
   row.js              ExpenseRow: harcama satırı (ana sayfa ve Harcamalar ortak)
-  undo.js             UndoBar: geri alma şeridi
+  undo.js             UndoBar: geri alma şeridi (ekleme ve silme; ne yapılacağını show(metin, geriAl) ile alır)
   sheet.js            BottomSheet: alttan açılan panel (temel sınıf; [data-close] kapatır)
   detail.js           DetailSheet extends BottomSheet: kayıt detay paneli
   goal-sheet.js       GoalSheet extends BottomSheet: dönem hedefi girme/kaldırma, geçmiş ekstrelerden öneri
   cutoff-sheet.js     CutoffSheet extends BottomSheet: kesim günü seçimi (ayın 1–28. günleri + dönem önizlemesi)
+  name-sheet.js       NameSheet extends BottomSheet: girişin 2. adımı (isim, sık kullanılan isim çipleri, taksit)
   ring.js             GoalRing: hedef ilerleme halkası (SVG)
   barchart.js         BarChart: tek serili sütun grafik (SVG, adım sayacı tarzı)
 
 js/views/             EKRANLAR: her biri kendi DOM'unu ve kendi durumunu yönetir
-  entry.js            EntryPanel: isim, taksit düğmesi, tutar ekranı, tuş takımı
+  entry.js            EntryPanel: girişin 1. adımı (tutar ekranı, tuş takımı, Devam)
   home.js             HomeView: özet kartı, son harcamalar
   list.js             ListView: dönem gezgini, arama, günlere göre liste
   summary.js          SummaryView: hedef halkası, günlük/ekstre grafiği, devam eden taksitler
@@ -53,7 +54,7 @@ Bu kurallar her yeni özellikte uygulanır (OOP, clean code, loose coupling):
 - **Bağımlılık tek yönlü:** `core → ui → views → app`. Alt katman üst katmanı asla çağırmaz. Her dosyanın başında `// Bağımlılık:` satırı vardır; güncel tutulur.
 - **Veriye sadece `App` erişir.** `Store` çağrıları `app.js`'te. Görünümler ve bileşenler Store'u bilmez; `localStorage` sadece `storage.js`'te.
 - **Bileşenler birbirini tanımaz.** İletişim constructor'da verilen geri çağrılarla (`onAdd`, `onDelete`, `onOpen`, `onChange`, `onSeeAll` ...) olur; bağlantıyı `App` kurar.
-- **Durumu sahibi tutar.** Her sınıf kendi durumunu private alanlarda (`#`) tutar: seçili taksit ve tutar girişi (`Calc` örneği) `EntryPanel`'de, dönem/arama `ListView`'de, geri alma kaydı `UndoBar`'da. Global değişebilir durum yok.
+- **Durumu sahibi tutar.** Her sınıf kendi durumunu private alanlarda (`#`) tutar: tutar girişi (`Calc` örneği) `EntryPanel`'de, isim adımının seçili taksiti `NameSheet`'te, dönem/arama `ListView`'de, geri alma kaydı `UndoBar`'da. Global değişebilir durum yok.
 - **İş mantığı saf.** `Domain` veriyi ve zamanı (`now`, `cutoff`) parametre olarak alır; DOM, Store ve `Date.now()` kullanmaz. Dönem hesabı tek yerde: `Domain.periodStart(date, cutoff, offset)`. `Format` da saf: "Bugün / Dün" ve "başka yılsa yıl" gibi metinler `now`'ı parametre alır (görünümler modeldeki `now`'ı verir); zamanı sadece `App` okur.
 - **Metin ve sabit tek yerde.** Ekranda görünen sayı/tarih/etiket metinleri `Format`'ta; sayılar `Config`'te (sihirli sayı yok).
 - **Render tek yönlü.** Veri değişince `App.refresh()` çağrılır: veriyi bir kez okur, `model = { now, cutoff, goal, periodStart, items, rows }` kurar (`items` ham kayıtlar, `rows` ekrandaki satırlar), `HomeView`, `ListView` ve `SummaryView`'in `render`'ına verir; listeler baştan kurulur. Görünüm kendi durumu değişince `onChange` ile yeniden çizim ister. Uygulama öne gelince de (`visibilitychange`) `refresh()` çağrılır: ana ekran uygulaması kapanmadan arka planda bekler, döndüğünde gün ya da dönem değişmiş olabilir.
@@ -93,7 +94,7 @@ Veri şemasını değiştirirsen eski kayıtları bozma. `Domain.expand` ve `Det
 
 ## Tuş takımı (`calc.js`)
 
-`Calc` sınıfı; durumu örnekte, örneği `EntryPanel` tutar (global durum yok). Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham değer `raw()`, sayısal değer `value()`.
+`Calc` sınıfı; durumu örnekte, örneği `EntryPanel` tutar (global durum yok). Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham değer `raw()`, sayısal değer `value()`; `set(tutar)` eklemeyi geri alınca tutarı geri koyar.
 
 ## Arayüz ve tasarım
 
@@ -103,11 +104,14 @@ Veri şemasını değiştirirsen eski kayıtları bozma. `Domain.expand` ve `Det
 - Font: sistem fontu (`--ui`; iPhone'da SF Pro). Dış font yüklenmez. Rakamlarda `font-variant-numeric: tabular-nums`. Etiketler normal yazım ("Son harcamalar"), en küçük yazı 11px.
 - Düzen sabit: `body { overflow: hidden }`, sayfa kaymaz. `.app` = `.views` (tüm ekran) + `.tabbar`: havada duran cam hap (iOS 26 gibi; `--bar-h` 62pt, kenarlardan `--edge` içeride, alttan `--bar-bottom`: ana ekran çizgisinin hemen üstü). Cam: `backdrop-filter` bulanıklık + doygunluk, üstte ışık çizgisi, kenarlarda hafif parıltı, nötr gölge; seçili sekmede cam kapsül (`.tab-pill`, `TabBar` `--tab-i` ile kaydırır, yaylı geçiş). Kayan sekmeler (Harcamalar, Özet, Ayarlar) ekranın altına kadar uzanır, içerik çubuğun arkasından akar; kayan alanların sonunda `--bar-space` boşluk var. Ana sayfada tuş takımı çubuğun üstünde (`padding-bottom: var(--bar-space)`). "Saydamlığı Azalt" açıksa ya da bulanıklık yoksa çubuk düz koyu. `.app` ekranın dört kenarına sabit (`position: fixed; inset: 0`); yükseklik için vh/dvh kullanılmaz. Ana ekran uygulamasında durum çubuğu düz siyah (`apple-mobile-web-app-status-bar-style: black`): `black-translucent`'ta iOS sayfa yüksekliğini üst güvenli alan kadar kısa hesaplıyor ve altta boşluk kalıyordu. Aynı anda tek `.view.active` görünür; içinde sadece `#list` / `.scroll` kaydırılır.
 - Sekmeler: Ana Sayfa (`home`), Harcamalar (`list`), Özet (`summary`), Ayarlar (`settings`). Geçiş `TabBar.show(name)` ile; router/hash yok.
-- Ana sayfa sırası: tek özet kartı ("Bu dönem" + dönem aralığı büyük, "Bugün" sağda küçük; "Bugün" o gün yapılan harcama, önceki alışverişlerin dönemin ilk gününe düşen taksitleri girmez, `Domain.isCarried`) → son harcamalar → giriş paneli (tuş takımı altta, başparmak bölgesinde). Son harcamalar kaymaz, panele yaslanır (artan boşluk üstte); `HomeView.fit()` en fazla `Config.RECENT_MAX` (3) satırdan tam sığanları gösterir (ana ekran uygulamasında iPhone 15 ve Pro Max'te 3; Safari'de iPhone 15'te 2, Pro Max'te 3; SE'de 1). Satırlarda saat değil tarih etiketi (`Format.shortWhen`: Bugün / Dün / 5 Eki).
-- Taksit: isim alanının yanında tek düğme (`#instChip`); dokununca `.inst-selector` aynı satırı kaplar (`#entry.picking`), seçince ya da dışarı dokununca kapanır. Seçim `EntryPanel` içinde tutulur, düğme etiketi `Format.installment`.
+- Ana sayfa sırası: tek özet kartı ("Bu dönem" + dönem aralığı büyük, "Bugün" sağda küçük; "Bugün" o gün yapılan harcama, önceki alışverişlerin dönemin ilk gününe düşen taksitleri girmez, `Domain.isCarried`) → son harcamalar → tutar ekranı ve tuş takımı (altta, başparmak bölgesinde). Son harcamalar kaymaz, panele yaslanır; ekranın fazla yerini liste alır: `HomeView.fit()` en fazla `Config.RECENT_MAX` (5) satırdan tam sığanları gösterir, artan boşluk bir satırdan az kalır (ana ekran uygulamasında iPhone 15'te 5, SE'de 2). Satırlarda saat değil tarih etiketi (`Format.shortWhen`: Bugün / Dün / 5 Eki).
+- Giriş iki adım (iki klavye hiç aynı anda görünmez; ekran elin sırasıyla ilerler: önce tutar, sonra isim):
+  - **1. Tutar (`EntryPanel`):** tuş takımıyla tutar, altın "Devam" (tutar yokken bir şey yapmaz). Devam basma efektini `pointerdown`'da, geçişi `click`'te yapar: isim adımının klavyesi ancak dokunuşun içinden açılır.
+  - **2. İsim (`NameSheet`, alttan panel):** başlıkta ‹ + girilen tutar (dokununca tutara döner, tutar silinmez) ve sağda "Ekle"; yazı alanı (klavye kendiliğinden açılır, klavyedeki Bitti = Ekle); altında sık kullanılan isim çipleri (`Domain.frequentNames`: en çok girilen önce, en fazla `Config.NAME_CHIPS_MAX`; yana kayan tek sıra, yazdıkça süzülür) ve taksit (`.inst-selector`: tek çekim, 2x, 3x, 6x, 12x; varsayılan tek çekim). Çipe dokunmak kaydı hemen ekler (`click`: şerit kayarken yanlışlıkla eklenmesin). İsim boşsa "Adsız". Klavye açıkken panel klavyenin hemen üstünde: iPhone klavyesi sayfayı küçültmez, üstüne biner; `Device.watchKeyboard` görünen alandan (visualViewport) klavyenin kapladığı yeri verir, panel `--kb` ile kayar.
+  - **Ekledikten sonra** "Harcama eklendi · Geri al" şeridi (yanlış çipe dokunulduysa): geri alınca kayıt silinir, tutar tuş takımına döner. Yeni tutar yazılmaya başlanınca şerit kalkar. Ana sayfada şerit tutar satırının yerinde durur (tuşları kapatmaz), diğer sekmelerde alt çubuğun üstünde.
 - Satır: solda saat (Harcamalar) / tarih (ana sayfa) sütunu, ortada isim + taksit etiketi yan yana (satır yüksekliği her yerde aynı), sağda tutar. ✕ yok.
 - Rakam renkleri: altın = toplamlar (dönem, gün), beyaz kalın = tek harcama, gri = bağlam (saat, ortalama).
-- Silme: satırlar `.swipe` sarmalayıcısında; sola kaydırınca (`Touch.bindSwipe`, eşik `Config.SWIPE_DELETE_PX` / `SWIPE_DELETE_RATIO`) `onDelete` çağrılır, `App` siler ve geri alma şeridini açar. Kırmızı "Sil" zemini sadece satırın açtığı alanda (`--reveal` genişliğinde `::before`), satırın arkasında kırmızı yok. Kaydırma sadece başlatan parmağı (`pointerId`) izler.
+- Silme: satırlar `.swipe` sarmalayıcısında; sola kaydırınca (`Touch.bindSwipe`, eşik `Config.SWIPE_DELETE_PX` / `SWIPE_DELETE_RATIO`) `onDelete` çağrılır, `App` siler ve geri alma şeridini açar ("Harcama silindi · Geri al"). Kırmızı "Sil" zemini sadece satırın açtığı alanda (`--reveal` genişliğinde `::before`), satırın arkasında kırmızı yok. Kaydırma sadece başlatan parmağı (`pointerId`) izler.
 - Detay: satıra dokununca (kaydırma değilse) `onOpen` → `App` kaydı bulur → `DetailSheet.open(item, cutoff, now)` alttan panel açar: toplam tutar, tarih, ödeme (tek çekim / n taksit × tutar), kalan taksit, "Harcamayı sil". Kayıt düzenleme ileride buraya gelir.
 - Harcamalar sekmesi: dönem kartı (`.period`) ‹ › ile hesap dönemleri arasında gezer (`ListView` içindeki offset: 0 bu dönem, -1 geçen ...; en eski kaydın dönemine kadar). Kart yatay kaydırılarak da gezilir (`Touch.bindPager`: parmak sağa = önceki ekstre, sola = sonraki; sınırda %35 dirençle lastik; eşik `Config.PAGER_COMMIT_PX`; sadece kartta çalışır, satır silme ile çakışmaz; sınırlar okların `disabled` durumundan okunur). Kart etiketi: bu dönem "Bu dönem", geçmişler bittiği ayın ekstresi ("Eylül ekstresi", başka yılsa "Aralık 2025 ekstresi"; `Format.periodName`). Kartta toplam ve altında "Günlük ort." var (ana sayfadaki toplamla çakışmasın diye bağlam). Arama başlıktaki ikonla açılır, dönem kartının yerini alır ve tüm dönemlerde arar. Özet satırında adet yok: boşken "Tüm zamanlar · ₺X", yazınca eşleşenlerin "Toplam · ₺X".
 - Özet sekmesi (`SummaryView`, ekran kayar, üç kart). Kart başlıkları Apple Sağlık tarzı kartın içinde (`.card-head`: beyaz başlık, sağda gri ikincil bilgi), ikonsuz; kartlar boşlukla ayrılır:
@@ -116,7 +120,7 @@ Veri şemasını değiştirirsen eski kayıtları bozma. `Domain.expand` ve `Det
   - **Devam eden taksitler:** üstte sonraki dönemin ekstresine şimdiden yazılan taksitler, ay adıyla ("Kasım ekstresine", `Format.intoStatement`; "gelecek ekstre" denmez, bankacılıkta o bu dönemin ekstresidir; `Domain.installmentsBetween`), hedef varsa altında payı ("hedefin %74'ü", `Format.goalShare`, iyelik eki `Format.possessive`), yanında "Toplam kalan"; altında alışveriş başına isim, `ödenen/toplam · taksit tutarı`, ince ilerleme çubuğu, kalan tutar (`Domain.activeInstallments`). Satıra dokununca kayıt detayı açılır. Liste kalan tutara göre sıralı; kapalıyken ilk `Config.INST_VISIBLE` (3) satır görünür, fazlası en alttaki "n taksit daha ⌄" satırıyla aynı kartın içinde açılır ("Daha az göster", ok yukarı döner; durum `SummaryView`'de). Aşağı ok "bu kartta açılır" demek, "›" başka ekrana geçiş. Kartın yeri sabit (hedef → grafik → taksitler).
 - Boşluk ölçüsü `:root`'ta: `--edge` 16px (yan kenar), `--gap` 12px (bloklar arası), `--gap-s` 8px (bileşen içi). Bölüm başlıkları (`.sec-head`, `.sec-title`, `#list h2`) tek kuralı paylaşır. Kaydırma çubukları gizli. Küçük ekran sıkılaştırmaları `@media (max-height: 620px)` bloğunda.
 - Hedef ekranlar: iPhone Safari içerik alanları 393×659 (iPhone 15), 430×739 (Pro Max), 375×548 (SE). Yatay kaydırma olmamalı, tuş takımı ve alt bar her birine sığmalı.
-- Dokunmatik: tuşlar, sekmeler, taksit düğmesi, dönem okları ve kesim günü seçicisi `pointerdown` ile `Touch.bindPress` üzerinden tetiklenir ve titreşim verir (`Config.HAPTIC_MS`). Yeni tuşlarda aynı yardımcıyı kullan.
+- Dokunmatik: tuşlar, sekmeler, dönem okları ve kesim günü seçicisi `pointerdown` ile `Touch.bindPress` üzerinden tetiklenir ve titreşim verir (`Config.HAPTIC_MS`). Yeni tuşlarda aynı yardımcıyı kullan.
 - Ayarlar sekmesi: "Dönem" bölümünde iki satır, ikisi de aynı kalıp (değer + "›", dokununca alttan panel):
   - **Hesap kesim günü** ("Ayın 13'ü", `Format.cutoffDay`): `CutoffSheet` ayın 1–28. günlerini 7 sütunda tam 4 satır gösterir (iOS Hatırlatıcılar "her ay" seçicisi gibi; stepper yok: 15'ten 1'e 14 dokunuş olurdu). Gün adı ve ay başlığı yok: kesim belirli bir tarih değil her ay tekrar eden gün, gerçek takvim yanlış ipucu verir (haftanın günü, "Ekim 2026", boş hücreler, seçilemeyen 29–31). Kutusuz düz rakamlar; seçili gün metalik altın daire (EKLE ile aynı malzeme), bugün rakamın altında nokta. Tarih bilgisini alttaki iki satır taşır: "Bu dönem" aralığı ve "Sonraki kesim" (`Format.nextCutoff`: "12 Eki · 2 gün sonra"). Her dokunuşta anında güncellenir, "Kaydet"e kadar uygulanmaz. Not satırı kesim gününün dahil olduğunu ve geçmiş dönemlerin yeniden hesaplandığını söyler.
   - **Dönem hedefi** ("Her ekstre için harcama sınırın"): `GoalSheet`. Geçmiş veri varsa kutunun altında öneri: biten son `Config.GOAL_SUGGEST_PERIODS` ekstrenin ortalaması, `GOAL_SUGGEST_ROUND`'a yuvarlı ("Son 3 ekstre ortalaması ≈ ₺8.900 · Kullan", `Domain.goalSuggestion`). "Hedefi kaldır" kırmızı değil sade yazı düğmesi (`.plain-btn`): geri alınabilir iş; kırmızı (`.danger`) sadece silmede.
@@ -148,7 +152,7 @@ Yayın: GitHub Pages, https://egemenilerigelen.github.io/harcama-app/ (repo herk
 
 Bekleyen bilinen konular (2026-10-12 genel kontrolünden):
 
-- Giriş paneli kullanışlılığı ayrı bir turda ele alınacak; ilk madde: isim alanında iPhone klavyesinin Return'ü bir şey yapmıyor, klavye tuş takımını kapatıyor (aday çözüm `enterkeyhint="done"` + Enter'da klavyeyi kapatmak).
+- İki adımlı girişte isim panelinin klavyenin üstüne oturması ve klavyenin Devam'la kendiliğinden açılması önizlemede denenemez (iPhone klavyesi yok); telefonda doğrulanacak. Sırada: tutarı da hatırlayan çipler (ör. Netflix ₺229).
 - Harcamalar listesinde önceki alışverişlerin taksit satırları saat sütununda "00:00" gösteriyor (dönem başına düştükleri için); şimdilik bilerek böyle.
 - Hedef önerisi (`Domain.goalSuggestion`) ve ekstre grafiği, kayıtların başladığı yarım ilk dönemi tam ekstre gibi sayıyor; öneri olduğundan düşük çıkabilir. Şimdilik bekliyor.
 
