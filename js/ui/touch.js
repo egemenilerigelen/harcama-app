@@ -1,4 +1,4 @@
-// DOKUNMATİK: titreşim, basma efekti, yatay sürükleme (kaydırarak silme, sayfa kaydırma)
+// DOKUNMATİK: titreşim, basma efekti, sürükleme (kaydırarak silme, sayfa kaydırma, paneli aşağı çekip kapatma)
 // Bağımlılık: Config, Haptics
 const Touch = Object.freeze({
   haptic() {
@@ -21,15 +21,15 @@ const Touch = Object.freeze({
     btn.addEventListener('pointercancel', end);
   },
 
-  // Ortak yatay sürükleme izleyici: önce yönü belirler (dikeyse karışmaz),
+  // Ortak sürükleme izleyici: önce yönü belirler (axis 'x' ya da 'y'; öteki yöndeyse karışmaz),
   // sadece başlatan parmağı izler. ignore(e): bu dokunuşla başlama
-  // onStart(): yatay sürükleme başladı, onMove(dx), onEnd(dx): bırakıldı
-  trackHorizontal(el, { ignore, onStart, onMove, onEnd }) {
-    let x0 = null, y0 = 0, dx = 0, axis = null, pointer = null;
+  // onStart(): sürükleme başladı, onMove(d), onEnd(d, v): bırakıldı (d: eksendeki yol, v: son hız px/ms)
+  trackDrag(el, axis, { ignore, onStart, onMove, onEnd }) {
+    let x0 = null, y0 = 0, d = 0, dir = null, pointer = null, trail = [];
 
     el.addEventListener('pointerdown', e => {
       if (ignore && ignore(e)) return;
-      x0 = e.clientX; y0 = e.clientY; dx = 0; axis = null;
+      x0 = e.clientX; y0 = e.clientY; d = 0; dir = null; trail = [];
       pointer = e.pointerId;
     });
 
@@ -37,22 +37,30 @@ const Touch = Object.freeze({
       // Sadece sürüklemeyi başlatan parmağı izle (ikinci parmak / fare karışmasın)
       if (x0 === null || e.pointerId !== pointer) return;
       const mx = e.clientX - x0, my = e.clientY - y0;
-      if (!axis && Math.abs(mx) + Math.abs(my) > Config.SWIPE_SLOP_PX) {
-        axis = Math.abs(mx) > Math.abs(my) ? 'x' : 'y';
-        if (axis === 'x') {
+      if (!dir && Math.abs(mx) + Math.abs(my) > Config.SWIPE_SLOP_PX) {
+        dir = Math.abs(mx) > Math.abs(my) ? 'x' : 'y';
+        if (dir === axis) {
           el.setPointerCapture(e.pointerId);
           onStart();
         }
       }
-      if (axis !== 'x') return;
-      dx = mx;
-      onMove(dx);
+      if (dir !== axis) return;
+      d = axis === 'x' ? mx : my;
+      // Hız için son anların izi
+      trail.push([e.timeStamp, d]);
+      while (trail.length > 2 && e.timeStamp - trail[0][0] > Config.FLICK_WINDOW_MS) trail.shift();
+      onMove(d);
     });
 
     const end = e => {
       if (x0 === null || e.pointerId !== pointer) return;
       x0 = null;
-      if (axis === 'x') onEnd(dx);
+      if (dir !== axis) return;
+      const [t0, d0] = trail[0] || [0, d];
+      const [t1] = trail[trail.length - 1] || [0];
+      // Parmak bırakmadan önce durduysa hız yok (fiske değil)
+      const still = e.timeStamp - t1 > Config.FLICK_WINDOW_MS;
+      onEnd(d, t1 > t0 && !still ? (d - d0) / (t1 - t0) : 0);
     };
 
     el.addEventListener('pointerup', end);
@@ -70,7 +78,7 @@ const Touch = Object.freeze({
       wrap.style.setProperty('--reveal', -dx + 'px');
     };
 
-    Touch.trackHorizontal(row, {
+    Touch.trackDrag(row, 'x', {
       onStart: () => {
         row.style.transition = 'none';
         wrap.classList.add('on', 'dragging');
@@ -107,7 +115,7 @@ const Touch = Object.freeze({
       el.style.transform = x ? 'translateX(' + x + 'px)' : '';
     };
 
-    Touch.trackHorizontal(el, {
+    Touch.trackDrag(el, 'x', {
       ignore: e => e.target.closest('button'), // oklar kendi işini yapar
       onStart: () => move(0, false),
       onMove: dx => {
@@ -137,5 +145,35 @@ const Touch = Object.freeze({
         }, Config.PAGER_SLIDE_MS);
       }
     });
+  },
+
+  // Alttan paneli parmakla aşağı çekip kapatma (iOS'taki gibi): panel parmağı izler, yukarı
+  // çekince lastik gibi direnir. Yeterince aşağı ya da hızlı çekilince onDismiss, yoksa yerine yaylanır.
+  // onMove(dy): panelin kaydığı yol (arka plan buna göre solar), onDismiss(dy), onCancel()
+  bindDismiss(panel, { onMove, onDismiss, onCancel }) {
+    let dragged = false;
+    panel.addEventListener('pointerdown', () => (dragged = false));
+
+    Touch.trackDrag(panel, 'y', {
+      onStart: () => {
+        dragged = true;
+        panel.classList.add('dragging');
+      },
+      onMove: dy => onMove(dy > 0 ? dy : dy * Config.SHEET_RESIST),
+      onEnd: (dy, v) => {
+        panel.classList.remove('dragging');
+        const far = dy > Math.min(Config.SHEET_DISMISS_PX, panel.offsetHeight * Config.SHEET_DISMISS_RATIO);
+        if (dy > 0 && (far || v > Config.SHEET_FLICK_V)) onDismiss(dy);
+        else onCancel();
+      }
+    });
+
+    // Sürükleme bittiğinde parmağın altındaki düğme tıklanmış sayılmasın
+    panel.addEventListener('click', e => {
+      if (!dragged) return;
+      dragged = false;
+      e.stopPropagation();
+      e.preventDefault();
+    }, true);
   }
 });

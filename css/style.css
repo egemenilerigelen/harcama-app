@@ -1633,6 +1633,34 @@ body.has-amt .pad .add.pressed {
   border-top: 1px solid var(--line);
   box-shadow: var(--hl), 0 -12px 32px rgba(0, 0, 0, 0.5);
   animation: sheetUp 0.28s var(--ease);
+  /* Dikey sürüklemeyi panel kendisi izler (aşağı çekip kapatma); çip şeridi yana kaymaya devam eder */
+  touch-action: pan-x;
+  transition: transform 0.32s var(--ease);
+}
+
+.sheet-bg {
+  transition: opacity 0.32s var(--ease);
+}
+
+/* Parmakla sürüklenirken panel ve arka plan gecikmesiz izler */
+.sheet.dragging,
+.sheet-wrap:has(.sheet.dragging) .sheet-bg {
+  transition: none;
+}
+
+/* Kapanış: panel aşağı kayar (çekildiği yerden devam eder), arka plan solar (Config.SHEET_CLOSE_MS) */
+.sheet-wrap.closing {
+  pointer-events: none;
+}
+
+.sheet-wrap.closing .sheet {
+  transform: translateY(100%) !important;
+  transition: transform 0.22s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.sheet-wrap.closing .sheet-bg {
+  opacity: 0 !important;
+  transition: opacity 0.22s ease;
 }
 
 .sheet-grip {

@@ -27,8 +27,17 @@ const Config = Object.freeze({
   // Titreşim süresi (Android; iPhone'da süre sistemin)
   HAPTIC_MS: 12,
 
-  // Yatay sürükleme: yön belirleme payı
+  // Sürükleme: yön belirleme payı, bırakma hızının ölçüldüğü son an (ms)
   SWIPE_SLOP_PX: 8,
+  FLICK_WINDOW_MS: 100,
+
+  // Alttan paneli aşağı çekip kapatma: kapanma eşiği (px ya da panel boyunun oranı), hızlı fiske (px/ms),
+  // yukarı çekince direnç, kapanış süresi (CSS'teki .sheet-wrap.closing geçişiyle aynı olmalı)
+  SHEET_DISMISS_PX: 110,
+  SHEET_DISMISS_RATIO: 0.35,
+  SHEET_FLICK_V: 0.5,
+  SHEET_RESIST: 0.2,
+  SHEET_CLOSE_MS: 220,
 
   // Kaydırarak silme: eşik ve animasyon süreleri
   SWIPE_DELETE_PX: 90,
