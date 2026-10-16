@@ -5,15 +5,15 @@ Kredi kartı harcamalarını hızlıca kaydetmek için geliştirilmiş, mobil ö
 ## Özellikler
 
 - **Hızlı giriş, iki adım:** Önce tutar: ana sayfanın altında, başparmak bölgesinde hesap makinesi tuş takımı (en fazla 9 hane ve 2 ondalık), "Devam". Sonra isim: alttan açılan panelde yazı alanı ve en sık girdiğin isimler; isme dokunmak kaydı hemen ekler. Eklemeden sonra birkaç saniye "Geri al".
-- **Taksit desteği:** İsim adımında tek çekim, 2x, 3x, 6x ve 12x. Taksitler hesap kesim günlerine göre aylara dağıtılır ve listede `1/3 taksit` gibi etiketlenir.
+- **Taksit desteği:** İsim adımında tek çekim, 2x, 3x, 6x ve 12x. Taksitler hesap kesim günlerine göre aylara dağıtılır ve listede `1/3 taksit` gibi etiketlenir. Önceki alışverişlerin bu döneme düşen taksitleri dönem toplamına girer ama gün toplamlarına ve günlük ortalamaya girmez; Harcamalar'da dönemin altında ayrı grupta durur.
 - **Alt sekme çubuğu:** Ana Sayfa, Harcamalar, Özet ve Ayarlar. iOS 26'daki gibi havada duran cam çubuk; içerik arkasından akar, seçili sekmenin kapsülü kayarak geçer.
-- **Özet kartı:** İçinde bulunulan hesap dönemi (kesim gününün ertesinden kesim gününe, kesim günü dahil) toplamı ve tarih aralığı, yanında bugün yapılan harcama (önceki alışverişlerin bu döneme düşen taksitleri hariç).
+- **Özet kartı:** Harcama ekleyip silince toplamların sadece değişen haneleri kayar (iPhone'un sayı geçişi gibi). İçinde bulunulan hesap dönemi (kesim gününün ertesinden kesim gününe, kesim günü dahil) toplamı ve tarih aralığı, yanında bugün yapılan harcama (önceki alışverişlerin bu döneme düşen taksitleri hariç).
 - **Özet sekmesi:** Dönem hedefi halkası (yüzde, kalan, "günde ₺X ile hedefte kalırsın"), adım sayacı tarzı günlük / ekstre sütun grafiği, devam eden taksitler (sonraki ekstreye şimdiden yazılan, toplam kalan, alışveriş başına ilerleme).
 - **Son harcamalar:** Ana sayfada ekrana sığdığı kadar (en fazla 5) son kayıt; "Tümünü gör" ile Harcamalar sekmesine geçilir.
 - **Harcamalar sekmesi:** Hesap dönemleri (ekstreler) arasında ‹ › ile ya da dönem kartını kaydırarak gezinme, dönem toplamı ve günlük ortalama, günlere göre gruplu liste. Arama ikonu tüm dönemlerde arar.
 - **Kayıt detayı:** Satıra dokununca toplam tutar, tarih, taksit planı ve kalan taksitler. Silme detaydan ya da satırı sola kaydırarak; silme geri alınabilir.
 - **Ayarlar:** Ana ekrana ekleme yönergesi (Safari'den açılınca), hesap kesim günü (1–28, gün seçiciden tek dokunuşla; seçilen dönemin aralığı ve sonraki kesim tarihi önizlenir), dönem hedefi (geçmiş ekstrelerin ortalamasından öneriyle), yedekleme ve iki dokunuşla onaylanan "Tümünü sil". En altta sürüm etiketi.
-- **Dokunmatik uyumlu:** Tuşlarda titreşim geri bildirimi ve basma efekti. Sayfa kaymaz, sadece listeler kayar.
+- **Dokunmatik uyumlu:** Tuşlarda titreşim geri bildirimi (iPhone dahil; Ayarlar'dan kapatılır) ve basma efekti. Alttan paneller aşağı çekilerek kapanır. Sayfa kaymaz, sadece listeler kayar.
 - **Yedekleme:** Tek dokunuşla JSON yedeği (iPhone paylaşım menüsüyle Dosyalar'a ya da iCloud'a), yedekten geri yükleme (kayıtlar birleştirilir, aynısı iki kez eklenmez) ve Excel'de açılan CSV. Uzun süre yedek alınmazsa hatırlatır.
 - **Ana ekran uygulaması (PWA):** Kendi ikonu ve adıyla tam ekran açılır, internetsiz çalışır; internet varken her açılışta güncel sürümü alır. Çekim zayıfsa 2,5 saniyeden fazla beklemez, kayıtlı sürümle açılır (yenisi sonraki açılışta gelir). Açılırken temaya uygun açılış ekranı (altın kart) görünür. Arka plandan dönünce ekran güncellenir (gün ya da dönem değişmiş olabilir).
 - **Çevrimdışı:** Veriler cihazdaki `localStorage` alanında tutulur.
@@ -51,7 +51,7 @@ harcama-app/
     │   ├── domain.js     iş mantığı: dönem, taksit, toplamlar, hedef (saf fonksiyonlar)
     │   ├── format.js     para ve tarih metinleri (saf)
     │   └── backup.js     JSON yedeği ve CSV
-    ├── ui/               ortak bileşenler: dokunma, cihaz, satır, geri alma, alttan paneller, halka, grafik
+    ├── ui/               ortak bileşenler: dokunma, titreşim, cihaz, kayan haneler, satır, geri alma, alttan paneller, halka, grafik
     ├── views/            ekranlar: giriş paneli, ana sayfa, harcamalar, özet, ayarlar, sekmeler
     └── app.js            bileşenleri kurar ve bağlar
 ```
