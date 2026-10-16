@@ -44,7 +44,7 @@ const Domain = Object.freeze({
   },
 
   // Taksitli kayıtları sanal taksit satırlarına açar (gelecek taksitler dahil).
-  // İlk taksit kaydın kendi tarihine, sonrakiler sonraki dönem başlarına düşer.
+  // İlk taksit kaydın kendi tarihine, sonrakiler sonraki dönem başlarına düşer; buyTs alışverişin tarihi.
   expand(items, cutoff) {
     const rows = [];
     items.forEach(item => {
@@ -66,6 +66,7 @@ const Domain = Object.freeze({
           amt: single,
           displayAmt: single,
           ts: m === 0 ? item.ts : Domain.periodStart(item.ts, cutoff, m).getTime(),
+          buyTs: item.ts,
           part: m + 1,
           parts
         });

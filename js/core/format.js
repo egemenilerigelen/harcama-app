@@ -155,6 +155,9 @@ const Format = Object.freeze({
     return '+' + Format.money(amount) + ' önceki taksitler';
   },
 
+  // Harcamalar listesinde önceki alışverişlerin bu döneme yansıyan taksitleri (günlerden ayrı grup)
+  carriedTitle: 'Önceki taksitler',
+
   // Ekstre grafiğinde ilk kayıttan önceki dönemler
   noRecord: 'Kayıt yok',
 
