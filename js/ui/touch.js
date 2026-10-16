@@ -1,8 +1,8 @@
 // DOKUNMATİK: titreşim, basma efekti, yatay sürükleme (kaydırarak silme, sayfa kaydırma)
-// Bağımlılık: Config
+// Bağımlılık: Config, Haptics
 const Touch = Object.freeze({
   haptic() {
-    if (navigator.vibrate) navigator.vibrate(Config.HAPTIC_MS);
+    Haptics.tap();
   },
 
   // pointerdown'da gecikmesiz tetikler; basılıyken .pressed verir

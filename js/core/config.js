@@ -23,6 +23,8 @@ const Config = Object.freeze({
 
   // Yedek bu kadar gün eskiyse (ya da hiç alınmadıysa) Ayarlar'da uyarı rengiyle gösterilir
   BACKUP_WARN_DAYS: 30,
+
+  // Titreşim süresi (Android; iPhone'da süre sistemin)
   HAPTIC_MS: 12,
 
   // Yatay sürükleme: yön belirleme payı

@@ -171,17 +171,22 @@
     <section class="view" data-view="settings">
       <header class="view-head"><h1>Ayarlar</h1></header>
       <div class="scroll">
-        <!-- Ana ekrana eklenmemişken: iPhone bunu kendisi önermediği için yönerge -->
-        <div id="installSec">
-          <h2 class="sec-title">Uygulama</h2>
-          <div class="card">
-            <div class="set-row">
-              <div class="set-info">
-                <b>Ana ekrana ekle</b>
-                <small>Safari'de Paylaş <svg class="share-ico" viewBox="0 0 24 24" aria-label="Paylaş"><path d="M12 15V3.5M8 7.5l4-4 4 4M7 11H5.5v9.5h13V11H17"/></svg> düğmesine, sonra "Ana Ekrana Ekle"ye dokun. Uygulama internetsiz açılır, veriler kalıcı olur.</small>
-              </div>
+        <h2 class="sec-title">Uygulama</h2>
+        <div class="card">
+          <!-- Ana ekrana eklenmemişken: iPhone bunu kendisi önermediği için yönerge -->
+          <div class="set-row" id="installRow">
+            <div class="set-info">
+              <b>Ana ekrana ekle</b>
+              <small>Safari'de Paylaş <svg class="share-ico" viewBox="0 0 24 24" aria-label="Paylaş"><path d="M12 15V3.5M8 7.5l4-4 4 4M7 11H5.5v9.5h13V11H17"/></svg> düğmesine, sonra "Ana Ekrana Ekle"ye dokun. Uygulama internetsiz açılır, veriler kalıcı olur.</small>
             </div>
           </div>
+          <label class="set-row set-link">
+            <span class="set-info">
+              <b>Titreşim</b>
+              <small>Tuşlara dokunurken ve kaydırırken hafif titreşim</small>
+            </span>
+            <input type="checkbox" class="toggle" id="hapticsToggle" role="switch">
+          </label>
         </div>
 
         <h2 class="sec-title">Dönem</h2>
@@ -353,6 +358,7 @@
 <script src="js/core/backup.js"></script>
 <script src="js/ui/dom.js"></script>
 <script src="js/ui/device.js"></script>
+<script src="js/ui/haptics.js"></script>
 <script src="js/ui/touch.js"></script>
 <script src="js/ui/row.js"></script>
 <script src="js/ui/undo.js"></script>

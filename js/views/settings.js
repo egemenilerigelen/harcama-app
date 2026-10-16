@@ -1,4 +1,4 @@
-// AYARLAR: ana ekrana ekleme yönergesi, hesap kesim günü, dönem hedefi, yedekleme / geri yükleme / CSV
+// AYARLAR: ana ekrana ekleme yönergesi, titreşim, hesap kesim günü, dönem hedefi, yedekleme / geri yükleme / CSV
 // ve iki dokunuşla onaylanan "Tümünü sil".
 // Veriyi kendisi değiştirmez; istekleri geri çağrılarla dışarı verir.
 // Bağımlılık: Config, Format, Touch, $
@@ -9,9 +9,10 @@ class SettingsView {
   #timer = null;
   #statusTimer = null;
 
-  // onEditCutoff / onEditGoal: panelleri aç, onBackup: yedek al, onImport: yedekten geri yükle,
-  // onExportCsv: CSV ver, onClear: tüm kayıtları sil
-  constructor({ onEditCutoff, onEditGoal, onBackup, onImport, onExportCsv, onClear }) {
+  // onHaptics(açık): titreşim tercihi, onEditCutoff / onEditGoal: panelleri aç, onBackup: yedek al,
+  // onImport: yedekten geri yükle, onExportCsv: CSV ver, onClear: tüm kayıtları sil
+  constructor({ onHaptics, onEditCutoff, onEditGoal, onBackup, onImport, onExportCsv, onClear }) {
+    $('hapticsToggle').onchange = e => onHaptics(e.target.checked);
     $('cutRow').onclick = onEditCutoff;
     $('goalRow').onclick = onEditGoal; // click: iPhone klavyesi açılabilsin
     // click: paylaşım menüsü ve dosya seçici ancak dokunuşun içinden açılır
@@ -48,7 +49,11 @@ class SettingsView {
 
   // Ana ekrana ekleme yönergesi: uygulama zaten ana ekrandan açıldıysa gizli
   showInstall(visible) {
-    $('installSec').hidden = !visible;
+    $('installRow').hidden = !visible;
+  }
+
+  showHaptics(on) {
+    $('hapticsToggle').checked = on;
   }
 
   // Veri işlemlerinin sonucu kartın altında birkaç saniye görünür

@@ -23,6 +23,7 @@ const ASSETS = [
   'js/core/backup.js',
   'js/ui/dom.js',
   'js/ui/device.js',
+  'js/ui/haptics.js',
   'js/ui/touch.js',
   'js/ui/row.js',
   'js/ui/undo.js',

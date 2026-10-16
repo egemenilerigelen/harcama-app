@@ -1,7 +1,7 @@
 // UYGULAMA: bileşenleri kurar ve birbirine bağlar (composition root).
 // Veriye (Store) sadece burası erişir; bileşenler birbirini tanımaz,
 // kendilerine verilen geri çağrılarla konuşur.
-// Bağımlılık: Store, Domain ve tüm görünümler
+// Bağımlılık: Store, Domain, Haptics ve tüm görünümler
 class App {
   #undo;
   #detail;
@@ -35,6 +35,7 @@ class App {
       onEditGoal: () => this.#editGoal()
     });
     this.#settings = new SettingsView({
+      onHaptics: on => this.#setHaptics(on),
       onEditCutoff: () => this.#editCutoff(),
       onEditGoal: () => this.#editGoal(),
       onBackup: () => this.#backup(),
@@ -56,6 +57,8 @@ class App {
     // Fontlar yüklenince satır yükseklikleri değişebilir
     if (document.fonts) document.fonts.ready.then(() => this.#fit());
 
+    Haptics.enabled = Store.getHaptics();
+    this.#settings.showHaptics(Store.getHaptics());
     this.#settings.showCutoff(Store.getCutoff());
     this.#settings.showGoal(Store.getGoal());
     this.#settings.showInstall(!Device.isStandalone());
@@ -122,6 +125,13 @@ class App {
   #openDetail(id) {
     const item = Store.all().find(e => e.id === id);
     if (item) this.#detail.open(item, Store.getCutoff(), Date.now());
+  }
+
+  // Titreşim açılınca hemen bir kez titrer: ne açıldığı hissedilsin
+  #setHaptics(on) {
+    Store.setHaptics(on);
+    Haptics.enabled = on;
+    if (on) Haptics.tap();
   }
 
   #editCutoff() {

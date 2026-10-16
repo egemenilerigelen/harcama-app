@@ -5,6 +5,7 @@ const Store = {
   CUTOFF_KEY: 'cutoff_day_v1',
   GOAL_KEY: 'goal_v1',
   BACKUP_KEY: 'backup_at_v1',
+  HAPTICS_KEY: 'haptics_v1',
 
   all() {
     try {
@@ -77,5 +78,15 @@ const Store = {
 
   setBackupAt(ts) {
     localStorage.setItem(this.BACKUP_KEY, ts);
+  },
+
+  // Titreşim tercihi: varsayılan açık, kapatılınca '0' yazılır
+  getHaptics() {
+    return localStorage.getItem(this.HAPTICS_KEY) !== '0';
+  },
+
+  setHaptics(on) {
+    if (on) localStorage.removeItem(this.HAPTICS_KEY);
+    else localStorage.setItem(this.HAPTICS_KEY, '0');
   }
 };
