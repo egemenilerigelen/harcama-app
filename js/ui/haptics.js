@@ -1,56 +1,42 @@
-// TİTREŞİM: dokunuşa hafif titreşim. Android'de titreşim API'si (navigator.vibrate) var;
-// iPhone Safari'de yok. iOS 18+ anahtar (switch) türü onay kutusu değişince sistem titreşimi verir:
-// gizli bir anahtarın etiketine tıklanarak tetiklenir. Ayarlar'dan kapatılabilir.
+// TİTREŞİM: dokunuşa hafif titreşim. Ayarlar'dan kapatılabilir.
+// Android'de titreşim API'si (navigator.vibrate) var: tap() titretir.
+// iPhone Safari'de yok; tek yol iOS'un anahtarı (<input type="checkbox" switch>): anahtar değişince
+// sistem titrer. iOS 26.5'ten beri koddan tıklatmak titretmiyor, parmağın gerçekten dokunması gerekiyor.
+// Bu yüzden attach(el) öğenin üstüne görünmez bir etiket serer; etiketin içinde gizli bir anahtar
+// vardır. Parmak öğeye dokununca etiket tıklamayı anahtara iletir, iPhone titrer; tıklama öğeye de
+// ulaşır (öğenin kendi işi aynen çalışır). Titreşim parmak kalkınca olur (iPhone'un izin verdiği an).
 // Tercih cihaz geneli (tek durum): App açılışta ve ayar değişince `enabled` verir.
 // Bağımlılık: Config
 class Haptics {
   static #on = true;
-  static #label = null;
-  static #waiting = false;
+  static #ios = /iPhone|iPad|iPod/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
+  // Kapalıyken iPhone'daki etiketler de gizlenir (CSS: .no-haptics .haptic)
   static set enabled(on) {
     Haptics.#on = on;
+    document.documentElement.classList.toggle('no-haptics', !on);
   }
 
+  // Android: hemen titret. iPhone'da koddan titretilemez (attach edilen öğeler kendisi titrer)
   static tap() {
-    if (!Haptics.#on) return;
-    if (navigator.vibrate) {
-      navigator.vibrate(Config.HAPTIC_MS);
-      return;
-    }
-    // iPhone anahtarı ancak kullanıcı etkileşiminin içinde titrer; dokunmatikte pointerdown bunu
-    // saymaz, parmak kalkınca (pointerup) sayar. Etkileşim yoksa o ana bırakılır, bir dokunuşta bir kez.
-    const act = navigator.userActivation;
-    if (!act || act.isActive) {
-      Haptics.#toggle();
-      return;
-    }
-    if (Haptics.#waiting) return;
-    Haptics.#waiting = true;
-    const done = e => {
-      window.removeEventListener('pointerup', done, true);
-      window.removeEventListener('pointercancel', done, true);
-      Haptics.#waiting = false;
-      if (e.type === 'pointerup') Haptics.#toggle();
-    };
-    window.addEventListener('pointerup', done, true);
-    window.addEventListener('pointercancel', done, true);
+    if (Haptics.#on && navigator.vibrate) navigator.vibrate(Config.HAPTIC_MS);
   }
 
-  // Gizli anahtar ilk titreşimde kurulur, sonra hep aynısı kullanılır (odak almaz, klavyeyi kapatmaz)
-  static #toggle() {
-    if (!Haptics.#label) {
-      const label = document.createElement('label');
-      const input = document.createElement('input');
-      input.type = 'checkbox';
-      input.setAttribute('switch', '');
-      input.tabIndex = -1;
-      label.setAttribute('aria-hidden', 'true');
-      label.style.display = 'none';
-      label.appendChild(input);
-      document.body.appendChild(label);
-      Haptics.#label = label;
-    }
-    Haptics.#label.click();
+  // iPhone: öğeye dokununca titresin. Öğenin konumu yoksa CSS'te göreli olur (.haptic-host)
+  static attach(el) {
+    if (!Haptics.#ios || el.querySelector(':scope > .haptic')) return;
+    const label = document.createElement('label');
+    label.className = 'haptic';
+    label.setAttribute('aria-hidden', 'true');
+    const sw = document.createElement('input');
+    sw.type = 'checkbox';
+    sw.setAttribute('switch', '');
+    sw.tabIndex = -1;
+    // Etiketin anahtara ilettiği kopya tıklama öğenin tıklama işini ikinci kez tetiklemesin
+    sw.addEventListener('click', e => e.stopPropagation());
+    label.appendChild(sw);
+    el.classList.add('haptic-host');
+    el.appendChild(label);
   }
 }

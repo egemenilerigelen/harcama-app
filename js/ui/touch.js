@@ -1,12 +1,21 @@
 // DOKUNMATİK: titreşim, basma efekti, sürükleme (kaydırarak silme, sayfa kaydırma, paneli aşağı çekip kapatma)
 // Bağımlılık: Config, Haptics
 const Touch = Object.freeze({
+  // Kod içinden titreşim (kaydırma bitişi gibi dokunuş olmayan anlar): sadece Android'de
   haptic() {
     Haptics.tap();
   },
 
-  // pointerdown'da gecikmesiz tetikler; basılıyken .pressed verir
+  // Öğeye dokununca titrer: iPhone'da gerçek dokunuşla (Haptics.attach), Android'de tıklamada
+  hapticOn(el) {
+    Haptics.attach(el);
+    el.addEventListener('click', Touch.haptic);
+  },
+
+  // pointerdown'da gecikmesiz tetikler; basılıyken .pressed verir.
+  // Titreşim: Android'de basınca, iPhone'da parmak kalkınca (Haptics.attach)
   bindPress(btn, action) {
+    Haptics.attach(btn);
     const start = e => {
       e.preventDefault();
       btn.classList.add('pressed');

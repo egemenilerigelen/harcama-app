@@ -22,12 +22,11 @@ class NameSheet extends BottomSheet {
     });
     this.#input.addEventListener('input', () => this.#renderChips());
     $('nAdd').onclick = () => this.#add(this.#input.value);
+    Touch.hapticOn($('nAdd'));
 
     document.querySelectorAll('#nInst .inst-btn').forEach(btn => {
-      btn.onclick = () => {
-        this.#setInst(Number(btn.dataset.inst));
-        Touch.haptic();
-      };
+      btn.onclick = () => this.#setInst(Number(btn.dataset.inst));
+      Touch.hapticOn(btn);
     });
 
     // Klavye açılıp kapandıkça panel klavyenin üstüne kayar
@@ -69,6 +68,7 @@ class NameSheet extends BottomSheet {
       const chip = el('button', 'chip', name);
       // click (pointerdown değil): çip şeridi yana kayarken yanlışlıkla eklenmesin
       chip.onclick = () => this.#add(name);
+      Touch.hapticOn(chip);
       this.#chips.appendChild(chip);
     });
     this.#chips.hidden = !shown.length;
@@ -80,7 +80,6 @@ class NameSheet extends BottomSheet {
   }
 
   #add(name) {
-    Touch.haptic();
     const entry = { name: name.trim() || 'Adsız', amt: this.#amt, inst: this.#inst };
     this.close();
     this.#onAdd(entry);

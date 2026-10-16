@@ -1314,8 +1314,33 @@ body.has-amt .pad .add.pressed {
   border-top: 0;
 }
 
-/* AÇMA/KAPAMA ANAHTARI (iOS ölçüsünde): kapalıyken gömük iz, açıkken EKLE'nin metalik altını;
-   topuz kabarık, yaylı kayar */
+/* TİTREŞİM ETİKETİ (Haptics.attach, sadece iPhone): öğenin üstünü kaplayan görünmez etiket ve içinde
+   gizli iOS anahtarı; parmak dokununca anahtar değişir, iPhone titrer. Anahtar parmağın altında durmaz
+   (dokunuşu yutup kaydırmayı bozmasın). Titreşim kapalıyken etiketler yok */
+:where(.haptic-host) {
+  position: relative;
+}
+
+.haptic {
+  position: absolute;
+  inset: 0;
+  touch-action: manipulation;
+}
+
+.haptic input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  visibility: hidden;
+}
+
+.no-haptics .haptic {
+  display: none;
+}
+
+/* AÇMA/KAPAMA ANAHTARI (iOS ölçüsünde; switch: dokununca iPhone kendisi titrer): kapalıyken gömük iz,
+   açıkken EKLE'nin metalik altını; topuz kabarık, yaylı kayar */
 .toggle {
   flex-shrink: 0;
   position: relative;

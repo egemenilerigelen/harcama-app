@@ -26,9 +26,9 @@ class SummaryView {
       btn.onclick = () => {
         this.#mode = btn.dataset.mode;
         document.querySelectorAll('#chartMode button').forEach(b => b.classList.toggle('active', b === btn));
-        Touch.haptic();
         this.#renderChart();
       };
+      Touch.hapticOn(btn);
     });
   }
 
@@ -187,9 +187,9 @@ class SummaryView {
     more.setAttribute('aria-expanded', this.#instOpen);
     more.onclick = () => {
       this.#instOpen = !this.#instOpen;
-      Touch.haptic();
       this.#renderInstallments();
     };
+    Touch.hapticOn(more);
     list.appendChild(more);
   }
 }

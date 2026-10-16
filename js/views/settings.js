@@ -21,6 +21,7 @@ class SettingsView {
     $('csvRow').onclick = onExportCsv;
     $('appVersion').textContent = 'Sürüm ' + Config.VERSION;
 
+    Touch.hapticOn(this.#clear);
     this.#clear.onclick = () => {
       if (!this.#armed) {
         this.#arm();
@@ -67,16 +68,15 @@ class SettingsView {
   // İlk dokunuş: onay ister, süre dolarsa vazgeçer
   #arm() {
     this.#armed = true;
-    this.#clear.textContent = 'Emin misin?';
+    this.#clear.firstChild.textContent = 'Emin misin?'; // ilk düğüm metin; sonrasında titreşim etiketi var
     this.#clear.classList.add('armed');
-    Touch.haptic();
     clearTimeout(this.#timer);
     this.#timer = setTimeout(() => this.#disarm(), Config.CONFIRM_MS);
   }
 
   #disarm() {
     this.#armed = false;
-    this.#clear.textContent = 'Sil';
+    this.#clear.firstChild.textContent = 'Sil';
     this.#clear.classList.remove('armed');
   }
 }
