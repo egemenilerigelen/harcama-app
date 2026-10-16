@@ -200,6 +200,49 @@ button {
   line-height: 1.3;
 }
 
+/* KAYAN HANELER (RollingText): sadece değişen hane kayar; artınca eskisi yukarı çıkıp solar, yenisi
+   alttan gelir, azalınca tersi. Yuvalar taşanı keser; kısalan sayının fazla hanesi daralarak çıkar.
+   Süre Config.ROLL_MS ile aynı olmalı */
+.roll {
+  display: inline-flex;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.slot {
+  position: relative;
+  display: inline-block;
+}
+
+.slot .new, .slot .old {
+  display: inline-block;
+}
+
+.slot .old {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.slot.up .new { animation: rollInBelow 0.46s var(--ease) both; }
+.slot.up .old { animation: rollOutTop 0.46s var(--ease) both; }
+.slot.down .new { animation: rollInTop 0.46s var(--ease) both; }
+.slot.down .old { animation: rollOutBottom 0.46s var(--ease) both; }
+
+.slot.gone {
+  animation: rollCollapse 0.46s var(--ease) both;
+}
+
+.slot.gone .old {
+  position: static;
+}
+
+@keyframes rollInBelow { from { transform: translateY(70%); opacity: 0; filter: blur(2px); } }
+@keyframes rollInTop { from { transform: translateY(-70%); opacity: 0; filter: blur(2px); } }
+@keyframes rollOutTop { to { transform: translateY(-70%); opacity: 0; filter: blur(2px); } }
+@keyframes rollOutBottom { to { transform: translateY(70%); opacity: 0; filter: blur(2px); } }
+@keyframes rollCollapse { from { max-width: 0.62em; } to { max-width: 0; } }
+
 /* GİRİŞ PANELİ: çerçevesiz, ekranın altında, başparmak bölgesinde */
 .panel {
   flex-shrink: 0;
@@ -1918,5 +1961,10 @@ body:has(.view[data-view="home"].active) #undo {
   *, *::before, *::after {
     animation: none !important;
     transition: none !important;
+  }
+
+  /* Kayan haneler: hareket yok, yeni değer hemen */
+  .slot .old, .slot.gone {
+    display: none;
   }
 }

@@ -53,6 +53,11 @@ const Config = Object.freeze({
   PAGER_OUT_RATIO: 1.1,
   PAGER_SLIDE_MS: 180,
 
+  // Kayan haneler (ana sayfa toplamları): bir hanenin kayma süresi (CSS'teki .slot animasyonuyla aynı
+  // olmalı) ve haneler arası gecikme
+  ROLL_MS: 460,
+  ROLL_STAGGER_MS: 28,
+
   // Tutar ekranında yazının küçüldüğü karakter sayıları
   AMOUNT_SM_LEN: 9,
   AMOUNT_XS_LEN: 12,

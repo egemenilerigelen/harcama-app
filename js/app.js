@@ -71,8 +71,9 @@ class App {
   }
 
   // Tek yönlü render: veriyi bir kez okur, taksitleri bir kez açar, ekranlara dağıtır.
-  // items: ham kayıtlar (taksit planları için), rows: ekrandaki satırlar
-  refresh() {
+  // items: ham kayıtlar (taksit planları için), rows: ekrandaki satırlar,
+  // animate: değişiklik bir eylemden (ekleme, silme, geri alma) geldi; değişen toplamlar hareketle gösterilir
+  refresh({ animate = false } = {}) {
     const now = Date.now();
     const cutoff = Store.getCutoff();
     const items = Store.all();
@@ -82,7 +83,8 @@ class App {
       goal: Store.getGoal(),
       periodStart: Domain.periodStart(now, cutoff),
       items,
-      rows: Domain.visibleRows(items, cutoff, now)
+      rows: Domain.visibleRows(items, cutoff, now),
+      animate
     };
     this.#home.render(model);
     this.#list.render(model);
@@ -100,12 +102,12 @@ class App {
   #add({ name, amt, inst }) {
     const item = Store.add(name, amt, inst);
     this.#entry.clear();
-    this.refresh();
+    this.refresh({ animate: true });
     this.#home.flashNewest();
     this.#undo.show(Format.undoAdded, () => {
       Store.remove(item.id);
       this.#entry.setAmount(amt);
-      this.refresh();
+      this.refresh({ animate: true });
     });
   }
 
@@ -114,12 +116,12 @@ class App {
     const removed = Store.all().find(e => e.id === id);
     Store.remove(id);
     if (removed) this.#undo.show(Format.undoDeleted, () => this.#restore(removed));
-    this.refresh();
+    this.refresh({ animate: true });
   }
 
   #restore(item) {
     Store.restore(item);
-    this.refresh();
+    this.refresh({ animate: true });
   }
 
   #openDetail(id) {
