@@ -1,7 +1,7 @@
 // SABİTLER: sihirli sayılar tek yerde; hiçbir dosyaya bağımlı değil
 const Config = Object.freeze({
   // Yayın sürümü (Ayarlar'ın en altında): her push'ta artırılır ki telefonda yeni sürümün geldiği görülsün
-  VERSION: '2026.10.17-3',
+  VERSION: '2026.10.17-4',
 
   DAY_MS: 864e5,
 
@@ -20,8 +20,9 @@ const Config = Object.freeze({
   UNDO_MS: 4000,
   // Geri alma kapsülü: basılı tutup bırakınca en az kalan süre, yukarı itince kapanma eşiği
   UNDO_MIN_MS: 800,
-  // Ana sayfada kapsül, özet kartındaki kayan haneler bitince açılır (kart kapsülün altında kalır)
-  UNDO_DELAY_MS: 600,
+  // Ana sayfada kapsül, özet kartındaki kayan haneler bitmek üzereyken açılır (kart kapsülün altında
+  // kalır; kapsül tepeden büyüyüp karta inene kadar haneler oturur, kullanıcı fazla beklemez)
+  UNDO_DELAY_MS: 400,
   UNDO_SWIPE_PX: 24,
   CONFIRM_MS: 2500,
   STATUS_MS: 4000,

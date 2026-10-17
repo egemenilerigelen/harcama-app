@@ -118,7 +118,7 @@ class App {
     this.refresh({ animate: true });
   }
 
-  // Geri alma kapsülü: ana sayfada özet kartını örttüğü için kayan haneler bitince açılır
+  // Geri alma kapsülü: ana sayfada özet kartını örttüğü için kayan haneler bitmek üzereyken açılır
   #offerUndo(info, undo) {
     this.#undo.show(info, undo, this.#tab === 'home' ? Config.UNDO_DELAY_MS : 0);
   }
