@@ -1,6 +1,6 @@
 // HARCAMALAR: dönem gezgini, arama ve günlere göre liste
 // Kendi durumunu (seçili dönem, arama) kendisi tutar; değişince onChange ile yeniden çizim ister.
-// Bağımlılık: Config, Domain, Format, ExpenseRow, Touch, $, el
+// Bağımlılık: Config, Domain, Format, ExpenseRow, Touch, paintMoney, $, el
 class ListView {
   #offset = 0;          // 0 bu dönem, -1 geçen dönem ...
   #searching = false;
@@ -78,7 +78,7 @@ class ListView {
     const lastDay = end - Config.DAY_MS;
     $('perName').textContent = Format.periodName(this.#offset, lastDay, now);
     $('listRange').textContent = Format.rangeWithYear(start, lastDay, now);
-    $('perTotal').textContent = Format.money(total);
+    paintMoney($('perTotal'), Format.money(total));
     $('listSum').textContent = items.length
       ? 'Günlük ort. ' + Format.money(Math.round(spent / Domain.periodDays(start, end, now)))
       : 'Harcama yok';

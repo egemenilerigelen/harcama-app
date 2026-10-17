@@ -2,7 +2,7 @@
 // tarih değiştirilir; tutar girişi tuş takımıyla aynı kurallarla (Calc: en fazla 9 hane, 2 ondalık).
 // Tarih değişince kaydın saati korunur.
 // Nereye kaydedileceğini bilmez; sonucu onSave(id, { name, amt, inst, ts }) ile dışarı verir.
-// Bağımlılık: BottomSheet, Calc, DateChoice, Domain, Format, Touch, $
+// Bağımlılık: BottomSheet, Calc, DateChoice, Domain, Format, Touch, paintMoney, $
 class DetailSheet extends BottomSheet {
   #panel = $('sheet').querySelector('.sheet');
   #name = $('eName');
@@ -56,7 +56,7 @@ class DetailSheet extends BottomSheet {
     const total = Number(item.amt) || 0;
 
     $('dName').textContent = item.name;
-    $('dAmt').textContent = Format.money(total);
+    paintMoney($('dAmt'), Format.money(total));
     $('dDate').textContent = Format.longDateTime(item.ts);
     $('dPay').textContent = Format.installment(parts) + (parts > 1 ? ' × ' + Format.money(total / parts) : '');
 

@@ -1,8 +1,9 @@
 // KAYAN HANELER: sayı metni değişince sadece değişen haneler kayar (iPhone'un kendi sayı geçişi gibi).
 // Artınca eskisi yukarı çıkıp solar, yenisi alttan gelir; azalınca tersi. Baştaki ₺ sabit durur.
 // Haneler soldan sağa hafif gecikmeyle oturur. Hareket bitince düz metne döner (ekran okuyucu ve
-// kopyalama tek sayı görsün). "Hareketi Azalt" açıksa CSS hareketi kapatır, değer anında değişir.
-// Bağımlılık: Config, el
+// kopyalama tek sayı görsün); ₺ ve kuruş kayarken de durunca da kendi span'lerinde (paintMoney: .hero'da küçük).
+// "Hareketi Azalt" açıksa CSS hareketi kapatır, değer anında değişir.
+// Bağımlılık: Config, el, paintMoney
 class RollingText {
   #node;
   #text = '';
@@ -18,7 +19,7 @@ class RollingText {
     this.#text = text;
     clearTimeout(this.#timer);
     if (!dir || !from || from === text) {
-      this.#node.textContent = text;
+      paintMoney(this.#node, text);
       return;
     }
 
@@ -31,10 +32,14 @@ class RollingText {
     const len = Math.max(a.length, b.length);
     const oa = a.padStart(len), ob = b.padStart(len);
     const roll = el('span', 'roll');
+    // Virgülden sonrası (kuruş) kendi span'inde: durunca olduğu gibi küçük kalsın
+    const comma = ob.indexOf(',');
+    const kr = comma >= 0 ? el('span', 'm-kr') : null;
     let changed = 0;
     for (let i = 0; i < len; i++) {
+      const box = kr && i >= comma ? kr : roll;
       if (oa[i] === ob[i]) {
-        roll.append(ob[i]);
+        box.append(ob[i]);
         continue;
       }
       const delay = changed++ * Config.ROLL_STAGGER_MS + 'ms';
@@ -42,14 +47,14 @@ class RollingText {
       const slot = el('span', 'slot ' + dir + (ob[i] === ' ' ? ' gone' : ''));
       if (ob[i] !== ' ') slot.appendChild(this.#digit('new', ob[i], delay));
       if (oa[i] !== ' ') slot.appendChild(this.#digit('old', oa[i], delay));
-      roll.appendChild(slot);
+      box.appendChild(slot);
     }
+    if (kr) roll.appendChild(kr);
 
-    this.#node.textContent = prefix;
+    this.#node.textContent = '';
+    if (prefix) this.#node.appendChild(el('span', 'm-cur', prefix));
     this.#node.appendChild(roll);
-    this.#timer = setTimeout(() => {
-      this.#node.textContent = text;
-    }, Config.ROLL_MS + changed * Config.ROLL_STAGGER_MS);
+    this.#timer = setTimeout(() => paintMoney(this.#node, text), Config.ROLL_MS + changed * Config.ROLL_STAGGER_MS);
   }
 
   #digit(cls, ch, delay) {

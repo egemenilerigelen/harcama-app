@@ -2,7 +2,7 @@
 // isimlerden biri seçilir (çipe dokunmak kaydı hemen ekler), taksit ve tarih (Bugün · Dün · Takvim) burada seçilir.
 // Klavye açıkken panel klavyenin hemen üstünde durur (BottomSheet).
 // Nereye kaydedileceğini bilmez; sonucu onAdd({ name, amt, inst, day }) ile dışarı verir (day: seçilen günün başı).
-// Bağımlılık: BottomSheet, DateChoice, Format, Touch, $, el
+// Bağımlılık: BottomSheet, DateChoice, Format, Touch, paintMoney, $, el
 class NameSheet extends BottomSheet {
   #input = $('nName');
   #chips = $('nChips');
@@ -35,7 +35,7 @@ class NameSheet extends BottomSheet {
   open(amt, names, now, cutoff) {
     this.#amt = amt;
     this.#names = names;
-    $('nAmt').textContent = Format.money(amt);
+    paintMoney($('nAmt'), Format.money(amt));
     this.#input.value = '';
     this.#setInst(1);
     this.#date.reset(now, cutoff);

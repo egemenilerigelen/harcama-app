@@ -15,3 +15,12 @@ function svgEl(tag, attrs = {}) {
   Object.keys(attrs).forEach(k => node.setAttribute(k, attrs[k]));
   return node;
 }
+
+// Para metni: ₺ ve kuruş ayrı span'de (.m-cur, .m-kr); büyük toplamlarda (.hero) küçülür, metin aynı kalır
+function paintMoney(node, text) {
+  const [, cur, int, kr] = text.match(/^(\D*)([^,]*)(,.*)?$/);
+  node.textContent = '';
+  if (cur) node.appendChild(el('span', 'm-cur', cur));
+  node.append(int);
+  if (kr) node.appendChild(el('span', 'm-kr', kr));
+}
