@@ -91,8 +91,13 @@ Hesap kesim günü `cutoff_day_v1` (varsayılan 15), dönem hedefi `goal_v1`, so
 - [x] JSON yedekleme / geri yükleme
 - [x] CSV dışa aktarma
 - [x] PWA (manifest ve service worker) ile ana ekrana ekleme
-- [ ] Kayıt düzenleme
-- [ ] Kategoriler
+- [x] Kayıt düzenleme ve geçmiş tarihli ekleme
+- [x] Çekirdek testleri
+- [ ] Kategoriler (isimden tahminle)
+- [ ] Tekrarlayan harcamalar ve tutarı hatırlayan çipler
+- [ ] Dönem sonu tahmini ve ekstre kapanış özeti
+- [ ] Son ödeme günü ve kart limiti
+- [ ] İlk açılış rehberi
 - [ ] Çoklu kart
 
 ## Teknoloji
