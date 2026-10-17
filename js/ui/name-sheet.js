@@ -1,10 +1,9 @@
 // İSİM ADIMI (girişin 2. adımı): tutardan sonra alttan açılır. İsim yazılır ya da sık kullanılan
 // isimlerden biri seçilir (çipe dokunmak kaydı hemen ekler), taksit burada seçilir.
-// Klavye açıkken panel klavyenin hemen üstünde durur (iPhone klavyesi sayfayı küçültmez, üstüne biner).
+// Klavye açıkken panel klavyenin hemen üstünde durur (BottomSheet).
 // Nereye kaydedileceğini bilmez; sonucu onAdd({ name, amt, inst }) ile dışarı verir.
-// Bağımlılık: BottomSheet, Device, Format, Touch, $, el
+// Bağımlılık: BottomSheet, Format, Touch, $, el
 class NameSheet extends BottomSheet {
-  #panel = $('nameSheet').querySelector('.sheet');
   #input = $('nName');
   #chips = $('nChips');
   #names = [];
@@ -27,12 +26,6 @@ class NameSheet extends BottomSheet {
     document.querySelectorAll('#nInst .inst-btn').forEach(btn => {
       btn.onclick = () => this.#setInst(Number(btn.dataset.inst));
       Touch.hapticOn(btn);
-    });
-
-    // Klavye açılıp kapandıkça panel klavyenin üstüne kayar
-    Device.watchKeyboard(px => {
-      this.#panel.style.setProperty('--kb', px + 'px');
-      this.#panel.classList.toggle('kb', px > 0);
     });
   }
 

@@ -35,6 +35,17 @@ const Store = {
     localStorage.setItem(this.KEY, JSON.stringify(items));
   },
 
+  // Kaydı düzenler (isim, tutar, taksit); id ve tarih aynı kalır. Önceki halini döner (geri alma için)
+  update(id, { name, amt, inst }) {
+    const items = this.all();
+    const i = items.findIndex(e => e.id === id);
+    if (i < 0) return null;
+    const before = items[i];
+    items[i] = { ...before, name, amt: Number(amt), inst: Number(inst) };
+    localStorage.setItem(this.KEY, JSON.stringify(items));
+    return before;
+  },
+
   // Silinen kaydı geri koyar; yeni kayıtlar başta durduğu için ts'ye göre sıralar
   restore(item) {
     const items = this.all();

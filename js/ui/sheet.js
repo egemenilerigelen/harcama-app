@@ -1,7 +1,8 @@
 // ALTTAN AÇILAN PANEL (temel sınıf): açma/kapama; içindeki [data-close] öğeleri paneli kapatır,
 // panel parmakla aşağı çekilerek de kapanır. Kapanırken aşağı kayar, arka plan solar.
+// Klavye açıkken panel klavyenin hemen üstünde durur (iPhone klavyesi sayfayı küçültmez, üstüne biner).
 // Detay, hedef, kesim günü ve isim panelleri bundan türer.
-// Bağımlılık: Config, Touch
+// Bağımlılık: Config, Device, Touch
 class BottomSheet {
   #root;
   #panel;
@@ -13,6 +14,12 @@ class BottomSheet {
     this.#panel = root.querySelector('.sheet');
     this.#bg = root.querySelector('.sheet-bg');
     root.querySelectorAll('[data-close]').forEach(n => n.addEventListener('click', () => this.close()));
+
+    // Klavye açılıp kapandıkça panel klavyenin üstüne kayar
+    Device.watchKeyboard(px => {
+      this.#panel.style.setProperty('--kb', px + 'px');
+      this.#panel.classList.toggle('kb', px > 0);
+    });
 
     Touch.bindDismiss(this.#panel, {
       onMove: dy => this.#place(dy),

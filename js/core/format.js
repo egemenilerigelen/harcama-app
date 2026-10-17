@@ -164,6 +164,7 @@ const Format = Object.freeze({
   // Geri alma şeridi
   undoAdded: 'Harcama eklendi',
   undoDeleted: 'Harcama silindi',
+  undoEdited: 'Harcama düzenlendi',
 
   // Kısa ay adı: "Eki" (ekstre grafiği ekseni)
   monthShort(ts) {

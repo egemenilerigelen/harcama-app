@@ -24,7 +24,10 @@ class App {
     };
 
     this.#undo = new UndoBar();
-    this.#detail = new DetailSheet({ onDelete: id => this.#delete(id) });
+    this.#detail = new DetailSheet({
+      onDelete: id => this.#delete(id),
+      onSave: (id, changes) => this.#edit(id, changes)
+    });
     this.#goalSheet = new GoalSheet({ onSave: goal => this.#setGoal(goal) });
     this.#cutSheet = new CutoffSheet({ onSave: day => this.#setCutoff(day) });
     this.#nameSheet = new NameSheet({ onAdd: entry => this.#add(entry) });
@@ -116,6 +119,17 @@ class App {
     const removed = Store.all().find(e => e.id === id);
     Store.remove(id);
     if (removed) this.#undo.show(Format.undoDeleted, () => this.#restore(removed));
+    this.refresh({ animate: true });
+  }
+
+  // Düzenleme: geri alma şeridi açılır, geri alınınca kayıt önceki haline döner
+  #edit(id, changes) {
+    const before = Store.update(id, changes);
+    if (!before) return;
+    this.#undo.show(Format.undoEdited, () => {
+      Store.update(id, { name: before.name, amt: before.amt, inst: before.inst || 1 });
+      this.refresh({ animate: true });
+    });
     this.refresh({ animate: true });
   }
 
