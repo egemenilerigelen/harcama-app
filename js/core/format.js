@@ -193,6 +193,37 @@ const Format = Object.freeze({
     return open ? 'Daha az göster' : hidden + ' taksit daha';
   },
 
+  // KATEGORİLER (anahtarlar Categories'te)
+  category(key) {
+    return {
+      market: 'Market', food: 'Yeme-içme', transport: 'Ulaşım', subs: 'Abonelik', shopping: 'Alışveriş',
+      bills: 'Fatura', health: 'Sağlık', fun: 'Eğlence', other: 'Diğer'
+    }[key] || 'Diğer';
+  },
+
+  // İsim adımında tahmin edilen kategorinin yanındaki not
+  guessed: 'tahmin',
+
+  catToggle(hidden, open) {
+    return open ? 'Daha az göster' : hidden + ' kategori daha';
+  },
+
+  // Geçen döneme göre değişim: "↑ ₺620" / "↓ ₺230" / "aynı"; kıyas yoksa boş. change: Domain.categoryChange
+  categoryDelta(c, change) {
+    if (!change) return '';
+    if (change === 'same') return 'aynı';
+    return (change === 'up' ? '↑ ' : '↓ ') + Format.money(Math.abs(c.total - c.prev));
+  },
+
+  // Kartın cümlesi: "Geçen dönemin aynı gününe göre Alışveriş ₺850 fazla, Yeme-içme ₺230 az."
+  // h: Domain.categoryHighlights (kıyas yoksa null: cümle yok)
+  categoryInsight(h) {
+    if (!h) return '';
+    const part = (c, word) => Format.category(c.cat) + ' ' + Format.money(Math.abs(c.total - c.prev)) + ' ' + word;
+    const parts = [h.up && part(h.up, 'fazla'), h.down && part(h.down, 'az')].filter(Boolean);
+    return parts.length ? 'Geçen dönemin aynı gününe göre ' + parts.join(', ') + '.' : 'Geçen dönemle aynı tempodasın.';
+  },
+
   // Tutar girişi: binlik ayracı (.) ve ondalık virgül (,); ham değer Calc'ta kalır
   amountInput(raw) {
     if (!raw) return '';

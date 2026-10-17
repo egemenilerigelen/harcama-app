@@ -1,14 +1,16 @@
-// KAYIT DETAYI: satıra dokununca alttan açılan panel. "Düzenle" ile aynı panelde isim, tutar, taksit ve
-// tarih değiştirilir; tutar girişi tuş takımıyla aynı kurallarla (Calc: en fazla 9 hane, 2 ondalık).
-// Tarih değişince kaydın saati korunur.
-// Nereye kaydedileceğini bilmez; sonucu onSave(id, { name, amt, inst, ts }) ile dışarı verir.
-// Bağımlılık: BottomSheet, Calc, DateChoice, Domain, Format, Touch, paintMoney, $
+// KAYIT DETAYI: satıra dokununca alttan açılan panel. "Düzenle" ile aynı panelde isim, kategori, tutar,
+// taksit ve tarih değiştirilir; tutar girişi tuş takımıyla aynı kurallarla (Calc: en fazla 9 hane, 2 ondalık).
+// Tarih değişince kaydın saati korunur. İsim değişince kategori yeniden tahmin edilir (elle seçilmediyse).
+// Nereye kaydedileceğini bilmez; sonucu onSave(id, { name, amt, inst, ts, cat }) ile dışarı verir.
+// Bağımlılık: BottomSheet, Calc, CategoryChoice, DateChoice, Domain, Format, Touch, paintMoney, $
 class DetailSheet extends BottomSheet {
   #panel = $('sheet').querySelector('.sheet');
   #name = $('eName');
   #amt = $('eAmt');
   #calc = new Calc(); // düzenlenen tutar
   #date = new DateChoice($('eDate'), $('eDateHint'));
+  #cats = new CategoryChoice($('eCats'));
+  #guess = () => null;
   #item = null;
   #now = 0;
   #cutoff = 0;
@@ -39,6 +41,11 @@ class DetailSheet extends BottomSheet {
       [...typed].forEach(k => this.#calc.press(k));
       this.#amt.value = Format.amountInput(this.#calc.raw());
     });
+    // Yeni isim tanınıyorsa kategori ona döner (elle seçildiyse dokunulmaz)
+    this.#name.addEventListener('input', () => {
+      const cat = this.#cats.picked ? null : this.#guess(this.#name.value);
+      if (cat) this.#cats.show(cat, true);
+    });
     // Klavyedeki Bitti: kaydet
     [this.#name, this.#amt].forEach(input => input.addEventListener('keydown', e => {
       if (e.key === 'Enter') this.#save();
@@ -50,13 +57,15 @@ class DetailSheet extends BottomSheet {
     });
   }
 
-  // item: Store'daki asıl kayıt; panel her açılışta görüntüleme modunda
-  open(item, cutoff, now) {
+  // item: asıl kayıt (cat: Domain.categorize), guess(isim): kategori ya da null;
+  // panel her açılışta görüntüleme modunda
+  open(item, cutoff, now, guess) {
     const parts = Math.max(1, Number(item.inst) || 1);
     const total = Number(item.amt) || 0;
 
     $('dName').textContent = item.name;
     paintMoney($('dAmt'), Format.money(total));
+    $('dCat').textContent = Format.category(item.cat);
     $('dDate').textContent = Format.longDateTime(item.ts);
     $('dPay').textContent = Format.installment(parts) + (parts > 1 ? ' × ' + Format.money(total / parts) : '');
 
@@ -66,6 +75,7 @@ class DetailSheet extends BottomSheet {
     $('dRest').textContent = rest ? rest + ' taksit · ' + Format.money(rest * total / parts) : 'Tamamlandı';
 
     this.#item = item;
+    this.#guess = guess;
     this.#now = now;
     this.#cutoff = cutoff;
     this.#setEditing(false);
@@ -85,6 +95,7 @@ class DetailSheet extends BottomSheet {
       this.#name.value = item.name;
       this.#calc.set(Number(item.amt) || 0);
       this.#amt.value = Format.amountInput(this.#calc.raw());
+      this.#cats.show(item.cat);
       this.#setInst(Math.max(1, Number(item.inst) || 1));
       this.#date.reset(this.#now, this.#cutoff, item.ts);
     } else {
@@ -104,7 +115,7 @@ class DetailSheet extends BottomSheet {
     const amt = this.#calc.value();
     if (!amt) return;
     const { id, ts } = this.#item;
-    const changes = { name: this.#name.value.trim() || 'Adsız', amt, inst: this.#inst, ts: Domain.atDay(this.#date.day, ts) };
+    const changes = { name: this.#name.value.trim() || 'Adsız', amt, inst: this.#inst, ts: Domain.atDay(this.#date.day, ts), cat: this.#cats.value };
     this.close();
     this.#onSave(id, changes);
   }

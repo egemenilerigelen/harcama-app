@@ -117,7 +117,7 @@
       <section id="list"></section>
     </section>
 
-    <!-- 3. ÖZET: dönem hedefi, harcama grafiği, devam eden taksitler -->
+    <!-- 3. ÖZET: dönem hedefi, harcama grafiği, kategoriler, devam eden taksitler -->
     <section class="view" data-view="summary">
       <header class="view-head"><h1>Özet</h1></header>
       <div class="scroll">
@@ -151,6 +151,16 @@
             <b id="chartValue"></b>
           </div>
           <svg class="chart" id="chart" role="img"></svg>
+        </div>
+
+        <!-- KATEGORİLER: bu dönem kategori başına tutar ve pay; geçen dönemin aynı gününe göre değişim -->
+        <div class="card cat-card">
+          <header class="card-head">
+            <h2>Kategoriler</h2>
+            <span>Bu dönem</span>
+          </header>
+          <p class="cat-insight" id="catInsight"></p>
+          <div id="catList"></div>
         </div>
 
         <!-- TAKSİTLER: gelecek ekstreye yazılan, toplam kalan, alışveriş başına ilerleme -->
@@ -265,6 +275,7 @@
       <div class="view-only">
         <b class="sheet-amt hero" id="dAmt"></b>
         <div class="card">
+          <div class="kv"><span>Kategori</span><b id="dCat"></b></div>
           <div class="kv"><span>Tarih</span><b id="dDate"></b></div>
           <div class="kv"><span>Ödeme</span><b id="dPay"></b></div>
           <div class="kv" id="dRestRow"><span>Kalan</span><b id="dRest"></b></div>
@@ -274,6 +285,7 @@
 
       <div class="edit-only edit-form">
         <input id="eName" type="text" placeholder="Ne aldın?" maxlength="60" autocomplete="off" enterkeyhint="done" aria-label="Harcamanın adı">
+        <div class="chips cat-chips" id="eCats" role="group" aria-label="Kategori"></div>
         <label class="goal-input">
           <span class="cur">₺</span>
           <input id="eAmt" inputmode="decimal" enterkeyhint="done" autocomplete="off" placeholder="0" aria-label="Tutar">
@@ -350,6 +362,8 @@
       </div>
       <input id="nName" type="text" placeholder="Ne aldın?" maxlength="60" autocomplete="off" enterkeyhint="done">
       <div class="chips" id="nChips"></div>
+      <!-- Kategori: isim yazıldıkça tahmin edilir ("tahmin"), dokununca elle seçilir -->
+      <div class="chips cat-chips" id="nCats" role="group" aria-label="Kategori"></div>
       <div class="inst-selector" id="nInst">
         <button class="inst-btn active" data-inst="1">Tek çekim</button>
         <button class="inst-btn" data-inst="2">2x</button>
@@ -404,10 +418,12 @@
 <script src="js/core/config.js"></script>
 <script src="js/core/storage.js"></script>
 <script src="js/core/calc.js"></script>
+<script src="js/core/categories.js"></script>
 <script src="js/core/domain.js"></script>
 <script src="js/core/format.js"></script>
 <script src="js/core/backup.js"></script>
 <script src="js/ui/dom.js"></script>
+<script src="js/ui/cat-icon.js"></script>
 <script src="js/ui/device.js"></script>
 <script src="js/ui/haptics.js"></script>
 <script src="js/ui/touch.js"></script>
@@ -415,6 +431,7 @@
 <script src="js/ui/row.js"></script>
 <script src="js/ui/undo.js"></script>
 <script src="js/ui/date-choice.js"></script>
+<script src="js/ui/cat-choice.js"></script>
 <script src="js/ui/sheet.js"></script>
 <script src="js/ui/detail.js"></script>
 <script src="js/ui/goal-sheet.js"></script>

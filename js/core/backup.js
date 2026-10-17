@@ -1,6 +1,6 @@
 // YEDEK: verinin dosyaya yazılması ve dosyadan okunması (saf; dosya açma/paylaşma Device'ta).
 // JSON yedeği tam geri yüklenir; CSV Excel için (Türkçe Excel: ";" ayırıcı, ondalık virgül, UTF-8 BOM).
-// Bağımlılık: Config, Format
+// Bağımlılık: Config, Categories, Format
 const Backup = Object.freeze({
   APP: 'harcama',
   VERSION: 1,
@@ -30,12 +30,14 @@ const Backup = Object.freeze({
     const raw = Array.isArray(data) ? data : data && data.app === Backup.APP ? data.expenses : null;
     if (!Array.isArray(raw)) throw new Error('Bu dosya bir Harcama yedeği değil.');
 
+    // Kategori bilinmiyorsa alınmaz (ekranda isimden tahmin edilir)
     const items = raw.filter(Backup.isRecord).map(i => ({
       id: i.id,
       name: i.name,
       amt: Number(i.amt),
       inst: Math.max(1, Number(i.inst) || 1),
-      ts: Number(i.ts)
+      ts: Number(i.ts),
+      ...(Categories.KEYS.includes(i.cat) ? { cat: i.cat } : {})
     }));
     const cutoff = Number(data.cutoff);
     const goal = Number(data.goal);
@@ -53,11 +55,12 @@ const Backup = Object.freeze({
     return { items: current.concat(fresh).sort((a, b) => b.ts - a.ts), added: fresh.length };
   },
 
-  // Excel için: alışveriş başına bir satır, yeniden eskiye
+  // Excel için: alışveriş başına bir satır, yeniden eskiye. Kategorisi olmayan kayıt "Diğer"
+  // (App kategorilenmiş kayıtları verir: Domain.categorize)
   csv(items) {
     const num = n => n.toFixed(2).replace('.', ',');
     const cell = s => /[;"\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
-    const rows = [['Tarih', 'Saat', 'Harcama', 'Tutar', 'Taksit', 'Taksit tutarı'].join(';')];
+    const rows = [['Tarih', 'Saat', 'Harcama', 'Kategori', 'Tutar', 'Taksit', 'Taksit tutarı'].join(';')];
     items.slice().sort((a, b) => b.ts - a.ts).forEach(i => {
       const inst = Math.max(1, Number(i.inst) || 1);
       const amt = Number(i.amt) || 0;
@@ -65,6 +68,7 @@ const Backup = Object.freeze({
         new Date(i.ts).toLocaleDateString('tr-TR'),
         Format.time(i.ts),
         cell(String(i.name)),
+        Format.category(i.cat),
         num(amt),
         inst,
         num(amt / inst)

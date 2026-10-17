@@ -102,8 +102,8 @@ class ListView {
     days.forEach(k => this.#renderGroup(Format.dayLabel(k, now), groups[k], now));
   }
 
-  // Başlık (etiket + toplam) ve satırlar. Solda saat; önceki taksitte saat anlamsız (dönem başına düşer),
-  // yerine alışverişin tarihi
+  // Başlık (etiket + toplam) ve satırlar. Kategorinin yanında saat; önceki taksitte saat anlamsız
+  // (dönem başına düşer), yerine alışverişin tarihi
   #renderGroup(label, rows, now) {
     const head = el('h2');
     head.append(el('span', '', label), el('span', '', Format.money(Domain.sum(rows))));

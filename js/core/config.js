@@ -1,7 +1,7 @@
 // SABİTLER: sihirli sayılar tek yerde; hiçbir dosyaya bağımlı değil
 const Config = Object.freeze({
   // Yayın sürümü (Ayarlar'ın en altında): her push'ta artırılır ki telefonda yeni sürümün geldiği görülsün
-  VERSION: '2026.10.17-5',
+  VERSION: '2026.10.18-1',
 
   DAY_MS: 864e5,
 
@@ -91,5 +91,11 @@ const Config = Object.freeze({
   CHART_PERIODS: 6,
 
   // Devam eden taksitler kartında kapalıyken görünen satır sayısı (fazlası "n taksit daha" ile açılır)
-  INST_VISIBLE: 3
+  INST_VISIBLE: 3,
+
+  // Kategoriler kartı: kapalıyken görünen satır; geçen döneme göre bu orandan ve tutardan (₺) küçük
+  // farklar "aynı" sayılır (her kuruş farkı ok çıkarmasın)
+  CAT_VISIBLE: 4,
+  CAT_SAME_RATIO: 0.1,
+  CAT_SAME_MIN: 50
 });

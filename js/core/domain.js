@@ -1,5 +1,5 @@
 // İŞ MANTIĞI: saf fonksiyonlar. DOM'a ve Store'a dokunmaz, veriyi parametre olarak alır.
-// Bağımlılık: Config
+// Bağımlılık: Config, Categories
 const Domain = Object.freeze({
   // Gün anahtarı (YYYY-MM-DD): günlere göre gruplama ve tarih alanının değeri için
   dayKey(ts) {
@@ -81,6 +81,7 @@ const Domain = Object.freeze({
           id: item.id + '_' + m,
           rawId: item.id,
           name: item.name,
+          cat: item.cat,
           amt: single,
           displayAmt: single,
           ts: m === 0 ? item.ts : Domain.periodStart(item.ts, cutoff, m).getTime(),
@@ -208,6 +209,89 @@ const Domain = Object.freeze({
       .sort((a, b) => b.count - a.count || b.last - a.last)
       .slice(0, limit)
       .map(e => e.name);
+  },
+
+  // KATEGORİLER
+
+  // İsmin karşılaştırma anahtarı: küçük harf (Türkçe), kenar boşluksuz
+  nameKey(name) {
+    return String(name || '').trim().toLocaleLowerCase('tr-TR');
+  },
+
+  // Kullanıcının verdiği kategoriler: isim → kategori, en son verilen geçerli (kayıtlar yeniden eskiye)
+  learnedCategories(items) {
+    const learned = new Map();
+    items.forEach(i => {
+      const key = Domain.nameKey(i.name);
+      if (key && Categories.KEYS.includes(i.cat) && !learned.has(key)) learned.set(key, i.cat);
+    });
+    return learned;
+  },
+
+  // İsimden kategori tahmini; tahmin yoksa null. Önce kullanıcının o isme verdiği kategori, sonra sözlük:
+  // tam kelime ("Shell Kadıköy" → transport, "Barış" bar sayılmaz), yoksa yazılırken kelimenin başı
+  // (en az 3 harf: "Netf" → subs). learned: Domain.learnedCategories
+  guessCategory(name, learned = new Map()) {
+    const key = Domain.nameKey(name);
+    if (!key) return null;
+    if (learned.has(key)) return learned.get(key);
+    // Kelimeler tek boşlukla, başta ve sonda boşluk: tam kelime " kelime " ile aranır
+    const words = ' ' + key.replace(/[^\p{L}\p{N}&]+/gu, ' ').trim() + ' ';
+    const keys = Categories.KEYS.filter(k => Categories.WORDS[k]);
+    const whole = keys.find(k => Categories.WORDS[k].some(w => words.includes(' ' + w + ' ')));
+    if (whole) return whole;
+    if (key.length < 3) return null;
+    return keys.find(k => Categories.WORDS[k].some(w => w.startsWith(key))) || null;
+  },
+
+  // Kayıtlara kategori: verilmişse o, yoksa (eski kayıtlar) tahmin, o da yoksa "Diğer".
+  // Kayıtlar değişmez, kopyası döner; aynı isim bir kez tahmin edilir
+  categorize(items) {
+    const learned = Domain.learnedCategories(items);
+    const cache = new Map();
+    return items.map(i => {
+      if (Categories.KEYS.includes(i.cat)) return i;
+      const key = Domain.nameKey(i.name);
+      if (!cache.has(key)) cache.set(key, Domain.guessCategory(i.name, learned) || Categories.OTHER);
+      return { ...i, cat: cache.get(key) };
+    });
+  },
+
+  // Dönemin kategori kırılımı, büyükten küçüğe: [{ cat, total, share, prev }]. prev: geçen dönemin aynı
+  // gününe kadarki tutar (süren dönem yarımken tam dönemle kıyaslanmasın); geçen dönemde henüz kayıt
+  // yoksa (since: Domain.dataSince) null. Önceki alışverişlerin taksitleri de dönemin harcamasıdır, girer.
+  categoryBreakdown(rows, { start, end, prevStart, now, since }) {
+    const p = new Date(prevStart);
+    const prevCut = Math.min(start, new Date(p.getFullYear(), p.getMonth(), p.getDate() + Domain.periodDays(start, end, now)).getTime());
+    const byCat = (from, to) => rows.filter(r => r.ts >= from && r.ts < to).reduce((m, r) => {
+      const cat = r.cat || Categories.OTHER;
+      m[cat] = (m[cat] || 0) + r.displayAmt;
+      return m;
+    }, {});
+    const cur = byCat(start, end);
+    const prev = prevStart >= since ? byCat(prevStart, prevCut) : null;
+    const total = Object.values(cur).reduce((s, v) => s + v, 0);
+    return Object.keys(cur)
+      .map(cat => ({ cat, total: cur[cat], share: cur[cat] / total, prev: prev ? prev[cat] || 0 : null }))
+      .sort((a, b) => b.total - a.total);
+  },
+
+  // Kategorinin geçen döneme göre değişimi: 'up', 'down', 'same' ya da kıyas yoksa null.
+  // Küçük farklar (Config.CAT_SAME_RATIO / CAT_SAME_MIN altı) "aynı" sayılır
+  categoryChange({ total, prev }) {
+    if (prev === null) return null;
+    const d = total - prev;
+    if (Math.abs(d) < Math.max(Config.CAT_SAME_MIN, prev * Config.CAT_SAME_RATIO)) return 'same';
+    return d > 0 ? 'up' : 'down';
+  },
+
+  // Kırılımın öne çıkanları: en çok artan ve en çok azalan kategori (yoksa null); kıyas yoksa null
+  categoryHighlights(breakdown) {
+    if (!breakdown.length || breakdown[0].prev === null) return null;
+    const pick = dir => breakdown
+      .filter(c => Domain.categoryChange(c) === dir)
+      .sort((a, b) => Math.abs(b.total - b.prev) - Math.abs(a.total - a.prev))[0] || null;
+    return { up: pick('up'), down: pick('down') };
   },
 
   // Satırları gün anahtarına göre gruplar; sıralı listeden geldiği için gün sırası korunur

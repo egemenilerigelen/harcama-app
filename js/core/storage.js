@@ -15,15 +15,16 @@ const Store = {
     }
   },
 
-  // inst: taksit sayısı (varsayılan 1), ts: harcamanın zamanı (varsayılan şimdi; geçmiş tarihli ekleme).
-  // Kayıtlar yeniden eskiye sıralı kalır. Eklenen kaydı döner (geri alma için)
-  add(name, amt, inst = 1, ts = Date.now()) {
+  // inst: taksit sayısı (varsayılan 1), ts: harcamanın zamanı (varsayılan şimdi; geçmiş tarihli ekleme),
+  // cat: kategori anahtarı (Categories). Kayıtlar yeniden eskiye sıralı kalır. Eklenen kaydı döner
+  add(name, amt, inst = 1, ts = Date.now(), cat) {
     const item = {
       id: Date.now().toString(36) + Math.random().toString(36).substring(2, 5),
       name,
       amt: Number(amt),
       inst: Number(inst),
-      ts
+      ts,
+      cat
     };
     this.replaceAll([item, ...this.all()]);
     return item;
@@ -34,13 +35,13 @@ const Store = {
     localStorage.setItem(this.KEY, JSON.stringify(items));
   },
 
-  // Kaydı düzenler (isim, tutar, taksit, tarih); id aynı kalır. Önceki halini döner (geri alma için)
-  update(id, { name, amt, inst, ts }) {
+  // Kaydı düzenler (isim, tutar, taksit, tarih, kategori); id aynı kalır. Önceki halini döner (geri alma için)
+  update(id, { name, amt, inst, ts, cat }) {
     const items = this.all();
     const i = items.findIndex(e => e.id === id);
     if (i < 0) return null;
     const before = items[i];
-    items[i] = { ...before, name, amt: Number(amt), inst: Number(inst), ts };
+    items[i] = { ...before, name, amt: Number(amt), inst: Number(inst), ts, cat };
     this.replaceAll(items);
     return before;
   },

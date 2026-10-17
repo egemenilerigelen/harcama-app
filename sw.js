@@ -5,7 +5,7 @@
 // Çekim zayıfsa ağ NETWORK_WAIT_MS içinde yanıt vermezse önbellekteki sürümle açılır; ağ yanıtı
 // yine önbelleğe yazılır, yeni sürüm bir sonraki açılışta gelir (kasada açılış takılmasın).
 // Yeni dosya eklenince ASSETS listesine de eklenir (eksik dosya kurulumu bozar).
-const CACHE = 'harcama-v11';
+const CACHE = 'harcama-v12';
 const NETWORK_WAIT_MS = 2500;
 const ASSETS = [
   './',
@@ -18,10 +18,12 @@ const ASSETS = [
   'js/core/config.js',
   'js/core/storage.js',
   'js/core/calc.js',
+  'js/core/categories.js',
   'js/core/domain.js',
   'js/core/format.js',
   'js/core/backup.js',
   'js/ui/dom.js',
+  'js/ui/cat-icon.js',
   'js/ui/device.js',
   'js/ui/haptics.js',
   'js/ui/touch.js',
@@ -29,6 +31,7 @@ const ASSETS = [
   'js/ui/row.js',
   'js/ui/undo.js',
   'js/ui/date-choice.js',
+  'js/ui/cat-choice.js',
   'js/ui/sheet.js',
   'js/ui/detail.js',
   'js/ui/goal-sheet.js',

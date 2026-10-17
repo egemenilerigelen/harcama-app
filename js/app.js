@@ -16,6 +16,7 @@ class App {
   #settings;
   #tabs;
   #tab = 'home'; // açık sekme: geri alma kapsülü ana sayfada kayan hanelerden sonra açılır
+  #guess = () => null; // isimden kategori tahmini: kullanıcının verdiği kategoriler + sözlük (refresh kurar)
 
   constructor() {
     // Satır eylemleri: ana sayfa ve Harcamalar aynı davranışı paylaşır
@@ -72,12 +73,15 @@ class App {
   }
 
   // Tek yönlü render: veriyi bir kez okur, taksitleri bir kez açar, ekranlara dağıtır.
-  // items: ham kayıtlar (taksit planları için), rows: ekrandaki satırlar,
+  // items: kayıtlar (taksit planları için; kategorisi olmayan eski kayıtlar tahminle), rows: ekrandaki satırlar,
   // animate: değişiklik bir eylemden (ekleme, silme, geri alma) geldi; değişen toplamlar hareketle gösterilir
   refresh({ animate = false } = {}) {
     const now = Date.now();
     const cutoff = Store.getCutoff();
-    const items = Store.all();
+    const raw = Store.all();
+    const learned = Domain.learnedCategories(raw);
+    this.#guess = name => Domain.guessCategory(name, learned);
+    const items = Domain.categorize(raw);
     const model = this.#model = {
       now,
       cutoff,
@@ -95,13 +99,13 @@ class App {
 
   // Giriş 2. adımı: tutar girildi, isim paneli sık kullanılan isimlerle açılır (dokunma olayının içinden)
   #askName(amt) {
-    this.#nameSheet.open(amt, Domain.frequentNames(this.#model.items, Config.NAME_CHIPS_MAX), Date.now(), Store.getCutoff());
+    this.#nameSheet.open(amt, Domain.frequentNames(this.#model.items, Config.NAME_CHIPS_MAX), Date.now(), Store.getCutoff(), this.#guess);
   }
 
   // Ekleme: seçilen güne şimdiki saatle yazılır. Geri alma kapsülü yok (en sık işlem, her seferinde
   // bildirim yorar): yeni satır, kayan toplam ve titreşim yeterli onay; yanlışsa satır kaydırılıp silinir
-  #add({ name, amt, inst, day }) {
-    const item = Store.add(name, amt, inst, Domain.atDay(day, Date.now()));
+  #add({ name, amt, inst, day, cat }) {
+    const item = Store.add(name, amt, inst, Domain.atDay(day, Date.now()), cat);
     this.#entry.clear();
     this.refresh({ animate: true });
     this.#home.flash(item.id);
@@ -129,7 +133,7 @@ class App {
     if (!before) return;
     const info = { kind: 'edited', title: Format.undoTitle('edited', changes.name), sub: Format.change(Number(before.amt) || 0, changes.amt) };
     this.#offerUndo(info, () => {
-      Store.update(id, { name: before.name, amt: before.amt, inst: before.inst || 1, ts: before.ts });
+      Store.update(id, { name: before.name, amt: before.amt, inst: before.inst || 1, ts: before.ts, cat: before.cat });
       this.refresh({ animate: true });
     });
     this.refresh({ animate: true });
@@ -140,9 +144,10 @@ class App {
     this.refresh({ animate: true });
   }
 
+  // Kategorisi olmayan eski kayıt tahminle açılır; düzenlenip kaydedilince kategorisi yazılır
   #openDetail(id) {
-    const item = Store.all().find(e => e.id === id);
-    if (item) this.#detail.open(item, Store.getCutoff(), Date.now());
+    const item = this.#model.items.find(e => e.id === id);
+    if (item) this.#detail.open(item, Store.getCutoff(), Date.now(), this.#guess);
   }
 
   // Titreşim açılınca hemen bir kez titrer: ne açıldığı hissedilsin
@@ -215,7 +220,7 @@ class App {
       this.#settings.flash('Dışa aktarılacak kayıt yok', true);
       return;
     }
-    Device.saveFile(Format.csvName(Date.now()), 'text/csv', Backup.csv(items));
+    Device.saveFile(Format.csvName(Date.now()), 'text/csv', Backup.csv(Domain.categorize(items)));
   }
 
   #clear() {

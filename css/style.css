@@ -13,6 +13,7 @@
   --danger: #e88f8f;
   --danger-bg: #b54a4a;
   --warn: #e3a857;
+  --good: #8fbf7a;
 
   /* DERİNLİK: ışık tek yerden (yukarıdan); kabarık = basılan, gömük = yazılan. Gölgeler nötr */
   --raised: linear-gradient(180deg, #1c1f26, #15171c);
@@ -835,8 +836,8 @@ body.has-amt .pad .add.pressed {
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
+  gap: 12px;
+  padding: 10px 14px;
   cursor: pointer;
   touch-action: pan-y;
   transition: transform 0.2s var(--ease);
@@ -869,13 +870,49 @@ body.has-amt .pad .add.pressed {
   mask-image: none;
 }
 
-/* İsim ve taksit etiketi yan yana: satır yüksekliği her yerde aynı */
+/* Üstte isim ve taksit etiketi yan yana, altta "kategori · saat/tarih": satır yüksekliği her yerde aynı */
 .row-info {
   flex: 1;
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+
+.row-line {
+  display: flex;
   align-items: center;
   gap: 6px;
-  min-width: 0;
+  max-width: 100%;
+}
+
+/* KATEGORİ İKONU: gömük kuyuda, tek renk (altın sinyal kuralı bozulmaz); satır ve Özet kartı ortak */
+.cat-well {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--sunken);
+  box-shadow: var(--inset);
+  color: var(--mut);
+}
+
+.cat-ico {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* "Diğer": üç nokta, kalın uçla */
+.cat-ico.dots {
+  stroke-width: 3;
 }
 
 .row .n {
@@ -898,10 +935,12 @@ body.has-amt .pad .add.pressed {
   font-variant-numeric: tabular-nums;
 }
 
-/* Saat / tarih: solda sabit genişlikte sütun */
+/* Kategori · saat / tarih: ismin altında */
 .row .t {
-  flex-shrink: 0;
-  min-width: 44px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--mut);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
@@ -1244,6 +1283,54 @@ body.has-amt .pad .add.pressed {
 .chart .hit {
   fill: transparent;
   cursor: pointer;
+}
+
+/* KATEGORİLER KARTI: satırlar taksit kartıyla aynı kalıpta; solda kategori kuyusu, pay çubuğu tek renk
+   (renk sadece değişimde: artış uyarı, azalış iyi) */
+.cat-card .card-head {
+  padding: 14px 14px 0;
+}
+
+.cat-insight {
+  margin: 6px 14px 0;
+  color: var(--mut);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.cat-insight:empty {
+  display: none;
+}
+
+#catList {
+  margin-top: 8px;
+}
+
+.cat-row {
+  gap: 12px;
+  padding: 10px 14px;
+  cursor: default;
+}
+
+.cat-bar {
+  margin-top: 7px;
+}
+
+/* Taksit çubuğunun altınını ezer: pay bir toplam değil, bağlam */
+.cat-row .cat-bar i {
+  background: var(--mut);
+}
+
+.cat-delta {
+  font-variant-numeric: tabular-nums;
+}
+
+.cat-delta.up {
+  color: var(--warn);
+}
+
+.cat-delta.down {
+  color: var(--good);
 }
 
 /* TAKSİTLER KARTI */
@@ -1802,6 +1889,42 @@ body.has-amt .pad .add.pressed {
   margin-top: var(--gap);
 }
 
+/* KATEGORİ SEÇİMİ (CategoryChoice): isim çiplerinin altında, ikon + ad. Seçili olan şeridin başında,
+   taksit seçicisindeki gibi altın; tahmin edildiyse yanında "tahmin" */
+.cat-chips {
+  gap: 6px;
+  margin-top: var(--gap-s);
+}
+
+.cat-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px 0 10px;
+  border-radius: 17px;
+  color: var(--mut);
+  font-size: 13px;
+}
+
+.cat-chip .cat-ico {
+  width: 16px;
+  height: 16px;
+}
+
+.cat-chip.active {
+  background: linear-gradient(180deg, rgba(217, 184, 119, 0.2), rgba(217, 184, 119, 0.12));
+  border-color: rgba(217, 184, 119, 0.28);
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.cat-guess {
+  color: var(--mut);
+  font-size: 11px;
+  font-weight: 400;
+}
+
 /* KAYIT DETAYI: alttan açılan panel */
 .sheet-wrap {
   position: absolute;
@@ -1969,6 +2092,10 @@ body.has-amt .pad .add.pressed {
 }
 
 .edit-form .inst-selector {
+  margin-top: var(--gap);
+}
+
+.edit-form .cat-chips {
   margin-top: var(--gap);
 }
 
