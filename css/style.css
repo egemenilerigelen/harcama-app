@@ -792,8 +792,10 @@ body.has-amt .pad .add.pressed {
   animation: swipeArm 0.28s var(--ease);
 }
 
+/* Sıçrama ayrı scale özelliğinde: konumu taşıyan transform'a (ve onun geçişine) dokunmaz;
+   aynı transform'u canlandırınca iPhone'da ikon bir an en sağa fırlayıp geri geliyordu */
 @keyframes swipeArm {
-  40% { transform: translate(calc(50% - var(--ico-x, 0px)), -50%) scale(1.2); }
+  40% { scale: 1.2; }
 }
 
 /* Parmak sürüklerken hap satırı gecikmesiz izler, ikon hafif yumuşak */
