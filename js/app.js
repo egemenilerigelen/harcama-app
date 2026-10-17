@@ -47,10 +47,7 @@ class App {
       onClear: () => this.#clear()
     });
     this.#tabs = new TabBar({ onShow: name => this.#onTab(name) });
-    this.#entry = new EntryPanel({
-      onNext: amt => this.#askName(amt),
-      onInput: () => this.#undo.hide() // yeni tutar yazılıyor: önceki işlem kabul edildi
-    });
+    this.#entry = new EntryPanel({ onNext: amt => this.#askName(amt) });
 
     // Ana ekran uygulaması kapanmadan arka planda bekler; öne gelince gün ya da dönem değişmiş olabilir
     document.addEventListener('visibilitychange', () => {
@@ -100,18 +97,13 @@ class App {
     this.#nameSheet.open(amt, Domain.frequentNames(this.#model.items, Config.NAME_CHIPS_MAX), Date.now(), Store.getCutoff());
   }
 
-  // Ekleme: seçilen güne şimdiki saatle yazılır. Geri alma şeridi açılır (yanlış çipe dokunulduysa);
-  // geri alınınca kayıt silinir, tutar tuş takımına döner, doğru isimle yeniden eklenebilir
+  // Ekleme: seçilen güne şimdiki saatle yazılır. Geri alma şeridi yok (en sık işlem, her seferinde
+  // bildirim yorar): yeni satır, kayan toplam ve titreşim yeterli onay; yanlışsa satır kaydırılıp silinir
   #add({ name, amt, inst, day }) {
     const item = Store.add(name, amt, inst, Domain.atDay(day, Date.now()));
     this.#entry.clear();
     this.refresh({ animate: true });
     this.#home.flash(item.id);
-    this.#undo.show(Format.undoAdded, () => {
-      Store.remove(item.id);
-      this.#entry.setAmount(amt);
-      this.refresh({ animate: true });
-    });
   }
 
   // Silme: taksitliyse asıl kayıt silinir; geri alma şeridi açılır

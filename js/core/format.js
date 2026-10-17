@@ -167,7 +167,6 @@ const Format = Object.freeze({
   noRecord: 'Kayıt yok',
 
   // Geri alma şeridi
-  undoAdded: 'Harcama eklendi',
   undoDeleted: 'Harcama silindi',
   undoEdited: 'Harcama düzenlendi',
 

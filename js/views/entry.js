@@ -6,18 +6,15 @@ class EntryPanel {
 
   #calc = new Calc(); // tutar girişinin durumu
   #onNext;
-  #onInput;
   #amt = $('amt');
 
-  // onNext(amt): tutar girildi, isim adımına geç; onInput(): tutar tuşlarına basıldı
-  constructor({ onNext, onInput }) {
+  // onNext(amt): tutar girildi, isim adımına geç
+  constructor({ onNext }) {
     this.#onNext = onNext;
-    this.#onInput = onInput;
     this.#buildPad();
     Touch.bindPress($('back'), () => {
       this.#calc.back();
       this.#renderAmount();
-      this.#onInput();
     });
     this.#renderAmount();
   }
@@ -25,12 +22,6 @@ class EntryPanel {
   // Kayıt eklendi: tutarı sıfırla. (İsim adımından vazgeçilirse tutar kalır, düzeltilebilir)
   clear() {
     this.#calc.reset();
-    this.#renderAmount();
-  }
-
-  // Ekleme geri alındı: tutar tuş takımına döner
-  setAmount(amt) {
-    this.#calc.set(amt);
     this.#renderAmount();
   }
 
@@ -49,7 +40,6 @@ class EntryPanel {
       Touch.bindPress(b, () => {
         this.#calc.press(k);
         this.#renderAmount();
-        this.#onInput();
       });
       $('pad').appendChild(b);
     });
