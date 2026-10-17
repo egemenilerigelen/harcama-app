@@ -77,32 +77,45 @@ const Touch = Object.freeze({
   },
 
   // Satırı sola kaydırınca onDelete, kaydırmadan dokununca onTap.
-  // wrap: kırmızı "Sil" zemini (--reveal genişliğinde) olan sarmalayıcı, row: kayan satır
+  // wrap: silme hapını taşıyan sarmalayıcı (--reveal: açılan genişlik, --reveal-p: eşiğe oran,
+  // --ico-x: ikonun sağdan uzaklığı; eşik geçilince .armed), row: kayan satır
   bindSwipe(wrap, row, { onDelete, onTap }) {
     let swiped = false;
+    let limit = 0; // silme eşiği (px), sürükleme başında ölçülür
     row.addEventListener('pointerdown', () => (swiped = false));
 
+    // İkon eşiğe kadar açılan alanın ortasında, eşikten sonra satırın kenarında.
+    // Eşik geçilince (bırakırsan silinir) bir kez titrer (Android; iPhone'da hapın rengi söyler)
     const place = dx => {
+      const reveal = -dx, armed = reveal > limit;
       row.style.transform = dx ? 'translateX(' + dx + 'px)' : '';
-      wrap.style.setProperty('--reveal', -dx + 'px');
+      wrap.style.setProperty('--reveal', reveal + 'px');
+      wrap.style.setProperty('--reveal-p', limit ? Math.min(1, reveal / limit) : 0);
+      wrap.style.setProperty('--ico-x', (armed ? reveal - Config.SWIPE_ICON_EDGE_PX : reveal / 2) + 'px');
+      if (armed !== wrap.classList.contains('armed')) {
+        wrap.classList.toggle('armed', armed);
+        if (armed) Touch.haptic();
+      }
     };
 
     Touch.trackDrag(row, 'x', {
       onStart: () => {
+        limit = Math.min(Config.SWIPE_DELETE_PX, row.offsetWidth * Config.SWIPE_DELETE_RATIO);
         row.style.transition = 'none';
         wrap.classList.add('on', 'dragging');
       },
       onMove: mx => place(Math.min(0, mx)),
       onEnd: mx => {
-        const dx = Math.min(0, mx);
         swiped = true; // ardından gelen tıklama onTap'i tetiklemesin
         row.style.transition = '';
         wrap.classList.remove('dragging');
-        if (dx < -Math.min(Config.SWIPE_DELETE_PX, row.offsetWidth * Config.SWIPE_DELETE_RATIO)) {
-          row.style.transform = 'translateX(-100%)';
-          wrap.style.setProperty('--reveal', '100%');
-          Touch.haptic();
-          setTimeout(onDelete, Config.SWIPE_OUT_MS);
+        if (wrap.classList.contains('armed')) {
+          // Satır çıkar, ardından yeri kapanır (alttakiler yukarı kayar), sonra silinir
+          place(-row.offsetWidth);
+          setTimeout(() => {
+            wrap.classList.add('gone');
+            setTimeout(onDelete, Config.SWIPE_COLLAPSE_MS);
+          }, Config.SWIPE_OUT_MS);
         } else {
           place(0);
           setTimeout(() => wrap.classList.remove('on'), Config.SWIPE_BACK_MS);

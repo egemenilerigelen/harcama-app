@@ -1,6 +1,6 @@
 // HARCAMA SATIRI: ana sayfa ve Harcamalar aynı satırı kullanır.
 // Satır neyin açılıp silineceğini bilmez; eylemler dışarıdan verilir.
-// Bağımlılık: Format, Touch, el
+// Bağımlılık: Format, Touch, el, svgEl
 const ExpenseRow = Object.freeze({
   // item: Domain.visibleRows satırı, when: soldaki saat/tarih metni,
   // actions: { onOpen(id), onDelete(id) } — id taksitliyse asıl kaydın id'si
@@ -14,7 +14,14 @@ const ExpenseRow = Object.freeze({
 
     // Saat/tarih solda, ekstre gibi
     row.append(el('span', 't', when), info, el('span', 'a', Format.money(item.displayAmt)));
-    wrap.appendChild(row);
+    // Sola kaydırınca satırın altından çıkan silme hapı (çöp ikonuyla); görünümü CSS'te
+    const cap = el('span', 'swipe-cap');
+    const icon = svgEl('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true' });
+    icon.append(svgEl('path', { d: 'M4.5 7h15M10 11v6M14 11v6M6.5 7l1 12.5h9l1-12.5M9.5 7V4.5h5V7' }));
+    cap.append(icon);
+    const inner = el('div', 'swipe-in'); // silinirken yeri kapanabilsin diye (bkz. .swipe.gone)
+    inner.append(cap, row);
+    wrap.appendChild(inner);
 
     const id = item.rawId || item.id;
     row.dataset.id = id; // yeni kaydı bulup göstermek için (HomeView.flash)

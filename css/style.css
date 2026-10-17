@@ -708,42 +708,101 @@ body.has-amt .pad .add.pressed {
   overflow: hidden;
 }
 
-/* SOLA KAYDIRARAK SİLME: kırmızı "Sil" zemini sadece satırın açtığı alanda (--reveal),
-   satırın arkasında kırmızı yok ki kenarlardan sızmasın */
+/* SOLA KAYDIRARAK SİLME: satır kalkar, altında gömük kuyu açılır; kuyuda satırdan ayrı yüzen bir hap
+   (iOS 26 gibi) satırın açtığı kadar büyür (--reveal). Önce koyu; eşik geçilince (bırakırsan silinir,
+   .armed) metalik şarap rengine döner, ikon satırın kenarına yapışıp sıçrar. Genişlik değil clip-path
+   kayar. Silinen satır yerini kapatarak gider (.gone: satırın izi 1fr → 0fr, Config.SWIPE_COLLAPSE_MS;
+   iç boşluksuz .swipe-in sarmalayıcısı 0'a inebilsin diye) */
 .swipe {
-  position: relative;
+  display: grid;
+  grid-template-rows: 1fr;
   border-top: 1px solid var(--line);
+  transition: grid-template-rows 0.24s var(--ease), border-color 0.24s;
 }
 
 .swipe:first-child {
   border-top: 0;
 }
 
-.swipe::before {
-  content: "";
+.swipe.gone {
+  grid-template-rows: 0fr;
+  border-top-color: transparent;
+}
+
+.swipe-in {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.swipe.on {
+  background: var(--sunken);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* Hap: koyu; üstündeki metalik şarap katmanı eşikte belirir. İkon hapın içinde kalır */
+.swipe-cap, .swipe-cap::before {
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: var(--reveal, 0px);
-  background: var(--danger-bg);
-  transition: width 0.2s var(--ease);
+  inset: 0;
+  clip-path: inset(7px 8px 7px max(8px, calc(100% - var(--reveal, 0px) + 6px)) round 13px);
+  transition: clip-path 0.2s var(--ease);
 }
 
-/* Parmak sürüklerken zemin satırı gecikmesiz izler */
-.swipe.dragging::before {
-  transition: none;
+.swipe-cap {
+  display: none;
+  background: #2b1519;
 }
 
-.swipe.on::after {
-  content: "Sil";
+.swipe.on .swipe-cap {
+  display: block;
+}
+
+.swipe-cap::before {
+  content: "";
+  background: linear-gradient(180deg, #9e3b46 0%, #7f2b37 55%, #5e1c27 100%);
+  opacity: 0;
+  transition: clip-path 0.2s var(--ease), opacity 0.18s;
+}
+
+.swipe.armed .swipe-cap::before {
+  opacity: 1;
+}
+
+/* İkon açılan alanın ortasında, eşik geçilince satırın kenarında (--ico-x: sağdan uzaklık) */
+.swipe-cap svg {
   position: absolute;
   top: 50%;
-  right: 18px;
-  transform: translateY(-50%);
+  right: 0;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: rgba(255, 255, 255, 0.55);
+  opacity: calc(var(--reveal-p, 0) * 1.4 - 0.2);
+  transform: translate(calc(50% - var(--ico-x, 0px)), -50%);
+  transition: transform 0.2s var(--ease), color 0.18s, opacity 0.18s;
+}
+
+.swipe.armed .swipe-cap svg {
   color: #fff;
-  font-size: 14px;
-  font-weight: 600;
+  opacity: 1;
+  animation: swipeArm 0.28s var(--ease);
+}
+
+@keyframes swipeArm {
+  40% { transform: translate(calc(50% - var(--ico-x, 0px)), -50%) scale(1.2); }
+}
+
+/* Parmak sürüklerken hap satırı gecikmesiz izler, ikon hafif yumuşak */
+.swipe.dragging .swipe-cap, .swipe.dragging .swipe-cap::before {
+  transition: opacity 0.18s;
+}
+
+.swipe.dragging .swipe-cap svg {
+  transition: transform 0.14s var(--ease), color 0.18s, opacity 0.18s;
 }
 
 .row {
@@ -758,9 +817,11 @@ body.has-amt .pad .add.pressed {
   transition: transform 0.2s var(--ease);
 }
 
-/* Kayarken satır opak: arkadaki "Sil" yazısı sadece açılan alanda görünsün */
+/* Kayarken satır opak ve kalkık: sağ kenarı yuvarlanır, gölgesi kuyuya düşer */
 .swipe.on .row {
   background: #191b21;
+  border-radius: 0 14px 14px 0;
+  box-shadow: 6px 0 14px -4px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* Yeni eklenen kayıt: tek seferlik giriş hareketi */

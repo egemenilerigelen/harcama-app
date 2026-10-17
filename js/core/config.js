@@ -1,7 +1,7 @@
 // SABİTLER: sihirli sayılar tek yerde; hiçbir dosyaya bağımlı değil
 const Config = Object.freeze({
   // Yayın sürümü (Ayarlar'ın en altında): her push'ta artırılır ki telefonda yeni sürümün geldiği görülsün
-  VERSION: '2026.10.17-2',
+  VERSION: '2026.10.17-3',
 
   DAY_MS: 864e5,
 
@@ -44,10 +44,13 @@ const Config = Object.freeze({
   SHEET_RESIST: 0.2,
   SHEET_CLOSE_MS: 220,
 
-  // Kaydırarak silme: eşik ve animasyon süreleri
+  // Kaydırarak silme: eşik, eşikten sonra ikonun satır kenarına uzaklığı ve animasyon süreleri
+  // (SWIPE_COLLAPSE_MS, CSS'teki .swipe.gone geçişiyle aynı olmalı)
   SWIPE_DELETE_PX: 90,
   SWIPE_DELETE_RATIO: 0.3,
+  SWIPE_ICON_EDGE_PX: 30,
   SWIPE_OUT_MS: 160,
+  SWIPE_COLLAPSE_MS: 240,
   SWIPE_BACK_MS: 200,
 
   // Dönem kartını kaydırma: geçiş eşiği, sınırda direnç, çıkış mesafesi, kayma süresi
