@@ -55,6 +55,7 @@ harcama-app/
     ├── ui/               ortak bileşenler: dokunma, titreşim, cihaz, kayan haneler, satır, geri alma, alttan paneller, halka, grafik
     ├── views/            ekranlar: giriş paneli, ana sayfa, harcamalar, özet, ayarlar, sekmeler
     └── app.js            bileşenleri kurar ve bağlar
+tests/                    çekirdek testleri (tarayıcıda açılır)
 ```
 
 Katmanlar tek yönlü bağımlıdır: `core → ui → views → app`. Veriye sadece `app.js` erişir; ekranlar birbirini tanımaz, geri çağrılarla konuşur. Durumu sahibi tutar (global değişebilir durum yok); iş mantığı ve metinler zamanı parametre olarak alır. Dosyalar ES modülü değildir (her biri tek bir global tanımlar); bu sayede `file://` ile doğrudan açılır. Script sırası `index.html`'dedir. Ayrıntılı kurallar `CLAUDE.md`'de.
@@ -76,6 +77,10 @@ Harcamalar `localStorage` içinde `expenses_v1` anahtarıyla JSON dizisi olarak 
 | `ts` | Eklenme zamanı (epoch ms) |
 
 Hesap kesim günü `cutoff_day_v1` (varsayılan 15), dönem hedefi `goal_v1`, son yedeğin zamanı `backup_at_v1` anahtarında tutulur. `Store` nesnesi veri erişimini soyutladığı için ileride başka bir depolamaya geçmek kolaydır.
+
+## Testler
+
+İş mantığı, metinler, tuş takımı ve yedekleme saf olduğu için derlemesiz test edilir: `tests/index.html`'i tarayıcıda aç (yerelde ya da yayındaki adreste `/tests/`). Sayfa başlığı ve üst satır sonucu söyler; kalan test varsa beklenen ve gelen değeri yazar.
 
 ## Yol haritası
 

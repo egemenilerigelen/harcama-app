@@ -47,6 +47,11 @@ js/views/             EKRANLAR: her biri kendi DOM'unu ve kendi durumunu yöneti
   tabs.js             TabBar: alt sekme çubuğu (dokunarak ya da parmağı çubukta gezdirerek geçiş)
 
 js/app.js             App: bileşenleri kurar ve bağlar (composition root), veri akışını yönetir
+
+tests/                ÇEKİRDEK TESTLERİ (uygulamanın parçası değil, sw.js ASSETS'e girmez)
+  index.html          tarayıcıda açılır (file:// da olur): çekirdeği ve testleri yükler, sonucu yazar
+  runner.js           Test: group, eq, ok, throws, D (yerel tarih, ay 1'den)
+  *.test.js           domain, format, calc, backup
 ```
 
 ## Mimari kurallar
@@ -147,12 +152,13 @@ Veri şemasını değiştirirsen eski kayıtları bozma. `Domain.expand` ve `Det
 ## Çalışma kuralları
 
 - Değişikliği küçük ve mevcut koda benzer tut: aynı isimlendirme, aynı yorum yoğunluğu, Türkçe yorumlar. Yeni özellik katmanlara dağıtılır: mantık `Domain`'e, metin `Format`'a, sabit `Config`'e, ekran kendi sınıfına, bağlantı `App`'e.
-- Derleme, paket yöneticisi veya test altyapısı yok. Doğrulama için tarayıcıda aç; mobil görünüm için dar viewport kullan.
+- Derleme ve paket yöneticisi yok. Doğrulama için tarayıcıda aç; mobil görünüm için dar viewport kullan.
+- Çekirdek testleri `tests/index.html`'de (derlemesiz, tarayıcıda; başlık "✓ 70/70"). `Domain`, `Format`, `Calc` ya da `Backup` değişince ilgili test eklenir/güncellenir; sayfa yeşil olmadan push edilmez. Arayüz testi yok, o önizlemede ve telefonda doğrulanır.
 - Commit mesajları Türkçe ve kısa (örn. `UI font güncellemeleri: ...`).
 - Commit mesajlarına ve PR açıklamalarına `Co-Authored-By` veya benzeri atıf satırı ekleme.
 - Commit ve push sadece kullanıcı isteyince yapılır. Ana dal `main`. Commit'ler konu konu: her commit tek bir karar/özellik ve kendi başına çalışır.
 - Her yayında (push) `Config.VERSION` artırılır (`YYYY.AA.GG-n`); Ayarlar'ın en altında görünür, telefonda yeni sürümün geldiği buradan kontrol edilir. `sw.js` ağdan alırken HTTP önbelleğini atlar (`cache: 'no-cache'`), değişince `CACHE` adı da artırılır.
-- Yeni bir dosya (js, css, ikon) eklenince `sw.js`'teki `ASSETS` listesine de eklenir; eksik ya da yanlış yol service worker kurulumunu bozar (internetsiz açılış çalışmaz).
+- Yeni bir uygulama dosyası (js, css, ikon) eklenince `sw.js`'teki `ASSETS` listesine de eklenir (`tests/` hariç); eksik ya da yanlış yol service worker kurulumunu bozar (internetsiz açılış çalışmaz).
 - README ve bu dosya kodla uyumlu kalmalı; mimari değişirse ikisini de güncelle.
 
 ## Bilinen sınırlar / fikirler
