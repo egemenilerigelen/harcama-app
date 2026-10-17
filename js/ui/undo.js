@@ -47,8 +47,20 @@ class UndoBar {
   }
 
   // kind: 'deleted' | 'edited', title: ne oldu ("Netflix silindi"), sub: tutar ya da değişim,
-  // undo(): işlemi geri alır
-  show({ kind, title, sub }, undo) {
+  // undo(): işlemi geri alır, delay: açılmadan önce beklenecek süre (ms; ana sayfada kayan haneler bitsin)
+  show({ kind, title, sub }, undo, delay = 0) {
+    clearTimeout(this.#timer);
+    this.#bar.classList.remove('show', 'paused');
+    this.#timer = setTimeout(() => this.#reveal({ kind, title, sub }, undo), delay);
+  }
+
+  hide() {
+    clearTimeout(this.#timer);
+    this.#undo = null;
+    this.#bar.classList.remove('show', 'paused');
+  }
+
+  #reveal({ kind, title, sub }, undo) {
     this.#ico.className = 'undo-ico ' + kind;
     this.#ico.textContent = '';
     const svg = svgEl('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true' });
@@ -63,12 +75,6 @@ class UndoBar {
     void this.#bar.offsetWidth;
     this.#bar.classList.add('show');
     this.#arm(Config.UNDO_MS);
-  }
-
-  hide() {
-    clearTimeout(this.#timer);
-    this.#undo = null;
-    this.#bar.classList.remove('show', 'paused');
   }
 
   #arm(ms) {

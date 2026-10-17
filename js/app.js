@@ -15,6 +15,7 @@ class App {
   #summary;
   #settings;
   #tabs;
+  #tab = 'home'; // açık sekme: geri alma kapsülü ana sayfada kayan hanelerden sonra açılır
 
   constructor() {
     // Satır eylemleri: ana sayfa ve Harcamalar aynı davranışı paylaşır
@@ -112,9 +113,14 @@ class App {
     Store.remove(id);
     if (removed) {
       const info = { kind: 'deleted', title: Format.undoTitle('deleted', removed.name), sub: Format.money(Number(removed.amt) || 0) };
-      this.#undo.show(info, () => this.#restore(removed));
+      this.#offerUndo(info, () => this.#restore(removed));
     }
     this.refresh({ animate: true });
+  }
+
+  // Geri alma kapsülü: ana sayfada özet kartını örttüğü için kayan haneler bitince açılır
+  #offerUndo(info, undo) {
+    this.#undo.show(info, undo, this.#tab === 'home' ? Config.UNDO_DELAY_MS : 0);
   }
 
   // Düzenleme: geri alma kapsülü açılır, geri alınınca kayıt önceki haline döner
@@ -122,7 +128,7 @@ class App {
     const before = Store.update(id, changes);
     if (!before) return;
     const info = { kind: 'edited', title: Format.undoTitle('edited', changes.name), sub: Format.change(Number(before.amt) || 0, changes.amt) };
-    this.#undo.show(info, () => {
+    this.#offerUndo(info, () => {
       Store.update(id, { name: before.name, amt: before.amt, inst: before.inst || 1, ts: before.ts });
       this.refresh({ animate: true });
     });
@@ -226,6 +232,7 @@ class App {
   }
 
   #onTab(name) {
+    this.#tab = name;
     this.#detail.close();
     this.#goalSheet.close();
     this.#cutSheet.close();
