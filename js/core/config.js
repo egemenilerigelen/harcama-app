@@ -18,6 +18,9 @@ const Config = Object.freeze({
 
   // Süreler (ms)
   UNDO_MS: 4000,
+  // Geri alma kapsülü: basılı tutup bırakınca en az kalan süre, yukarı itince kapanma eşiği
+  UNDO_MIN_MS: 800,
+  UNDO_SWIPE_PX: 24,
   CONFIRM_MS: 2500,
   STATUS_MS: 4000,
 

@@ -370,8 +370,14 @@
     </div>
   </div>
 
-  <!-- GERİ ALMA ŞERİDİ: ekleme ve silmeden sonra birkaç saniye -->
-  <div id="undo"><span id="undoText"></span><button id="undoBtn">Geri al</button></div>
+  <!-- GERİ ALMA KAPSÜLÜ: ekleme, silme ve düzenlemeden sonra birkaç saniye; ekranın tepesinden
+       Dynamic Island gibi büyür -->
+  <div id="undo" role="status" aria-live="polite">
+    <span class="undo-ico" id="undoIco"></span>
+    <span class="undo-txt"><b id="undoText"></b><small id="undoSub"></small></span>
+    <button id="undoBtn">Geri al</button>
+    <span class="undo-hair" aria-hidden="true"></span>
+  </div>
 
   <!-- ALT SEKME ÇUBUĞU -->
   <nav class="tabbar">

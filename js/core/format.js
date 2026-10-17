@@ -166,9 +166,14 @@ const Format = Object.freeze({
   // Ekstre grafiğinde ilk kayıttan önceki dönemler
   noRecord: 'Kayıt yok',
 
-  // Geri alma şeridi
-  undoDeleted: 'Harcama silindi',
-  undoEdited: 'Harcama düzenlendi',
+  // Geri alma kapsülü: "Netflix silindi"; düzenlemede tutar değiştiyse "₺320 → ₺298"
+  undoTitle(kind, name) {
+    return name + ' ' + { deleted: 'silindi', edited: 'düzenlendi' }[kind];
+  },
+
+  change(from, to) {
+    return from === to ? Format.money(to) : Format.money(from) + ' → ' + Format.money(to);
+  },
 
   // Kısa ay adı: "Eki" (ekstre grafiği ekseni)
   monthShort(ts) {

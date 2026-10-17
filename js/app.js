@@ -97,7 +97,7 @@ class App {
     this.#nameSheet.open(amt, Domain.frequentNames(this.#model.items, Config.NAME_CHIPS_MAX), Date.now(), Store.getCutoff());
   }
 
-  // Ekleme: seçilen güne şimdiki saatle yazılır. Geri alma şeridi yok (en sık işlem, her seferinde
+  // Ekleme: seçilen güne şimdiki saatle yazılır. Geri alma kapsülü yok (en sık işlem, her seferinde
   // bildirim yorar): yeni satır, kayan toplam ve titreşim yeterli onay; yanlışsa satır kaydırılıp silinir
   #add({ name, amt, inst, day }) {
     const item = Store.add(name, amt, inst, Domain.atDay(day, Date.now()));
@@ -106,19 +106,23 @@ class App {
     this.#home.flash(item.id);
   }
 
-  // Silme: taksitliyse asıl kayıt silinir; geri alma şeridi açılır
+  // Silme: taksitliyse asıl kayıt silinir; geri alma kapsülü açılır
   #delete(id) {
     const removed = Store.all().find(e => e.id === id);
     Store.remove(id);
-    if (removed) this.#undo.show(Format.undoDeleted, () => this.#restore(removed));
+    if (removed) {
+      const info = { kind: 'deleted', title: Format.undoTitle('deleted', removed.name), sub: Format.money(Number(removed.amt) || 0) };
+      this.#undo.show(info, () => this.#restore(removed));
+    }
     this.refresh({ animate: true });
   }
 
-  // Düzenleme: geri alma şeridi açılır, geri alınınca kayıt önceki haline döner
+  // Düzenleme: geri alma kapsülü açılır, geri alınınca kayıt önceki haline döner
   #edit(id, changes) {
     const before = Store.update(id, changes);
     if (!before) return;
-    this.#undo.show(Format.undoEdited, () => {
+    const info = { kind: 'edited', title: Format.undoTitle('edited', changes.name), sub: Format.change(Number(before.amt) || 0, changes.amt) };
+    this.#undo.show(info, () => {
       Store.update(id, { name: before.name, amt: before.amt, inst: before.inst || 1, ts: before.ts });
       this.refresh({ animate: true });
     });

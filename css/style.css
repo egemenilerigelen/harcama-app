@@ -1898,52 +1898,139 @@ body.has-amt .pad .add.pressed {
   to { opacity: 1; }
 }
 
-/* SİLME GERİ ALMA ŞERİDİ */
+/* GERİ ALMA KAPSÜLÜ: Dynamic Island gibi ekranın tepesindeki siyahtan büyür (ana ekran uygulamasında
+   durum çubuğu düz siyah, kapsül onunla bütünleşir). Kapalıyken tepede ortada ince bir siyah şerit
+   (clip-path ile kırpılmış), açılınca tam kapsül; kapanırken geri büzülüp yukarı çekilir.
+   Yerleşim değil clip-path ve transform hareket eder. Süre: --undo-ms (Config.UNDO_MS) */
 #undo {
   position: absolute;
+  top: 8px;
   left: var(--edge);
   right: var(--edge);
-  bottom: calc(var(--bar-bottom) + var(--bar-h) + var(--gap));
-  z-index: 5;
-  display: none;
+  z-index: 25;
+  display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 8px 8px 8px 16px;
-  border-radius: 14px;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
-  font-size: 14px;
+  gap: 10px;
+  height: 58px;
+  padding: 0 6px 0 16px;
+  border-radius: 29px;
+  background: #000;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   color: var(--tx);
-}
-
-/* Ana sayfada çubuğun üstündeki tuş sırasını kapatmasın: tutar satırının yerinde durur
-   (eklemeden sonra tutar zaten boş; yeni tutar yazılınca şerit kalkar) */
-body:has(.view[data-view="home"].active) #undo {
-  bottom: calc(var(--bar-space) + 4 * var(--key-h) + 4 * var(--gap-s));
+  clip-path: inset(0 calc(50% - 56px) calc(100% - 6px) calc(50% - 56px) round 0 0 14px 14px);
+  transform: translateY(-8px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  touch-action: none;
+  transition: clip-path 0.45s var(--ease), transform 0.45s var(--ease), opacity 0.2s ease 0.25s, visibility 0s linear 0.45s;
 }
 
 #undo.show {
-  display: flex;
-  animation: rise 0.25s var(--ease);
+  clip-path: inset(0 round 29px);
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: clip-path 0.5s var(--ease), transform 0.5s var(--ease), opacity 0.12s ease, visibility 0s;
 }
 
-#undo button {
-  background: none;
-  border: 0;
-  border-radius: 10px;
-  color: var(--gold);
+/* Yukarı iterken parmağı gecikmesiz izler */
+#undo.dragging {
+  transition: none;
+}
+
+/* İçerik kapsül açıldıktan sonra belirir, kapanırken önce kaybolur */
+#undo > * {
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+#undo.show > * {
+  opacity: 1;
+  transition: opacity 0.2s ease 0.18s;
+}
+
+/* İşlemi söyleyen ikon: daire yok, sadece ince çizgili işaret (silme soluk kırmızı çöp, düzenleme kalem) */
+.undo-ico {
+  flex-shrink: 0;
+  display: flex;
+}
+
+.undo-ico svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.undo-ico.deleted { color: var(--danger); opacity: 0.9; }
+.undo-ico.edited { color: var(--tx); }
+
+.undo-txt {
+  flex: 1;
+  min-width: 0;
+}
+
+.undo-txt b {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 14px;
   font-weight: 600;
-  min-height: 36px;
-  padding: 0 12px;
-  cursor: pointer;
-  touch-action: manipulation;
 }
 
-@keyframes rise {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+.undo-txt small {
+  display: block;
+  color: var(--mut);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Geri al: kutusuz düz altın yazı (dokunma alanı yine geniş) */
+#undoBtn {
+  position: relative;
+  flex-shrink: 0;
+  height: 40px;
+  padding: 0 12px;
+  border: 0;
+  background: none;
+  color: var(--gold);
+  font: 600 14px var(--ui);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.15s ease;
+}
+
+#undoBtn:active {
+  opacity: 0.55;
+}
+
+/* Kalan süre: kapsülün altında incecik yarı saydam kıl çizgi, ortadan iki yana doğru kısalır */
+.undo-hair {
+  position: absolute;
+  left: 40px;
+  right: 40px;
+  bottom: 3px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: rgba(217, 184, 119, 0.45);
+}
+
+#undo.show .undo-hair {
+  animation: undoDrain var(--undo-ms, 4s) linear forwards;
+}
+
+#undo.paused .undo-hair {
+  animation-play-state: paused;
+}
+
+@keyframes undoDrain {
+  to { transform: scaleX(0); }
 }
 
 /* ALT SEKME ÇUBUĞU: havada duran cam hap (iOS 26 sekme çubuğu gibi). AI slop listesindeki cam/blur
