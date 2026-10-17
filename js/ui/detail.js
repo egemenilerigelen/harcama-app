@@ -1,13 +1,17 @@
-// KAYIT DETAYI: satıra dokununca alttan açılan panel. "Düzenle" ile aynı panelde isim, tutar ve taksit
-// değiştirilir; tutar girişi tuş takımıyla aynı kurallarla (Calc: en fazla 9 hane, 2 ondalık).
-// Nereye kaydedileceğini bilmez; sonucu onSave(id, { name, amt, inst }) ile dışarı verir.
-// Bağımlılık: BottomSheet, Calc, Domain, Format, Touch, $
+// KAYIT DETAYI: satıra dokununca alttan açılan panel. "Düzenle" ile aynı panelde isim, tutar, taksit ve
+// tarih değiştirilir; tutar girişi tuş takımıyla aynı kurallarla (Calc: en fazla 9 hane, 2 ondalık).
+// Tarih değişince kaydın saati korunur.
+// Nereye kaydedileceğini bilmez; sonucu onSave(id, { name, amt, inst, ts }) ile dışarı verir.
+// Bağımlılık: BottomSheet, Calc, DateChoice, Domain, Format, Touch, $
 class DetailSheet extends BottomSheet {
   #panel = $('sheet').querySelector('.sheet');
   #name = $('eName');
   #amt = $('eAmt');
   #calc = new Calc(); // düzenlenen tutar
+  #date = new DateChoice($('eDate'), $('eDateHint'));
   #item = null;
+  #now = 0;
+  #cutoff = 0;
   #inst = 1;
   #onSave;
 
@@ -62,6 +66,8 @@ class DetailSheet extends BottomSheet {
     $('dRest').textContent = rest ? rest + ' taksit · ' + Format.money(rest * total / parts) : 'Tamamlandı';
 
     this.#item = item;
+    this.#now = now;
+    this.#cutoff = cutoff;
     this.#setEditing(false);
     super.open();
   }
@@ -80,6 +86,7 @@ class DetailSheet extends BottomSheet {
       this.#calc.set(Number(item.amt) || 0);
       this.#amt.value = Format.amountInput(this.#calc.raw());
       this.#setInst(Math.max(1, Number(item.inst) || 1));
+      this.#date.reset(this.#now, this.#cutoff, item.ts);
     } else {
       this.#name.blur();
       this.#amt.blur();
@@ -96,8 +103,8 @@ class DetailSheet extends BottomSheet {
   #save() {
     const amt = this.#calc.value();
     if (!amt) return;
-    const id = this.#item.id;
-    const changes = { name: this.#name.value.trim() || 'Adsız', amt, inst: this.#inst };
+    const { id, ts } = this.#item;
+    const changes = { name: this.#name.value.trim() || 'Adsız', amt, inst: this.#inst, ts: Domain.atDay(this.#date.day, ts) };
     this.close();
     this.#onSave(id, changes);
   }

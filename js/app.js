@@ -97,16 +97,16 @@ class App {
 
   // Giriş 2. adımı: tutar girildi, isim paneli sık kullanılan isimlerle açılır (dokunma olayının içinden)
   #askName(amt) {
-    this.#nameSheet.open(amt, Domain.frequentNames(this.#model.items, Config.NAME_CHIPS_MAX));
+    this.#nameSheet.open(amt, Domain.frequentNames(this.#model.items, Config.NAME_CHIPS_MAX), Date.now(), Store.getCutoff());
   }
 
-  // Ekleme: geri alma şeridi açılır (yanlış çipe dokunulduysa); geri alınınca kayıt silinir,
-  // tutar tuş takımına döner, doğru isimle yeniden eklenebilir
-  #add({ name, amt, inst }) {
-    const item = Store.add(name, amt, inst);
+  // Ekleme: seçilen güne şimdiki saatle yazılır. Geri alma şeridi açılır (yanlış çipe dokunulduysa);
+  // geri alınınca kayıt silinir, tutar tuş takımına döner, doğru isimle yeniden eklenebilir
+  #add({ name, amt, inst, day }) {
+    const item = Store.add(name, amt, inst, Domain.atDay(day, Date.now()));
     this.#entry.clear();
     this.refresh({ animate: true });
-    this.#home.flashNewest();
+    this.#home.flash(item.id);
     this.#undo.show(Format.undoAdded, () => {
       Store.remove(item.id);
       this.#entry.setAmount(amt);
@@ -127,7 +127,7 @@ class App {
     const before = Store.update(id, changes);
     if (!before) return;
     this.#undo.show(Format.undoEdited, () => {
-      Store.update(id, { name: before.name, amt: before.amt, inst: before.inst || 1 });
+      Store.update(id, { name: before.name, amt: before.amt, inst: before.inst || 1, ts: before.ts });
       this.refresh({ animate: true });
     });
     this.refresh({ animate: true });

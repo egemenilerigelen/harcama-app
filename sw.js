@@ -28,6 +28,7 @@ const ASSETS = [
   'js/ui/rolling.js',
   'js/ui/row.js',
   'js/ui/undo.js',
+  'js/ui/date-choice.js',
   'js/ui/sheet.js',
   'js/ui/detail.js',
   'js/ui/goal-sheet.js',

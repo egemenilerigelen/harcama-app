@@ -1,7 +1,7 @@
 // İŞ MANTIĞI: saf fonksiyonlar. DOM'a ve Store'a dokunmaz, veriyi parametre olarak alır.
 // Bağımlılık: Config
 const Domain = Object.freeze({
-  // Gün anahtarı (YYYY-MM-DD): günlere göre gruplama için
+  // Gün anahtarı (YYYY-MM-DD): günlere göre gruplama ve tarih alanının değeri için
   dayKey(ts) {
     const d = new Date(ts);
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -23,10 +23,28 @@ const Domain = Object.freeze({
       : Math.round((end - start) / Config.DAY_MS);
   },
 
+  // Günün başı (yerel 00:00, ms)
+  dayStart(ts) {
+    const d = new Date(ts);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  },
+
+  // n gün önceki günün başı (yaz saati geçişinde de doğru gün)
+  daysAgo(now, n) {
+    const d = new Date(now);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate() - n).getTime();
+  },
+
+  // Seçilen günün tarihi + verilen anın saati (geçmiş tarihli ekleme: şimdiki saat;
+  // tarih düzenleme: kaydın kendi saati)
+  atDay(day, timeTs) {
+    const d = new Date(day), t = new Date(timeTs);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), t.getHours(), t.getMinutes(), t.getSeconds(), t.getMilliseconds()).getTime();
+  },
+
   // İki an arasındaki takvim günü farkı (saatten bağımsız): dün → bugün = 1
   daysBetween(a, b) {
-    const day = ts => { const d = new Date(ts); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
-    return Math.round((day(b) - day(a)) / Config.DAY_MS);
+    return Math.round((Domain.dayStart(b) - Domain.dayStart(a)) / Config.DAY_MS);
   },
 
   // Yedek hatırlatması: kayıt varken hiç yedek yoksa ya da son yedek Config.BACKUP_WARN_DAYS'ten eskiyse

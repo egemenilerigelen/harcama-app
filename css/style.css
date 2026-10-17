@@ -314,6 +314,60 @@ button {
   box-shadow: inset 0 0 0 1px rgba(217, 184, 119, 0.28), 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
+/* TARİH SEÇİMİ (DateChoice): taksit seçicisinin altında Bugün · Dün · Takvim. Takvim'in üstünde
+   görünmez tarih alanı: dokununca iPhone'un kendi tarih seçicisi açılır */
+.date-choice {
+  margin-top: var(--gap-s);
+}
+
+.date-cal {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.date-cal svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.date-cal input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Seçilen gün kesilmiş bir döneme düşerse hangi ekstreye girdiği */
+.date-hint {
+  margin: 6px 2px 0;
+  color: var(--mut);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.date-hint b {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.date-hint:empty {
+  display: none;
+}
+
 /* TUTAR EKRANI: kutusuz, hesap makinesi gibi sağa yaslı; ₺ rakamın hemen solunda */
 .display {
   display: flex;

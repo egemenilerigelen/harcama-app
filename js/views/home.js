@@ -56,10 +56,11 @@ class HomeView {
     }
   }
 
-  // Yeni kaydı listede kısa bir hareketle göster (bir kez). Bitince ya da yarıda kalınca (bitmeden
-  // sekme değişti) sınıf kalkar: kalırsa ana sayfa yeniden göründükçe tarayıcı animasyonu baştan oynatır
-  flashNewest() {
-    const first = this.#recent.querySelector('.row');
+  // Yeni kaydı listede kısa bir hareketle göster (bir kez); geçmiş tarihliyse son harcamalarda
+  // olmayabilir. Bitince ya da yarıda kalınca (bitmeden sekme değişti) sınıf kalkar: kalırsa ana sayfa
+  // yeniden göründükçe tarayıcı animasyonu baştan oynatır
+  flash(id) {
+    const first = this.#recent.querySelector('.row[data-id="' + id + '"]');
     if (!first) return;
     const done = () => first.classList.remove('enter');
     first.addEventListener('animationend', done, { once: true });

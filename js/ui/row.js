@@ -17,6 +17,7 @@ const ExpenseRow = Object.freeze({
     wrap.appendChild(row);
 
     const id = item.rawId || item.id;
+    row.dataset.id = id; // yeni kaydı bulup göstermek için (HomeView.flash)
     Touch.bindSwipe(wrap, row, {
       onDelete: () => onDelete(id),
       onTap: () => onOpen(id)

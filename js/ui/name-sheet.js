@@ -1,14 +1,15 @@
 // İSİM ADIMI (girişin 2. adımı): tutardan sonra alttan açılır. İsim yazılır ya da sık kullanılan
-// isimlerden biri seçilir (çipe dokunmak kaydı hemen ekler), taksit burada seçilir.
+// isimlerden biri seçilir (çipe dokunmak kaydı hemen ekler), taksit ve tarih (Bugün · Dün · Takvim) burada seçilir.
 // Klavye açıkken panel klavyenin hemen üstünde durur (BottomSheet).
-// Nereye kaydedileceğini bilmez; sonucu onAdd({ name, amt, inst }) ile dışarı verir.
-// Bağımlılık: BottomSheet, Format, Touch, $, el
+// Nereye kaydedileceğini bilmez; sonucu onAdd({ name, amt, inst, day }) ile dışarı verir (day: seçilen günün başı).
+// Bağımlılık: BottomSheet, DateChoice, Format, Touch, $, el
 class NameSheet extends BottomSheet {
   #input = $('nName');
   #chips = $('nChips');
   #names = [];
   #amt = 0;
   #inst = 1;
+  #date = new DateChoice($('nDate'), $('nDateHint'));
   #onAdd;
 
   constructor({ onAdd }) {
@@ -30,13 +31,14 @@ class NameSheet extends BottomSheet {
   }
 
   // Dokunma olayının içinden çağrılmalı ki iPhone klavyeyi açsın.
-  // amt: girilen tutar, names: sık kullanılan isimler (Domain.frequentNames)
-  open(amt, names) {
+  // amt: girilen tutar, names: sık kullanılan isimler (Domain.frequentNames); tarih her açılışta bugün
+  open(amt, names, now, cutoff) {
     this.#amt = amt;
     this.#names = names;
     $('nAmt').textContent = Format.money(amt);
     this.#input.value = '';
     this.#setInst(1);
+    this.#date.reset(now, cutoff);
     this.#renderChips();
     super.open();
     this.#input.focus();
@@ -73,7 +75,7 @@ class NameSheet extends BottomSheet {
   }
 
   #add(name) {
-    const entry = { name: name.trim() || 'Adsız', amt: this.#amt, inst: this.#inst };
+    const entry = { name: name.trim() || 'Adsız', amt: this.#amt, inst: this.#inst, day: this.#date.day };
     this.close();
     this.#onAdd(entry);
   }

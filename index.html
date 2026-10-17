@@ -285,6 +285,16 @@
           <button class="inst-btn" data-inst="6">6x</button>
           <button class="inst-btn" data-inst="12">12x</button>
         </div>
+        <div class="inst-selector date-choice" id="eDate" role="group" aria-label="Tarih">
+          <button class="inst-btn" data-ago="0">Bugün</button>
+          <button class="inst-btn" data-ago="1">Dün</button>
+          <label class="inst-btn date-cal">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+            <span>Takvim</span>
+            <input type="date" aria-label="Tarih seç">
+          </label>
+        </div>
+        <p class="date-hint" id="eDateHint"></p>
       </div>
     </div>
   </div>
@@ -347,6 +357,16 @@
         <button class="inst-btn" data-inst="6">6x</button>
         <button class="inst-btn" data-inst="12">12x</button>
       </div>
+      <div class="inst-selector date-choice" id="nDate" role="group" aria-label="Tarih">
+        <button class="inst-btn" data-ago="0">Bugün</button>
+        <button class="inst-btn" data-ago="1">Dün</button>
+        <label class="inst-btn date-cal">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+          <span>Takvim</span>
+          <input type="date" aria-label="Tarih seç">
+        </label>
+      </div>
+      <p class="date-hint" id="nDateHint"></p>
     </div>
   </div>
 
@@ -388,6 +408,7 @@
 <script src="js/ui/rolling.js"></script>
 <script src="js/ui/row.js"></script>
 <script src="js/ui/undo.js"></script>
+<script src="js/ui/date-choice.js"></script>
 <script src="js/ui/sheet.js"></script>
 <script src="js/ui/detail.js"></script>
 <script src="js/ui/goal-sheet.js"></script>

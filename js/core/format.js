@@ -155,6 +155,11 @@ const Format = Object.freeze({
     return '+' + Format.money(amount) + ' önceki taksitler';
   },
 
+  // Tarih seçimi: takvim düğmesi ve seçilen gün kesilmiş döneme düşünce notun sonu
+  // ("5 Eki · Ekim ekstresine girer (kesilmiş dönem)")
+  calendar: 'Takvim',
+  pastPeriod: 'girer (kesilmiş dönem)',
+
   // Harcamalar listesinde önceki alışverişlerin bu döneme yansıyan taksitleri (günlerden ayrı grup)
   carriedTitle: 'Önceki taksitler',
 

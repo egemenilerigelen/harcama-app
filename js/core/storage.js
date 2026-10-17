@@ -15,18 +15,17 @@ const Store = {
     }
   },
 
-  // inst (taksit sayısı) eklendi (varsayılan: 1). Eklenen kaydı döner (geri alma için)
-  add(name, amt, inst = 1) {
-    const items = this.all();
+  // inst: taksit sayısı (varsayılan 1), ts: harcamanın zamanı (varsayılan şimdi; geçmiş tarihli ekleme).
+  // Kayıtlar yeniden eskiye sıralı kalır. Eklenen kaydı döner (geri alma için)
+  add(name, amt, inst = 1, ts = Date.now()) {
     const item = {
       id: Date.now().toString(36) + Math.random().toString(36).substring(2, 5),
       name,
       amt: Number(amt),
       inst: Number(inst),
-      ts: Date.now()
+      ts
     };
-    items.unshift(item);
-    localStorage.setItem(this.KEY, JSON.stringify(items));
+    this.replaceAll([item, ...this.all()]);
     return item;
   },
 
@@ -35,14 +34,14 @@ const Store = {
     localStorage.setItem(this.KEY, JSON.stringify(items));
   },
 
-  // Kaydı düzenler (isim, tutar, taksit); id ve tarih aynı kalır. Önceki halini döner (geri alma için)
-  update(id, { name, amt, inst }) {
+  // Kaydı düzenler (isim, tutar, taksit, tarih); id aynı kalır. Önceki halini döner (geri alma için)
+  update(id, { name, amt, inst, ts }) {
     const items = this.all();
     const i = items.findIndex(e => e.id === id);
     if (i < 0) return null;
     const before = items[i];
-    items[i] = { ...before, name, amt: Number(amt), inst: Number(inst) };
-    localStorage.setItem(this.KEY, JSON.stringify(items));
+    items[i] = { ...before, name, amt: Number(amt), inst: Number(inst), ts };
+    this.replaceAll(items);
     return before;
   },
 
@@ -51,16 +50,17 @@ const Store = {
     const items = this.all();
     if (items.some(i => i.id === item.id)) return;
     items.push(item);
-    items.sort((a, b) => b.ts - a.ts);
-    localStorage.setItem(this.KEY, JSON.stringify(items));
+    this.replaceAll(items);
   },
 
   clear() {
     localStorage.removeItem(this.KEY);
   },
 
-  // Tüm kayıtları yazar (yedekten geri yükleme; birleştirme Backup.merge'te)
+  // Tüm kayıtları yeniden eskiye sıralı yazar (geri yükleme, geçmiş tarihli ekleme ve tarih düzenleme
+  // sırayı bozmasın; birleştirme Backup.merge'te)
   replaceAll(items) {
+    items.sort((a, b) => b.ts - a.ts);
     localStorage.setItem(this.KEY, JSON.stringify(items));
   },
 
