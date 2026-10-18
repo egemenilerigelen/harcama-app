@@ -201,8 +201,17 @@ const Format = Object.freeze({
     }[key] || 'Diğer';
   },
 
-  // İsim adımında tahmin edilen kategorinin yanındaki not
-  guessed: 'tahmin',
+  // İsim adımının özet satırında kategori seçilmemişken
+  noCategory: 'Kategori',
+
+  // İsim adımının özet satırında tarih: "Bugün" / "Dün" / "5 Eki"; kesilmiş döneme düşüyorsa hangi
+  // ekstreye girdiği de ("5 Eki · Eylül ekstresine"): ayrı not satırı açılıp panel zıplamasın
+  dayChoice(day, now, cutoff) {
+    const ago = Domain.daysBetween(day, now);
+    const label = ago === 0 ? 'Bugün' : ago === 1 ? 'Dün' : Format.shortDate(day);
+    if (Domain.periodStart(day, cutoff) >= Domain.periodStart(now, cutoff)) return label;
+    return label + ' · ' + Format.intoStatement(Domain.periodStart(day, cutoff, 1).getTime() - Config.DAY_MS, now);
+  },
 
   catToggle(hidden, open) {
     return open ? 'Daha az göster' : hidden + ' kategori daha';

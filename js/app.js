@@ -16,7 +16,7 @@ class App {
   #settings;
   #tabs;
   #tab = 'home'; // açık sekme: geri alma kapsülü ana sayfada kayan hanelerden sonra açılır
-  #guess = () => null; // isimden kategori tahmini: kullanıcının verdiği kategoriler + sözlük (refresh kurar)
+  #remember = () => null; // isme daha önce verilen kategori (tahmin yok; refresh kurar)
 
   constructor() {
     // Satır eylemleri: ana sayfa ve Harcamalar aynı davranışı paylaşır
@@ -73,14 +73,14 @@ class App {
   }
 
   // Tek yönlü render: veriyi bir kez okur, taksitleri bir kez açar, ekranlara dağıtır.
-  // items: kayıtlar (taksit planları için; kategorisi olmayan eski kayıtlar tahminle), rows: ekrandaki satırlar,
+  // items: kayıtlar (taksit planları için; kategorisi olmayan eski kayıtlar aynı isme verilenle ya da Diğer), rows: ekrandaki satırlar,
   // animate: değişiklik bir eylemden (ekleme, silme, geri alma) geldi; değişen toplamlar hareketle gösterilir
   refresh({ animate = false } = {}) {
     const now = Date.now();
     const cutoff = Store.getCutoff();
     const raw = Store.all();
     const learned = Domain.learnedCategories(raw);
-    this.#guess = name => Domain.guessCategory(name, learned);
+    this.#remember = name => Domain.rememberedCategory(name, learned);
     const items = Domain.categorize(raw);
     const model = this.#model = {
       now,
@@ -99,7 +99,7 @@ class App {
 
   // Giriş 2. adımı: tutar girildi, isim paneli sık kullanılan isimlerle açılır (dokunma olayının içinden)
   #askName(amt) {
-    this.#nameSheet.open(amt, Domain.frequentNames(this.#model.items, Config.NAME_CHIPS_MAX), Date.now(), Store.getCutoff(), this.#guess);
+    this.#nameSheet.open(amt, Domain.frequentNames(this.#model.items, Config.NAME_CHIPS_MAX), Date.now(), Store.getCutoff(), this.#remember);
   }
 
   // Ekleme: seçilen güne şimdiki saatle yazılır. Geri alma kapsülü yok (en sık işlem, her seferinde
@@ -144,10 +144,10 @@ class App {
     this.refresh({ animate: true });
   }
 
-  // Kategorisi olmayan eski kayıt tahminle açılır; düzenlenip kaydedilince kategorisi yazılır
+  // Kategorisi olmayan eski kayıt Domain.categorize'ın verdiğiyle açılır; düzenlenip kaydedilince kategorisi yazılır
   #openDetail(id) {
     const item = this.#model.items.find(e => e.id === id);
-    if (item) this.#detail.open(item, Store.getCutoff(), Date.now(), this.#guess);
+    if (item) this.#detail.open(item, Store.getCutoff(), Date.now(), this.#remember);
   }
 
   // Titreşim açılınca hemen bir kez titrer: ne açıldığı hissedilsin

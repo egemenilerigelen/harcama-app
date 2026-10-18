@@ -1,74 +1,33 @@
-// Kategoriler: isimden tahmin, öğrenme, kırılım ve geçen döneme göre değişim.
+// Kategoriler: hatırlama (tahmin yok), kırılım ve geçen döneme göre değişim.
 // Bağımlılık: Test, Config, Categories, Domain, Format
 (() => {
   const { D, eq, ok } = Test;
-  const guess = name => Domain.guessCategory(name);
-
-  Test.group('Kategori · tahmin', {
-    'tanınan isimler'() {
-      eq(guess('Migros'), 'market');
-      eq(guess('Netflix'), 'subs');
-      eq(guess('Shell'), 'transport');
-      eq(guess('Starbucks'), 'food');
-      eq(guess('Turkcell'), 'bills');
-      eq(guess('Eczane'), 'health');
-      eq(guess('Zara'), 'shopping');
-      eq(guess('Sinema'), 'fun');
+  Test.group('Kategori · hatırlama', {
+    'tahmin yok: hiç kategori verilmemiş isim null'() {
+      eq(Domain.rememberedCategory('Migros'), null);
+      eq(Domain.rememberedCategory('Netflix', Domain.learnedCategories([])), null);
+      eq(Domain.rememberedCategory(''), null);
     },
-    'büyük/küçük harf ve Türkçe harfler'() {
-      eq(guess('MİGROS'), 'market');
-      eq(guess('şok'), 'market');
-      eq(guess('  doğalgaz '), 'bills');
-    },
-    'tam kelime: isimde başka kelimeler olabilir'() {
-      eq(guess('Shell Kadıköy'), 'transport');
-      eq(guess("McDonald's"), 'food');
-      eq(guess('H&M Kadıköy'), 'shopping');
-    },
-    'kelimenin parçası eşleşmez'() {
-      eq(guess('Barış'), null, 'bar');
-      eq(guess('Hamburgerci'), null, 'burger');
-      eq(guess('Sushi'), null);
-    },
-    'çok kelimeli sözlük kelimesi, sıra: önce gelen kategori'() {
-      eq(guess('Getir Yemek'), 'food');
-      eq(guess('Amazon Prime'), 'subs');
-      eq(guess('Amazon'), 'shopping');
-    },
-    'yazılırken kelime başı (en az 3 harf)'() {
-      eq(guess('Netf'), 'subs');
-      eq(guess('Ne'), null);
-    },
-    'tanınmayan ya da boş isim'() {
-      eq(guess('Kuaför Ali'), null);
-      eq(guess(''), null);
-      eq(guess('   '), null);
-    }
-  });
-
-  Test.group('Kategori · öğrenme', {
-    'kullanıcının verdiği kategori sözlükten önce gelir, en son verilen geçerli'() {
+    'aynı isme en son verilen kategori; büyük/küçük harf ve Türkçe harf farkı aynı isim'() {
       const items = [
         { name: 'getir', cat: 'market', ts: 3 },
         { name: 'Getir', cat: 'food', ts: 2 },
         { name: 'Migros', cat: 'fun', ts: 1 }
       ];
       const learned = Domain.learnedCategories(items);
-      eq(Domain.guessCategory('GETİR', learned), 'market');
-      eq(Domain.guessCategory('Migros', learned), 'fun');
+      eq(Domain.rememberedCategory('GETİR', learned), 'market');
+      eq(Domain.rememberedCategory('  migros ', learned), 'fun');
+      eq(Domain.rememberedCategory('Migr', learned), null, 'yarım isim');
     },
-    'bilinmeyen kategori öğrenilmez'() {
+    'bilinmeyen kategori hatırlanmaz'() {
       eq(Domain.learnedCategories([{ name: 'X', cat: 'uzay' }]).size, 0);
     },
-    'eski kayıtlar tahminle, o da yoksa Diğer; kayıt değişmez'() {
+    'kategorisiz eski kayıt Diğer; aynı isme kategori verilince onu alır; kayıt değişmez'() {
       const old = { id: 'a', name: 'Migros', amt: 10, ts: 1 };
-      const items = [old, { id: 'b', name: 'Kuaför', amt: 5, ts: 0 }, { id: 'c', name: 'Netflix', cat: 'fun', amt: 1, ts: 2 }];
-      eq(Domain.categorize(items).map(i => i.cat), ['market', 'other', 'fun']);
+      const items = [old, { id: 'b', name: 'Kuaför', amt: 5, ts: 0 }, { id: 'c', name: 'migros', cat: 'market', amt: 1, ts: 2 }];
+      eq(Domain.categorize(items).map(i => i.cat), ['market', 'other', 'market']);
+      eq(Domain.categorize([{ id: 'x', name: 'Netflix', amt: 1, ts: 1 }])[0].cat, 'other', 'sözlük yok');
       eq(old.cat, undefined, 'asıl kayıt');
-    },
-    'eski kayıt, aynı isme sonradan verilen kategoriyi alır'() {
-      const items = [{ id: 'n', name: 'Getir', cat: 'food', ts: 2 }, { id: 'o', name: 'getir', ts: 1 }];
-      eq(Domain.categorize(items)[1].cat, 'food');
     },
     'taksit satırları kategoriyi taşır'() {
       const rows = Domain.expand([{ id: 'a', name: 'TV', amt: 300, inst: 3, ts: D(2026, 10, 5), cat: 'shopping' }], 15);

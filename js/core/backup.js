@@ -30,7 +30,7 @@ const Backup = Object.freeze({
     const raw = Array.isArray(data) ? data : data && data.app === Backup.APP ? data.expenses : null;
     if (!Array.isArray(raw)) throw new Error('Bu dosya bir Harcama yedeği değil.');
 
-    // Kategori bilinmiyorsa alınmaz (ekranda isimden tahmin edilir)
+    // Kategori bilinmiyorsa alınmaz (ekranda aynı isme verilen kategori ya da Diğer)
     const items = raw.filter(Backup.isRecord).map(i => ({
       id: i.id,
       name: i.name,

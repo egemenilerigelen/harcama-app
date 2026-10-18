@@ -1,6 +1,6 @@
 // KAYIT DETAYI: satıra dokununca alttan açılan panel. "Düzenle" ile aynı panelde isim, kategori, tutar,
 // taksit ve tarih değiştirilir; tutar girişi tuş takımıyla aynı kurallarla (Calc: en fazla 9 hane, 2 ondalık).
-// Tarih değişince kaydın saati korunur. İsim değişince kategori yeniden tahmin edilir (elle seçilmediyse).
+// Tarih değişince kaydın saati korunur. İsim değişince o isme daha önce verilen kategori gelir (elle seçilmediyse).
 // Nereye kaydedileceğini bilmez; sonucu onSave(id, { name, amt, inst, ts, cat }) ile dışarı verir.
 // Bağımlılık: BottomSheet, Calc, CategoryChoice, DateChoice, Domain, Format, Touch, paintMoney, $
 class DetailSheet extends BottomSheet {
@@ -10,7 +10,7 @@ class DetailSheet extends BottomSheet {
   #calc = new Calc(); // düzenlenen tutar
   #date = new DateChoice($('eDate'), $('eDateHint'));
   #cats = new CategoryChoice($('eCats'));
-  #guess = () => null;
+  #remember = () => null; // isme daha önce verilen kategori (App verir)
   #item = null;
   #now = 0;
   #cutoff = 0;
@@ -41,10 +41,10 @@ class DetailSheet extends BottomSheet {
       [...typed].forEach(k => this.#calc.press(k));
       this.#amt.value = Format.amountInput(this.#calc.raw());
     });
-    // Yeni isim tanınıyorsa kategori ona döner (elle seçildiyse dokunulmaz)
+    // Yeni isme daha önce kategori verildiyse o gelir (elle seçildiyse dokunulmaz)
     this.#name.addEventListener('input', () => {
-      const cat = this.#cats.picked ? null : this.#guess(this.#name.value);
-      if (cat) this.#cats.show(cat, true);
+      const cat = this.#cats.picked ? null : this.#remember(this.#name.value);
+      if (cat) this.#cats.show(cat);
     });
     // Klavyedeki Bitti: kaydet
     [this.#name, this.#amt].forEach(input => input.addEventListener('keydown', e => {
@@ -57,9 +57,9 @@ class DetailSheet extends BottomSheet {
     });
   }
 
-  // item: asıl kayıt (cat: Domain.categorize), guess(isim): kategori ya da null;
+  // item: asıl kayıt (cat: Domain.categorize), remember(isim): o isme verilmiş kategori ya da null;
   // panel her açılışta görüntüleme modunda
-  open(item, cutoff, now, guess) {
+  open(item, cutoff, now, remember) {
     const parts = Math.max(1, Number(item.inst) || 1);
     const total = Number(item.amt) || 0;
 
@@ -75,7 +75,7 @@ class DetailSheet extends BottomSheet {
     $('dRest').textContent = rest ? rest + ' taksit · ' + Format.money(rest * total / parts) : 'Tamamlandı';
 
     this.#item = item;
-    this.#guess = guess;
+    this.#remember = remember;
     this.#now = now;
     this.#cutoff = cutoff;
     this.#setEditing(false);

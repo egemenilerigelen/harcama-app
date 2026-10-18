@@ -228,33 +228,19 @@ const Domain = Object.freeze({
     return learned;
   },
 
-  // İsimden kategori tahmini; tahmin yoksa null. Önce kullanıcının o isme verdiği kategori, sonra sözlük:
-  // tam kelime ("Shell Kadıköy" → transport, "Barış" bar sayılmaz), yoksa yazılırken kelimenin başı
-  // (en az 3 harf: "Netf" → subs). learned: Domain.learnedCategories
-  guessCategory(name, learned = new Map()) {
-    const key = Domain.nameKey(name);
-    if (!key) return null;
-    if (learned.has(key)) return learned.get(key);
-    // Kelimeler tek boşlukla, başta ve sonda boşluk: tam kelime " kelime " ile aranır
-    const words = ' ' + key.replace(/[^\p{L}\p{N}&]+/gu, ' ').trim() + ' ';
-    const keys = Categories.KEYS.filter(k => Categories.WORDS[k]);
-    const whole = keys.find(k => Categories.WORDS[k].some(w => words.includes(' ' + w + ' ')));
-    if (whole) return whole;
-    if (key.length < 3) return null;
-    return keys.find(k => Categories.WORDS[k].some(w => w.startsWith(key))) || null;
+  // Hatırlama: kullanıcının bu isme en son verdiği kategori; yoksa null. Tahmin yok (uygulama kendisi
+  // kategori uydurmaz): "Getir"e bir kez Market dendiyse sonraki "Getir" Market gelir. learned: Domain.learnedCategories
+  rememberedCategory(name, learned = new Map()) {
+    return learned.get(Domain.nameKey(name)) || null;
   },
 
-  // Kayıtlara kategori: verilmişse o, yoksa (eski kayıtlar) tahmin, o da yoksa "Diğer".
-  // Kayıtlar değişmez, kopyası döner; aynı isim bir kez tahmin edilir
+  // Kayıtlara kategori: verilmişse o, yoksa (eski kayıtlar) aynı isme verilmiş olan, o da yoksa "Diğer".
+  // Kayıtlar değişmez, kopyası döner
   categorize(items) {
     const learned = Domain.learnedCategories(items);
-    const cache = new Map();
-    return items.map(i => {
-      if (Categories.KEYS.includes(i.cat)) return i;
-      const key = Domain.nameKey(i.name);
-      if (!cache.has(key)) cache.set(key, Domain.guessCategory(i.name, learned) || Categories.OTHER);
-      return { ...i, cat: cache.get(key) };
-    });
+    return items.map(i => Categories.KEYS.includes(i.cat)
+      ? i
+      : { ...i, cat: Domain.rememberedCategory(i.name, learned) || Categories.OTHER });
   },
 
   // Dönemin kategori kırılımı, büyükten küçüğe: [{ cat, total, share, prev }]. prev: geçen dönemin aynı

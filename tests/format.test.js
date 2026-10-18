@@ -51,6 +51,13 @@
       eq(Format.intoStatement(D(2026, 11, 15), now), 'Kasım ekstresine');
       eq(Format.periodName(0, D(2026, 11, 15), now), 'Bu dönem');
     },
+    'isim adımı tarih etiketi: kesilmiş dönemde hangi ekstre'() {
+      // Kesim 15; bugün 17 Eki (dönem 16 Eki – 15 Kas)
+      eq(Format.dayChoice(D(2026, 10, 17), now, 15), 'Bugün');
+      eq(Format.dayChoice(D(2026, 10, 16), now, 15), 'Dün');
+      eq(Format.dayChoice(D(2026, 10, 15), now, 15), '15 Eki · Ekim ekstresine');
+      eq(Format.dayChoice(D(2026, 9, 3), now, 15), '3 Eyl · Eylül ekstresine');
+    },
     'sonraki kesim'() {
       eq(Format.nextCutoff(D(2026, 10, 19), now), '19 Eki · 2 gün sonra');
       eq(Format.nextCutoff(D(2026, 10, 18), now), '18 Eki · yarın');

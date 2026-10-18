@@ -1,40 +1,38 @@
 // KATEGORİ SEÇİMİ: yana kayan tek sıra çip (kendi renginde ikon + ad). Seçili kategori şeridin başında
-// durur (görünür kalsın), kendi renginde tonlanır; tahmin edildiyse yanında "tahmin" yazar. İsim adımı (yeni harcama) ve kayıt düzenleme kullanır.
-// Tahmin etmeyi bilmez: kategoriyi dışarıdan alır (show), seçimi value ile verir.
+// durur (görünür kalsın), kendi renginde tonlanır. İsim adımı (yeni harcama) ve kayıt düzenleme kullanır.
+// Kategoriyi kendisi bulmaz: dışarıdan alır (show; seçilmemiş olabilir), seçimi value ile verir,
+// dokununca onPick(cat) çağrılır (isim adımında şerit kapanıp özete döner).
 // Bağımlılık: Categories, Format, Touch, CatIcon, el
 class CategoryChoice {
   #box;
-  #cat = Categories.OTHER;
-  #guessed = false;
-  #picked = false; // kullanıcı elle seçti: tahmin artık onu ezmez
+  #cat = null;
+  #picked = false; // kullanıcı elle seçti: hatırlanan kategori artık onu ezmez
+  #onPick;
 
-  constructor(box) {
+  constructor(box, { onPick } = {}) {
     this.#box = box;
+    this.#onPick = onPick;
   }
 
-  // cat: gösterilecek kategori, guessed: isimden tahmin edildi (elle seçim sıfırlanır)
-  show(cat, guessed = false) {
+  // cat: gösterilecek kategori (null: seçilmemiş); elle seçim sıfırlanır
+  show(cat) {
     this.#picked = false;
-    this.#set(cat, guessed);
+    this.#cat = Categories.KEYS.includes(cat) ? cat : null;
+    this.#render();
   }
 
-  // Elle seçildiyse true (isim değişince tahmin bunun üstüne yazmaz)
+  // Elle seçildiyse true (isim değişince hatırlanan kategori bunun üstüne yazmaz)
   get picked() {
     return this.#picked;
   }
 
+  // Seçili kategori ya da null
   get value() {
     return this.#cat;
   }
 
-  #set(cat, guessed) {
-    this.#cat = Categories.KEYS.includes(cat) ? cat : Categories.OTHER;
-    this.#guessed = guessed;
-    this.#render();
-  }
-
   #render() {
-    const order = [this.#cat, ...Categories.KEYS.filter(k => k !== this.#cat)];
+    const order = this.#cat ? [this.#cat, ...Categories.KEYS.filter(k => k !== this.#cat)] : Categories.KEYS;
     this.#box.innerHTML = '';
     order.forEach(key => {
       const on = key === this.#cat;
@@ -43,11 +41,12 @@ class CategoryChoice {
       chip.dataset.cat = key; // renk CSS'te
       chip.setAttribute('aria-pressed', on);
       chip.append(CatIcon.create(key), Format.category(key));
-      if (on && this.#guessed) chip.appendChild(el('small', 'cat-guess', Format.guessed));
       // click (pointerdown değil): şerit yana kayarken yanlışlıkla seçilmesin
       chip.onclick = () => {
         this.#picked = true;
-        this.#set(key, false);
+        this.#cat = key;
+        this.#render();
+        if (this.#onPick) this.#onPick(key);
       };
       Touch.hapticOn(chip);
       this.#box.appendChild(chip);

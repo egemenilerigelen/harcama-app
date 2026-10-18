@@ -363,25 +363,32 @@
       </div>
       <input id="nName" type="text" placeholder="Ne aldın?" maxlength="60" autocomplete="off" enterkeyhint="done">
       <div class="chips" id="nChips"></div>
-      <!-- Kategori: isim yazıldıkça tahmin edilir ("tahmin"), dokununca elle seçilir -->
-      <div class="chips cat-chips" id="nCats" role="group" aria-label="Kategori"></div>
-      <div class="inst-selector" id="nInst">
-        <button class="inst-btn active" data-inst="1">Tek çekim</button>
-        <button class="inst-btn" data-inst="2">2x</button>
-        <button class="inst-btn" data-inst="3">3x</button>
-        <button class="inst-btn" data-inst="6">6x</button>
-        <button class="inst-btn" data-inst="12">12x</button>
+      <!-- SEÇİMLER: tek satır özet (kategori · taksit · tarih). Değere dokununca satır yerinde o seçiciye
+           döner, seçince özete geri döner; yükseklik hiç değişmez (panel zıplamaz) -->
+      <div class="picks" id="nPicks">
+        <div class="pick-tokens">
+          <button class="tok" data-pick="cat" aria-label="Kategori seç"></button>
+          <button class="tok" data-pick="inst" aria-label="Taksit seç"></button>
+          <button class="tok" data-pick="date" aria-label="Tarih seç"></button>
+        </div>
+        <div class="pick-panel chips cat-chips" data-panel="cat" id="nCats" role="group" aria-label="Kategori"></div>
+        <div class="pick-panel inst-selector" data-panel="inst" id="nInst">
+          <button class="inst-btn active" data-inst="1">Tek çekim</button>
+          <button class="inst-btn" data-inst="2">2x</button>
+          <button class="inst-btn" data-inst="3">3x</button>
+          <button class="inst-btn" data-inst="6">6x</button>
+          <button class="inst-btn" data-inst="12">12x</button>
+        </div>
+        <div class="pick-panel inst-selector date-choice" data-panel="date" id="nDate" role="group" aria-label="Tarih">
+          <button class="inst-btn" data-ago="0">Bugün</button>
+          <button class="inst-btn" data-ago="1">Dün</button>
+          <label class="inst-btn date-cal">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+            <span>Takvim</span>
+            <input type="date" aria-label="Tarih seç">
+          </label>
+        </div>
       </div>
-      <div class="inst-selector date-choice" id="nDate" role="group" aria-label="Tarih">
-        <button class="inst-btn" data-ago="0">Bugün</button>
-        <button class="inst-btn" data-ago="1">Dün</button>
-        <label class="inst-btn date-cal">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
-          <span>Takvim</span>
-          <input type="date" aria-label="Tarih seç">
-        </label>
-      </div>
-      <p class="date-hint" id="nDateHint"></p>
     </div>
   </div>
 

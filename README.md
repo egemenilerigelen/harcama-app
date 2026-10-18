@@ -4,8 +4,8 @@ Kredi kartı harcamalarını hızlıca kaydetmek için geliştirilmiş, mobil ö
 
 ## Özellikler
 
-- **Hızlı giriş, iki adım:** Önce tutar: ana sayfanın altında, başparmak bölgesinde hesap makinesi tuş takımı (en fazla 9 hane ve 2 ondalık), "Devam". Sonra isim: alttan açılan panelde yazı alanı ve en sık girdiğin isimler; isme dokunmak kaydı hemen ekler. Eklenen kayıt listede kısa bir hareketle belirir, toplam kayarak güncellenir.
-- **Kategoriler:** Kategori sen seçmeden gelir: isim yazdıkça tahmin edilir (Migros → Market, Netflix → Abonelik, Shell → Ulaşım), dokunup değiştirilebilir. Bir isme verdiğin kategori o isim için hep hatırlanır. Özet'te bu dönemin kategori dağılımı (iPhone depolama ekranı gibi renkli şerit) ve geçen dönemin aynı gününe göre değişim ("Ulaşım ₺550 fazla").
+- **Hızlı giriş, iki adım:** Önce tutar: ana sayfanın altında, başparmak bölgesinde hesap makinesi tuş takımı (en fazla 9 hane ve 2 ondalık), "Devam". Sonra isim: alttan açılan panelde yazı alanı ve en sık girdiğin isimler; isme dokunmak kaydı hemen ekler. Altında tek satır özet (kategori · taksit · tarih; varsayılan tek çekim ve bugün): değiştirmek istediğine dokununca o satır yerinde seçiciye döner, panel zıplamaz. Eklenen kayıt listede kısa bir hareketle belirir, toplam kayarak güncellenir.
+- **Kategoriler:** İsim adımında seçilir; bir isme verdiğin kategori o isim için hatırlanır (Migros'a bir kez Market dersen sonra hep Market gelir). Uygulama kendisi tahmin etmez. Özet'te bu dönemin kategori dağılımı (iPhone depolama ekranı gibi renkli şerit) ve geçen dönemin aynı gününe göre değişim ("Ulaşım ₺550 fazla").
 - **Taksit desteği:** İsim adımında tek çekim, 2x, 3x, 6x ve 12x. Taksitler hesap kesim günlerine göre aylara dağıtılır ve listede `1/3 taksit` gibi etiketlenir. Önceki alışverişlerin bu döneme düşen taksitleri dönem toplamına girer ama gün toplamlarına ve günlük ortalamaya girmez; Harcamalar'da dönemin altında ayrı grupta durur.
 - **Alt sekme çubuğu:** Ana Sayfa, Harcamalar, Özet ve Ayarlar. iOS 26'daki gibi havada duran cam çubuk; içerik arkasından akar, seçili sekmenin kapsülü kayarak geçer.
 - **Özet kartı:** Harcama ekleyip silince toplamların sadece değişen haneleri kayar (iPhone'un sayı geçişi gibi). İçinde bulunulan hesap dönemi (kesim gününün ertesinden kesim gününe, kesim günü dahil) toplamı ve tarih aralığı, yanında bugün yapılan harcama (önceki alışverişlerin bu döneme düşen taksitleri hariç).
@@ -76,7 +76,7 @@ Harcamalar `localStorage` içinde `expenses_v1` anahtarıyla JSON dizisi olarak 
 | `amt` | Toplam tutar |
 | `inst` | Taksit sayısı (yoksa 1) |
 | `ts` | Eklenme zamanı (epoch ms) |
-| `cat` | Kategori (yoksa isimden tahmin edilir) |
+| `cat` | Kategori (yoksa aynı isme verilen ya da Diğer) |
 
 Hesap kesim günü `cutoff_day_v1` (varsayılan 15), dönem hedefi `goal_v1`, son yedeğin zamanı `backup_at_v1` anahtarında tutulur. `Store` nesnesi veri erişimini soyutladığı için ileride başka bir depolamaya geçmek kolaydır.
 
@@ -95,7 +95,8 @@ Hesap kesim günü `cutoff_day_v1` (varsayılan 15), dönem hedefi `goal_v1`, so
 - [x] PWA (manifest ve service worker) ile ana ekrana ekleme
 - [x] Kayıt düzenleme ve geçmiş tarihli ekleme
 - [x] Çekirdek testleri
-- [x] Kategoriler (isimden tahminle)
+- [x] Kategoriler (seçilir, isme göre hatırlanır)
+- [ ] Güçlü kategori tahmini
 - [ ] Tekrarlayan harcamalar ve tutarı hatırlayan çipler
 - [ ] Dönem sonu tahmini ve ekstre kapanış özeti
 - [ ] Son ödeme günü ve kart limiti

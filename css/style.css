@@ -1934,12 +1934,124 @@ body.has-amt .pad .add.pressed {
   background: var(--surface-2);
 }
 
-.name-sheet .inst-selector {
+/* İsim çipi sırası: yazarken eşleşen kalmasa da yeri korunur (panel kısalıp zıplamasın) */
+#nChips.empty {
+  visibility: hidden;
+  min-height: 44px;
+}
+
+/* SEÇİMLER: tek satır özet (kategori · taksit · tarih). Özet ve üç seçici aynı yeri paylaşır, aynı anda
+   biri görünür; dokununca yerinde değişir (yumuşak geçiş, yükseklik sabit: panel zıplamaz) */
+.picks {
+  position: relative;
+  height: 40px;
   margin-top: var(--gap);
 }
 
-/* KATEGORİ SEÇİMİ (CategoryChoice): isim çiplerinin altında, kendi renginde ikon + ad. Seçili olan şeridin
-   başında, kendi renginde tonlu; tahmin edildiyse yanında "tahmin" */
+.picks > * {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.18s var(--ease), transform 0.18s var(--ease), visibility 0s linear 0.18s;
+}
+
+.picks .pick-panel,
+.picks[data-open] .pick-tokens {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.picks .pick-panel {
+  transform: translateY(6px);
+}
+
+.picks[data-open] .pick-tokens {
+  transform: translateY(-6px);
+}
+
+.picks[data-open="cat"] [data-panel="cat"],
+.picks[data-open="inst"] [data-panel="inst"],
+.picks[data-open="date"] [data-panel="date"] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+  transition: opacity 0.18s var(--ease), transform 0.18s var(--ease), visibility 0s;
+}
+
+.picks .inst-selector {
+  margin: 0;
+}
+
+/* Kategori şeridi ekran kenarına kadar taşar (isim çipleri gibi) */
+.picks .chips {
+  left: calc(-1 * var(--edge));
+  right: calc(-1 * var(--edge));
+  align-items: center;
+  margin: 0;
+  padding: 0 var(--edge);
+}
+
+.pick-tokens {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.pick-tokens::-webkit-scrollbar {
+  display: none;
+}
+
+/* Değer etiketi: kabarık küçük hap; varsayılandan farklı değer altın (seçili durum), seçilmemiş kategori soluk */
+.tok {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 34px;
+  padding: 0 10px 0 12px;
+  border-radius: 17px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  box-shadow: var(--hl), 0 1px 2px rgba(0, 0, 0, 0.4);
+  color: var(--tx);
+  font: 500 13px var(--ui);
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.tok .cat-ico {
+  width: 16px;
+  height: 16px;
+  margin-left: -2px;
+  color: var(--c);
+}
+
+.tok-chev {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: var(--mut);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tok.empty {
+  color: var(--mut);
+}
+
+.tok.changed {
+  border-color: rgba(217, 184, 119, 0.28);
+  background: linear-gradient(180deg, rgba(217, 184, 119, 0.16), rgba(217, 184, 119, 0.08));
+  color: var(--gold);
+}
+
+/* KATEGORİ SEÇİMİ (CategoryChoice): kendi renginde ikon + ad. Seçili olan şeridin başında, kendi renginde
+   tonlu. İsim adımında özet satırının yerinde, düzenlemede isim alanının altında */
 .cat-chips {
   gap: 6px;
   margin-top: var(--gap-s);
@@ -1967,12 +2079,6 @@ body.has-amt .pad .add.pressed {
   border-color: color-mix(in srgb, var(--c) 55%, transparent);
   color: var(--tx);
   font-weight: 600;
-}
-
-.cat-guess {
-  color: var(--mut);
-  font-size: 11px;
-  font-weight: 400;
 }
 
 /* KAYIT DETAYI: alttan açılan panel */
