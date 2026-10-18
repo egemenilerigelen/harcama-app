@@ -2346,12 +2346,13 @@ body.has-amt .pad .add.pressed {
   pointer-events: none;
 }
 
-/* Parmak çubukta gezerken: kapsül parmağı gecikmesiz izler (--pill-x: TabBar verir), basılı bir mercek
-   gibi biraz büyür ve aydınlanır; bırakınca sekmenin yerine yaylanarak oturur */
+/* Parmak çubukta gezerken: kapsül parmağın altına yapışır (--pill-x: TabBar verir; konumda geçiş yok,
+   geçiş parmağı geriden takip ettiriyordu), basılı bir mercek gibi biraz büyür ve aydınlanır; bırakınca
+   sekmenin yerine yaylanarak oturur (yaylı geçiş yukarıdaki temel kuralda) */
 .tabbar.dragging .tab-pill {
   transform: translateX(var(--pill-x, 0px)) scale(1.08);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08));
-  transition: transform 0.12s ease-out, background 0.2s ease;
+  transition: background 0.2s ease;
 }
 
 /* Saydamlığı azalt açıksa ya da bulanıklık desteklenmiyorsa: düz, koyu, okunaklı */
