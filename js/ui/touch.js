@@ -32,8 +32,10 @@ const Touch = Object.freeze({
 
   // Ortak sürükleme izleyici: önce yönü belirler (axis 'x' ya da 'y'; öteki yöndeyse karışmaz),
   // sadece başlatan parmağı izler. ignore(e): bu dokunuşla başlama
-  // onStart(): sürükleme başladı, onMove(d), onEnd(d, v): bırakıldı (d: eksendeki yol, v: son hız px/ms)
-  trackDrag(el, axis, { ignore, onStart, onMove, onEnd }) {
+  // onStart(): sürükleme başladı, onMove(d), onEnd(d, v): bırakıldı (d: eksendeki yol, v: son hız px/ms),
+  // onCancel(): dokunuş iptal edildi (pointercancel: tarayıcı listeyi kaydırmaya başladı ya da sistem
+  // hareketi); bırakma sayılmaz, eylem yapılmaz. Verilmezse onEnd(0, 0): yerine dön
+  trackDrag(el, axis, { ignore, onStart, onMove, onEnd, onCancel }) {
     let x0 = null, y0 = 0, d = 0, dir = null, pointer = null, trail = [];
 
     el.addEventListener('pointerdown', e => {
@@ -61,10 +63,16 @@ const Touch = Object.freeze({
       onMove(d);
     });
 
-    const end = e => {
+    const end = (e, cancelled) => {
       if (x0 === null || e.pointerId !== pointer) return;
       x0 = null;
       if (dir !== axis) return;
+      // İptal bırakma değildir: parmak hâlâ ekrandayken satır silinmesin, panel kapanmasın
+      if (cancelled) {
+        if (onCancel) onCancel();
+        else onEnd(0, 0);
+        return;
+      }
       const [t0, d0] = trail[0] || [0, d];
       const [t1] = trail[trail.length - 1] || [0];
       // Parmak bırakmadan önce durduysa hız yok (fiske değil)
@@ -72,8 +80,15 @@ const Touch = Object.freeze({
       onEnd(d, t1 > t0 && !still ? (d - d0) / (t1 - t0) : 0);
     };
 
-    el.addEventListener('pointerup', end);
-    el.addEventListener('pointercancel', end);
+    el.addEventListener('pointerup', e => end(e, false));
+    el.addEventListener('pointercancel', e => end(e, true));
+
+    // Sürükleme bu eksende başladıktan sonra tarayıcı kaydırmayı devralmasın: kayan listede (Harcamalar)
+    // parmak biraz dikey oynayınca iPhone listeyi kaydırmaya başlayıp dokunuşu iptal ediyordu.
+    // Pointer olayı touch olayından önce gelir; yön belirlendiği hareketten itibaren engellenir
+    el.addEventListener('touchmove', e => {
+      if (x0 !== null && dir === axis) e.preventDefault();
+    }, { passive: false });
   },
 
   // Satırı sola kaydırınca onDelete, kaydırmadan dokununca onTap.
@@ -98,6 +113,18 @@ const Touch = Object.freeze({
       }
     };
 
+    // Sürükleme bitti: ardından gelen tıklama onTap'i tetiklemesin
+    const release = () => {
+      swiped = true;
+      row.style.transition = '';
+      wrap.classList.remove('dragging');
+    };
+    // Yerine yaylan (eşik geçilmediyse ya da dokunuş iptal edildiyse)
+    const back = () => {
+      place(0);
+      setTimeout(() => wrap.classList.remove('on'), Config.SWIPE_BACK_MS);
+    };
+
     Touch.trackDrag(row, 'x', {
       onStart: () => {
         limit = Math.min(Config.SWIPE_DELETE_PX, row.offsetWidth * Config.SWIPE_DELETE_RATIO);
@@ -105,21 +132,23 @@ const Touch = Object.freeze({
         wrap.classList.add('on', 'dragging');
       },
       onMove: mx => place(Math.min(0, mx)),
-      onEnd: mx => {
-        swiped = true; // ardından gelen tıklama onTap'i tetiklemesin
-        row.style.transition = '';
-        wrap.classList.remove('dragging');
-        if (wrap.classList.contains('armed')) {
-          // Satır çıkar, ardından yeri kapanır (alttakiler yukarı kayar), sonra silinir
-          place(-row.offsetWidth);
-          setTimeout(() => {
-            wrap.classList.add('gone');
-            setTimeout(onDelete, Config.SWIPE_COLLAPSE_MS);
-          }, Config.SWIPE_OUT_MS);
-        } else {
-          place(0);
-          setTimeout(() => wrap.classList.remove('on'), Config.SWIPE_BACK_MS);
+      onEnd: () => {
+        release();
+        if (!wrap.classList.contains('armed')) {
+          back();
+          return;
         }
+        // Satır çıkar, ardından yeri kapanır (alttakiler yukarı kayar), sonra silinir
+        place(-row.offsetWidth);
+        setTimeout(() => {
+          wrap.classList.add('gone');
+          setTimeout(onDelete, Config.SWIPE_COLLAPSE_MS);
+        }, Config.SWIPE_OUT_MS);
+      },
+      // Parmak kalkmadan iptal (liste kaydırma, sistem hareketi): eşik geçilmiş olsa da silinmez
+      onCancel: () => {
+        release();
+        back();
       }
     });
 
