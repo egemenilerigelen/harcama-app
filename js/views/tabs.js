@@ -1,7 +1,8 @@
 // ALT SEKME ÇUBUĞU: havada duran cam çubuk; görünümler arası geçiş (router/hash yok).
 // Seçili sekmenin altındaki kapsül, sekme değişince yeni yerine kayar (--tab-i).
 // Parmak çubukta sağa sola gezdirilebilir (iOS 26 / Instagram gibi): kapsül parmağı izler, biraz büyür,
-// parmak hangi sekmenin üstüne gelirse o sekme hemen açılır; bırakınca kapsül sekmenin yerine oturur.
+// parmağın altındaki sekme vurgulanır; sayfa parmak kalkınca açılır (gezinirken arka plan değişmez).
+// Bırakınca kapsül sekmenin yerine oturur; dokunuş iptal edilirse açık sekmede kalır.
 // Bağımlılık: Touch, el
 class TabBar {
   #onShow;
@@ -9,6 +10,7 @@ class TabBar {
   #tabs = [...document.querySelectorAll('.tab')];
   #pill = el('span', 'tab-pill');
   #current = 'home';
+  #hover = null; // gezinirken parmağın altındaki sekme
   #x0 = 0;      // sürüklemenin başladığı nokta (px)
   #first = null; // ilk sekmenin yeri ve genişliği (sürükleme başında ölçülür)
 
@@ -26,13 +28,12 @@ class TabBar {
       onStart: () => {
         const r = this.#tabs[0].getBoundingClientRect();
         this.#first = { left: r.left, width: r.width };
+        this.#hover = this.#current;
         this.#bar.classList.add('dragging');
       },
       onMove: dx => this.#follow(this.#x0 + dx),
-      onEnd: () => {
-        this.#bar.classList.remove('dragging');
-        this.#bar.style.removeProperty('--pill-x');
-      }
+      onEnd: () => this.#settle(this.#hover),
+      onCancel: () => this.#settle(this.#current)
     });
   }
 
@@ -41,12 +42,16 @@ class TabBar {
     // Açık klavyeyi kapat (gizlenen sekmedeki inputta kalmasın)
     if (document.activeElement) document.activeElement.blur();
     document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.dataset.view === name));
-    this.#tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    this.#highlight(name);
     this.#bar.style.setProperty('--tab-i', this.#tabs.findIndex(t => t.dataset.tab === name));
     this.#onShow(name);
   }
 
-  // Kapsül parmağın altında (ortası parmakta, çubuğun içinde kalır); altındaki sekme açılır
+  #highlight(name) {
+    this.#tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  }
+
+  // Kapsül parmağın altında (ortası parmakta, çubuğun içinde kalır); altındaki sekme vurgulanır
   #follow(x) {
     const { left, width } = this.#first;
     const last = this.#tabs.length - 1;
@@ -55,9 +60,19 @@ class TabBar {
 
     const i = Math.min(Math.max(Math.floor((x - left) / width), 0), last);
     const name = this.#tabs[i].dataset.tab;
-    if (name !== this.#current) {
+    if (name !== this.#hover) {
+      this.#hover = name;
       Touch.haptic();
-      this.show(name);
+      this.#highlight(name);
     }
+  }
+
+  // Gezinme bitti: kapsül yerine oturur, sekme değiştiyse şimdi açılır
+  #settle(name) {
+    this.#bar.classList.remove('dragging');
+    this.#bar.style.removeProperty('--pill-x');
+    this.#hover = null;
+    if (name !== this.#current) this.show(name);
+    else this.#highlight(name);
   }
 }
