@@ -1,21 +1,19 @@
-// HARCAMA SATIRI: ana sayfa ve Harcamalar aynı satırı kullanır. Solda kategori ikonu (kategorinin
-// renginde çizgi, nötr kuyuda), ortada isim + taksit etiketi ve altında "kategori · saat/tarih", sağda tutar.
-// Satır neyin açılıp silineceğini bilmez; eylemler dışarıdan verilir.
+// HARCAMA SATIRI: ana sayfa ve Harcamalar aynı satırı kullanır. Tek satır: solda kategori ikonu (kategorinin
+// renginde çizgi, nötr kuyuda; kategori yazıyla tekrarlanmaz), ortada isim + taksit etiketi, sağda küçük gri
+// saat/tarih ve tutar. Satır neyin açılıp silineceğini bilmez; eylemler dışarıdan verilir.
 // Bağımlılık: Format, Touch, CatIcon, el, svgEl
 const ExpenseRow = Object.freeze({
-  // item: Domain.visibleRows satırı (cat: Domain.categorize), when: kategorinin yanındaki saat/tarih,
+  // item: Domain.visibleRows satırı (cat: Domain.categorize), when: tutarın yanındaki saat/tarih,
   // actions: { onOpen(id), onDelete(id) } — id taksitliyse asıl kaydın id'si
   create(item, when, { onOpen, onDelete }) {
     const wrap = el('div', 'swipe');
     const row = el('div', 'row');
 
-    const line = el('span', 'row-line');
-    line.appendChild(el('span', 'n', item.name));
-    if (item.parts) line.appendChild(el('span', 'tag', Format.part(item.part, item.parts)));
     const info = el('div', 'row-info');
-    info.append(line, el('span', 't', Format.category(item.cat) + ' · ' + when));
+    info.appendChild(el('span', 'n', item.name));
+    if (item.parts) info.appendChild(el('span', 'tag', Format.part(item.part, item.parts)));
 
-    row.append(CatIcon.well(item.cat), info, el('span', 'a', Format.money(item.displayAmt)));
+    row.append(CatIcon.well(item.cat), info, el('span', 't', when), el('span', 'a', Format.money(item.displayAmt)));
     // Sola kaydırınca satırın altından çıkan silme hapı (çöp ikonuyla); görünümü CSS'te
     const cap = el('span', 'swipe-cap');
     const icon = svgEl('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true' });

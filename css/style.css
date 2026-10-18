@@ -848,8 +848,8 @@ body.has-amt .pad .add.pressed {
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
+  gap: 11px;
+  padding: 8px 14px;
   cursor: pointer;
   touch-action: pan-y;
   transition: transform 0.2s var(--ease);
@@ -882,21 +882,26 @@ body.has-amt .pad .add.pressed {
   mask-image: none;
 }
 
-/* Üstte isim ve taksit etiketi yan yana, altta "kategori · saat/tarih": satır yüksekliği her yerde aynı */
+/* Tek satır: isim ve taksit etiketi yan yana (satır yüksekliği her yerde aynı; 46px, ana sayfaya
+   iPhone 15'te 5 satır sığar) */
 .row-info {
   flex: 1;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
+  align-items: center;
+  gap: 6px;
   min-width: 0;
 }
 
-.row-line {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  max-width: 100%;
+/* Satırda ikon biraz küçük (Özet kartındaki 34px) */
+.row .cat-well {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+}
+
+.row .cat-ico {
+  width: 17px;
+  height: 17px;
 }
 
 /* Kategori rengi: data-cat taşıyan öğe --c verir (CatIcon.well, kategori çipi, oran şeridi) */
@@ -959,11 +964,9 @@ body.has-amt .pad .add.pressed {
   font-variant-numeric: tabular-nums;
 }
 
-/* Kategori · saat / tarih: ismin altında */
+/* Saat (Harcamalar; gün başlıkta) / tarih (ana sayfa): tutarın solunda küçük gri */
 .row .t {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex-shrink: 0;
   white-space: nowrap;
   color: var(--mut);
   font-size: 12px;
