@@ -1,5 +1,5 @@
-// HARCAMA SATIRI: ana sayfa ve Harcamalar aynı satırı kullanır. Solda kategori ikonu (gömük kuyuda,
-// tek renk), ortada isim + taksit etiketi ve altında "kategori · saat/tarih", sağda tutar.
+// HARCAMA SATIRI: ana sayfa ve Harcamalar aynı satırı kullanır. Solda kategori ikonu (kategorinin
+// renginde çizgi, nötr kuyuda), ortada isim + taksit etiketi ve altında "kategori · saat/tarih", sağda tutar.
 // Satır neyin açılıp silineceğini bilmez; eylemler dışarıdan verilir.
 // Bağımlılık: Format, Touch, CatIcon, el, svgEl
 const ExpenseRow = Object.freeze({
@@ -15,9 +15,7 @@ const ExpenseRow = Object.freeze({
     const info = el('div', 'row-info');
     info.append(line, el('span', 't', Format.category(item.cat) + ' · ' + when));
 
-    const well = el('span', 'cat-well');
-    well.appendChild(CatIcon.create(item.cat));
-    row.append(well, info, el('span', 'a', Format.money(item.displayAmt)));
+    row.append(CatIcon.well(item.cat), info, el('span', 'a', Format.money(item.displayAmt)));
     // Sola kaydırınca satırın altından çıkan silme hapı (çöp ikonuyla); görünümü CSS'te
     const cap = el('span', 'swipe-cap');
     const icon = svgEl('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true' });

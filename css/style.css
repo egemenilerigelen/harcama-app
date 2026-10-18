@@ -15,6 +15,18 @@
   --warn: #e3a857;
   --good: #8fbf7a;
 
+  /* KATEGORİ RENKLERİ: düşük doygunluk; sadece kategori bağlamında (ikon kuyusu, oran şeridi, seçili
+     kategori çipi). Altına ve kırmızıya yakın renk yok: altın sinyal, kırmızı silme için */
+  --cat-market: #7fbf8e;
+  --cat-food: #e6a06b;
+  --cat-transport: #6fa8dc;
+  --cat-subs: #a993e0;
+  --cat-shopping: #e091c4;
+  --cat-bills: #5fc1c9;
+  --cat-health: #c4d16c;
+  --cat-fun: #ef8a7a;
+  --cat-other: #8d929c;
+
   /* DERİNLİK: ışık tek yerden (yukarıdan); kabarık = basılan, gömük = yazılan. Gölgeler nötr */
   --raised: linear-gradient(180deg, #1c1f26, #15171c);
   --hl: inset 0 1px 0 rgba(255, 255, 255, 0.07);
@@ -887,7 +899,19 @@ body.has-amt .pad .add.pressed {
   max-width: 100%;
 }
 
-/* KATEGORİ İKONU: gömük kuyuda, tek renk (altın sinyal kuralı bozulmaz); satır ve Özet kartı ortak */
+/* Kategori rengi: data-cat taşıyan öğe --c verir (CatIcon.well, kategori çipi, oran şeridi) */
+[data-cat="market"] { --c: var(--cat-market); }
+[data-cat="food"] { --c: var(--cat-food); }
+[data-cat="transport"] { --c: var(--cat-transport); }
+[data-cat="subs"] { --c: var(--cat-subs); }
+[data-cat="shopping"] { --c: var(--cat-shopping); }
+[data-cat="bills"] { --c: var(--cat-bills); }
+[data-cat="health"] { --c: var(--cat-health); }
+[data-cat="fun"] { --c: var(--cat-fun); }
+[data-cat="other"] { --c: var(--cat-other); }
+
+/* KATEGORİ İKONU: renk sadece ikonun çizgisinde (kategorinin rengi), kuyu nötr ve gömük; satır ve Özet
+   kartı ortak. Ekran sakin kalır, renk kodu her yerde aynı; rengin dolu hali Özet'teki oran şeridinde */
 .cat-well {
   flex-shrink: 0;
   display: grid;
@@ -897,7 +921,7 @@ body.has-amt .pad .add.pressed {
   border-radius: 10px;
   background: var(--sunken);
   box-shadow: var(--inset);
-  color: var(--mut);
+  color: var(--c, var(--cat-other));
 }
 
 .cat-ico {
@@ -1285,14 +1309,34 @@ body.has-amt .pad .add.pressed {
   cursor: pointer;
 }
 
-/* KATEGORİLER KARTI: satırlar taksit kartıyla aynı kalıpta; solda kategori kuyusu, pay çubuğu tek renk
-   (renk sadece değişimde: artış uyarı, azalış iyi) */
+/* KATEGORİLER KARTI: üstte renkli oran şeridi (iPhone depolama ekranı gibi), altında satırlar taksit
+   kartıyla aynı kalıpta: renkli kategori kuyusu, ad ve pay, tutar ve değişim (artış uyarı, azalış iyi) */
 .cat-card .card-head {
   padding: 14px 14px 0;
 }
 
+.cat-stack {
+  display: flex;
+  gap: 2px;
+  height: 10px;
+  margin: 12px 14px 0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.cat-stack[hidden] {
+  display: none;
+}
+
+/* Çok küçük pay da görünsün */
+.cat-stack i {
+  flex-basis: 0;
+  min-width: 3px;
+  background: var(--c);
+}
+
 .cat-insight {
-  margin: 6px 14px 0;
+  margin: 10px 14px 0;
   color: var(--mut);
   font-size: 13px;
   line-height: 1.4;
@@ -1312,13 +1356,15 @@ body.has-amt .pad .add.pressed {
   cursor: default;
 }
 
-.cat-bar {
-  margin-top: 7px;
+.cat-row .n {
+  display: block;
+  font-weight: 500;
 }
 
-/* Taksit çubuğunun altınını ezer: pay bir toplam değil, bağlam */
-.cat-row .cat-bar i {
-  background: var(--mut);
+.cat-share {
+  color: var(--mut);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
 .cat-delta {
@@ -1889,8 +1935,8 @@ body.has-amt .pad .add.pressed {
   margin-top: var(--gap);
 }
 
-/* KATEGORİ SEÇİMİ (CategoryChoice): isim çiplerinin altında, ikon + ad. Seçili olan şeridin başında,
-   taksit seçicisindeki gibi altın; tahmin edildiyse yanında "tahmin" */
+/* KATEGORİ SEÇİMİ (CategoryChoice): isim çiplerinin altında, kendi renginde ikon + ad. Seçili olan şeridin
+   başında, kendi renginde tonlu; tahmin edildiyse yanında "tahmin" */
 .cat-chips {
   gap: 6px;
   margin-top: var(--gap-s);
@@ -1910,12 +1956,13 @@ body.has-amt .pad .add.pressed {
 .cat-chip .cat-ico {
   width: 16px;
   height: 16px;
+  color: var(--c);
 }
 
 .cat-chip.active {
-  background: linear-gradient(180deg, rgba(217, 184, 119, 0.2), rgba(217, 184, 119, 0.12));
-  border-color: rgba(217, 184, 119, 0.28);
-  color: var(--gold);
+  background: color-mix(in srgb, var(--c) 16%, #15171c);
+  border-color: color-mix(in srgb, var(--c) 55%, transparent);
+  color: var(--tx);
   font-weight: 600;
 }
 

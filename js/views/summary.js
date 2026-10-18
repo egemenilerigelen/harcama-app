@@ -134,8 +134,8 @@ class SummaryView {
     });
   }
 
-  // KATEGORİLER: bu dönem kategori başına tutar ve pay (ince tek renk çubuk), geçen dönemin aynı gününe
-  // göre değişim (artış uyarı, azalış iyi rengi) ve en çok değişenleri söyleyen cümle.
+  // KATEGORİLER: üstte renkli oran şeridi, en çok değişenleri söyleyen cümle; altında kategori başına
+  // tutar, pay ve geçen dönemin aynı gününe göre değişim (artış uyarı, azalış iyi rengi).
   // İlk Config.CAT_VISIBLE satır görünür, fazlası "n kategori daha" ile açılır
   #renderCategories() {
     const { now, cutoff, items, rows } = this.#model;
@@ -149,6 +149,17 @@ class SummaryView {
     });
     $('catInsight').textContent = Format.categoryInsight(Domain.categoryHighlights(list));
 
+    // Oran şeridi (iPhone depolama ekranı gibi): her kategori kendi renginde, payı kadar; hepsi (kapalı olanlar da)
+    const stack = $('catStack');
+    stack.innerHTML = '';
+    stack.hidden = !list.length;
+    list.forEach(c => {
+      const part = el('i');
+      part.dataset.cat = c.cat;
+      part.style.flexGrow = c.total;
+      stack.appendChild(part);
+    });
+
     const box = $('catList');
     box.innerHTML = '';
     if (!list.length) {
@@ -159,24 +170,15 @@ class SummaryView {
     const hidden = list.length - Config.CAT_VISIBLE;
     const shown = this.#catOpen || hidden <= 0 ? list : list.slice(0, Config.CAT_VISIBLE);
     shown.forEach(c => {
-      const well = el('span', 'cat-well');
-      well.appendChild(CatIcon.create(c.cat));
-
-      const top = el('div', 'inst-top');
-      top.append(el('span', 'n', Format.category(c.cat)), el('span', 'inst-meta', Format.percent(c.share)));
-      const bar = el('div', 'inst-bar cat-bar');
-      const fill = el('i');
-      fill.style.width = (c.share * 100) + '%';
-      bar.appendChild(fill);
       const info = el('div', 'inst-info');
-      info.append(top, bar);
+      info.append(el('span', 'n', Format.category(c.cat)), el('small', 'cat-share', Format.percent(c.share)));
 
       const change = Domain.categoryChange(c);
       const right = el('div', 'inst-left');
       right.append(el('b', '', Format.money(c.total)), el('small', 'cat-delta ' + (change || ''), Format.categoryDelta(c, change)));
 
       const row = el('div', 'inst-row cat-row');
-      row.append(well, info, right);
+      row.append(CatIcon.well(c.cat), info, right);
       box.appendChild(row);
     });
 

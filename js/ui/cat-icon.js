@@ -1,5 +1,6 @@
-// KATEGORİ İKONLARI: 24'lük ızgarada ince çizgi (rengi CSS'ten, currentColor). Anahtarlar Categories'te.
-// Bağımlılık: svgEl
+// KATEGORİ İKONLARI: 24'lük ızgarada ince çizgi. Renk CSS'te: data-cat taşıyan öğe kategorinin rengini
+// (--c) verir, ikon currentColor ile çizilir. Anahtarlar Categories'te.
+// Bağımlılık: svgEl, el
 const CatIcon = Object.freeze({
   PATHS: Object.freeze({
     market: 'M4 9.5h16l-1.6 9a2 2 0 0 1-2 1.5H7.6a2 2 0 0 1-2-1.5L4 9.5zM8.5 9.5 12 4l3.5 5.5M9.5 13.5v3M14.5 13.5v3',
@@ -18,5 +19,13 @@ const CatIcon = Object.freeze({
     const svg = svgEl('svg', { viewBox: '0 0 24 24', class: 'cat-ico' + (key === 'other' ? ' dots' : ''), 'aria-hidden': 'true' });
     svg.append(svgEl('path', { d: CatIcon.PATHS[key] || CatIcon.PATHS.other }));
     return svg;
+  },
+
+  // Nötr gömük kuyuda, kategorinin renginde çizilmiş ikon (satır ve Özet kartı)
+  well(key) {
+    const well = el('span', 'cat-well');
+    well.dataset.cat = key;
+    well.appendChild(CatIcon.create(key));
+    return well;
   }
 });

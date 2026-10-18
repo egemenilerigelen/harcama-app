@@ -1,5 +1,5 @@
-// KATEGORİ SEÇİMİ: yana kayan tek sıra çip (ikon + ad). Seçili kategori şeridin başında durur (görünür
-// kalsın); tahmin edildiyse yanında "tahmin" yazar. İsim adımı (yeni harcama) ve kayıt düzenleme kullanır.
+// KATEGORİ SEÇİMİ: yana kayan tek sıra çip (kendi renginde ikon + ad). Seçili kategori şeridin başında
+// durur (görünür kalsın), kendi renginde tonlanır; tahmin edildiyse yanında "tahmin" yazar. İsim adımı (yeni harcama) ve kayıt düzenleme kullanır.
 // Tahmin etmeyi bilmez: kategoriyi dışarıdan alır (show), seçimi value ile verir.
 // Bağımlılık: Categories, Format, Touch, CatIcon, el
 class CategoryChoice {
@@ -40,6 +40,7 @@ class CategoryChoice {
       const on = key === this.#cat;
       const chip = el('button', 'chip cat-chip' + (on ? ' active' : ''));
       chip.type = 'button';
+      chip.dataset.cat = key; // renk CSS'te
       chip.setAttribute('aria-pressed', on);
       chip.append(CatIcon.create(key), Format.category(key));
       if (on && this.#guessed) chip.appendChild(el('small', 'cat-guess', Format.guessed));
