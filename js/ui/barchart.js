@@ -4,7 +4,7 @@
 // Veriyi bilmez: render(bars, opts) ile çizer. bar: { value, label, tick, future, missing?, note? }
 // future: henüz gelmemiş (iz, dokunulmaz); missing: verisi yok (iz, dokununca değer yerine "—")
 // opts: { key, selected, title }
-// Bağımlılık: Config, Format, svgEl
+// Bağımlılık: Config, Format, Motion, svgEl
 class BarChart {
   #svg;
   #label;
@@ -35,6 +35,13 @@ class BarChart {
   // Genişlik değişince (sekme açıldı, ekran döndü) yeniden çiz
   redraw() {
     this.#draw();
+  }
+
+  // Sütunlar tabandan yükselir: ms süre, spread soldan sağa toplam gecikme (sütun sayısından bağımsız)
+  grow(ms, spread) {
+    const bars = [...this.#svg.querySelectorAll('.bar')];
+    const last = Math.max(1, bars.length - 1);
+    bars.forEach((bar, i) => Motion.play(bar, [{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], ms, '--spring-soft', spread * i / last));
   }
 
   #draw() {

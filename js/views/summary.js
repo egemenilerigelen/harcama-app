@@ -1,10 +1,13 @@
 // ÖZET: dönem hedefi halkası, günlük / ekstre sütun grafiği, kategoriler, devam eden taksitler.
 // Hedefi kendisi değiştirmez (onEditGoal); taksite dokununca detayı açtırır (onOpen).
-// Bağımlılık: Config, Domain, Format, GoalRing, BarChart, CatIcon, Touch, $, el, svgEl
+// Açılış hareketi uygulama açıldıktan sonra Özet'e ilk girişte bir kez oynar (reveal); sekmeden çıkıp dönünce
+// ya da arka plandan gelince oynamaz, uygulama kapatılıp açılınca yine oynar (işaret sadece bellekte).
+// Bağımlılık: Config, Domain, Format, GoalRing, BarChart, CatIcon, Motion, Touch, $, el, svgEl
 class SummaryView {
   #mode = 'day'; // 'day' günlük, 'period' ekstre
   #catOpen = false; // kategori listesi tamamen açık mı
   #instOpen = false; // taksit listesi tamamen açık mı
+  #revealed = false; // bu oturumda açılış hareketi oynadı mı
   #model = null;
   #ring;
   #chart;
@@ -25,9 +28,12 @@ class SummaryView {
 
     document.querySelectorAll('#chartMode button').forEach(btn => {
       btn.onclick = () => {
+        if (btn.dataset.mode === this.#mode) return; // seçili olana dokununca sütunlar boşuna oynamasın
         this.#mode = btn.dataset.mode;
         document.querySelectorAll('#chartMode button').forEach(b => b.classList.toggle('active', b === btn));
         this.#renderChart();
+        // Grafiğin konusu değişti: sütunlar her geçişte kısa yükselir (okuma satırı anında)
+        this.#chart.grow(Config.BARS_SWITCH_MS, Config.BARS_SWITCH_SPREAD_MS);
       };
       Touch.hapticOn(btn);
     });
@@ -44,6 +50,15 @@ class SummaryView {
   // Sekme görünür olunca / ekran boyutu değişince grafiği yeniden ölç
   redraw() {
     if (this.#model) this.#chart.redraw();
+  }
+
+  // Sekme açıldı (görünür, grafik çizili): ilk seferinde halka dolar, sütunlar yükselir, şerit uzar
+  reveal() {
+    if (this.#revealed || !this.#model) return;
+    this.#revealed = true;
+    this.#ring.reveal(Config.RING_REVEAL_MS);
+    this.#chart.grow(Config.BARS_REVEAL_MS, Config.BARS_REVEAL_SPREAD_MS);
+    Motion.play($('catStack'), [{ clipPath: 'inset(0 100% 0 0 round 5px)' }, { clipPath: 'inset(0 0 0 0 round 5px)' }], Config.STACK_REVEAL_MS);
   }
 
   // Bu dönemin sınırları

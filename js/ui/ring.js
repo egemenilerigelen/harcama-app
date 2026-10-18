@@ -1,6 +1,6 @@
 // HEDEF HALKASI: harcamanın hedefe oranını gösteren ilerleme halkası.
 // Durum (ok / warn / over / none) rengi belirler; aynı bilgi ortadaki yazıda da var (sadece renge kalmaz).
-// Bağımlılık: Format, el, svgEl
+// Bağımlılık: Format, Motion, el, svgEl
 class GoalRing {
   static #RADIUS = 42;
 
@@ -37,5 +37,13 @@ class GoalRing {
 
     this.#pct.textContent = state === 'none' ? 'Hedef' : Format.percent(ratio);
     this.#sub.textContent = state === 'none' ? 'koy' : state === 'over' ? 'aşıldı' : 'doldu';
+  }
+
+  // Açılış hareketi: yay sıfırdan bugünkü değerine dolar (yüzde yazısı beklemez, anında)
+  reveal(ms) {
+    const full = this.#arc.style.strokeDasharray;
+    if (!full || this.#arc.style.opacity === '0') return;
+    const circumference = full.split(/[\s,]+/)[1];
+    Motion.play(this.#arc, [{ strokeDasharray: '0 ' + circumference }, { strokeDasharray: full }], ms, '--spring-soft');
   }
 }

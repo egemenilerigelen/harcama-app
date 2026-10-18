@@ -243,7 +243,10 @@ class App {
     this.#cutSheet.close();
     this.#nameSheet.close();
     if (name === 'home') this.#home.fit();
-    if (name === 'summary') this.#summary.redraw();
+    if (name === 'summary') {
+      this.#summary.redraw();
+      this.#summary.reveal();
+    }
   }
 
   // Ölçüye bağlı bileşenler: son harcamalar ve grafik

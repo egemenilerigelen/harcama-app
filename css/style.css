@@ -1272,9 +1272,12 @@ body.has-amt .pad .add.pressed {
 }
 
 /* Tek seri: tüm sütunlar aynı altın; seçili tam, diğerleri soluk */
+/* Sütunlar tabandan büyür (Özet açılışı, Günlük ↔ Ekstre: BarChart.grow) */
 .chart .bar {
   fill: var(--gold);
   opacity: 0.5;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
   transition: opacity 0.15s ease;
 }
 
