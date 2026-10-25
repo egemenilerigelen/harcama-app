@@ -209,19 +209,23 @@ class SummaryView {
   }
 
   // ABONELİKLER: her ay kendiliğinden yazılanlar; aylık ve yıllık toplam (hedef varsa aylığın payı),
-  // abonelik başına sıradaki çekim (yakınsa vurgulu) ve tutar. Hiç yoksa kart görünmez
+  // abonelik başına sıradaki çekim (yakınsa vurgulu) ve tutar. Kart hep yerinde; hiç yoksa taksit kartı gibi boş satır
   #renderSubscriptions() {
     const { now, items, goal } = this.#model;
     const active = Domain.activeSubscriptions(items, now);
     const monthly = active.reduce((s, i) => s + i.amt, 0);
-    $('subsCard').hidden = !active.length;
-    $('subsCount').textContent = Format.subsCount(active.length);
+    $('subsSum').hidden = !active.length;
+    $('subsCount').textContent = active.length ? Format.subsCount(active.length) : '';
     $('subsMonth').textContent = Format.money(monthly);
     $('subsMonthNote').textContent = goal && monthly ? Format.goalShare(monthly, goal) : '';
     $('subsYear').textContent = Format.money(monthly * 12);
 
     const list = $('subsList');
     list.innerHTML = '';
+    if (!active.length) {
+      list.appendChild(el('div', 'empty', Format.noSubs));
+      return;
+    }
     active.forEach(s => {
       const soon = Domain.daysBetween(now, s.next) <= Config.SUB_SOON_DAYS;
       const info = el('div', 'inst-info');

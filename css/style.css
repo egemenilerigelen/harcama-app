@@ -1394,10 +1394,6 @@ body.has-amt .pad .add.pressed {
 }
 
 /* ABONELİKLER KARTI: taksit kartının kalıbı, satırlar kategori satırı gibi (ikon, ad, altında sıradaki çekim) */
-.subs-card[hidden] {
-  display: none;
-}
-
 .sub-row {
   cursor: pointer;
 }

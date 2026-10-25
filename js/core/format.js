@@ -167,6 +167,7 @@ const Format = Object.freeze({
   subsTitle: 'Abonelikler',
   monthly: 'Her ay',
   endSub: 'Aboneliği bitir',
+  noSubs: 'Devam eden abonelik yok',
 
   // Detay panelinin satır adları: abonelikte tarih ilk çekimdir, kalan yerine durum yazar
   detailLabels(sub) {
