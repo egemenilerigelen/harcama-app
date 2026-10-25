@@ -1,10 +1,11 @@
-// HARCAMALAR: dönem gezgini, arama ve günlere göre liste
-// Kendi durumunu (seçili dönem, arama) kendisi tutar; değişince onChange ile yeniden çizim ister.
-// Bağımlılık: Config, Domain, Format, ExpenseRow, Touch, paintMoney, $, el
+// HARCAMALAR: dönem gezgini, arama, kategori süzmesi ve günlere göre liste
+// Kendi durumunu (seçili dönem, arama, süzülen kategori) kendisi tutar; değişince onChange ile yeniden çizim ister.
+// Bağımlılık: Config, Domain, Format, CatIcon, ExpenseRow, Touch, paintMoney, $, el, svgEl
 class ListView {
   #offset = 0;          // 0 bu dönem, -1 geçen dönem ...
   #searching = false;
   #query = '';
+  #cat = null;          // süzülen kategori (Özet'ten gelinir); null hepsi
   #rowActions;
   #onChange;
   #view = document.querySelector('[data-view="list"]');
@@ -29,6 +30,13 @@ class ListView {
       onNext: () => this.#step(1)
     });
 
+    // Süzme çipi: dokununca kalkar
+    $('catFilter').onclick = () => {
+      this.#cat = null;
+      this.#onChange();
+    };
+    Touch.hapticOn($('catFilter'));
+
     $('searchBtn').onclick = () => this.#setSearch(!this.#searching);
     $('searchCancel').onclick = () => this.#setSearch(false);
     this.#search.oninput = () => {
@@ -37,14 +45,24 @@ class ListView {
     };
   }
 
-  // "Tümünü gör" ile gelindiğinde bu döneme dön (çizimi çağıran yapar)
+  // "Tümünü gör" ile gelindiğinde bu döneme dön, süzme kalkar (çizimi çağıran yapar)
   resetPeriod() {
     this.#offset = 0;
+    this.#cat = null;
+  }
+
+  // Özet'te kategoriye dokununca: bu dönem, sadece o kategori (çizimi çağıran yapar). Süzme dönem
+  // gezerken ve aramada da sürer; başlıktaki çiple kalkar
+  showCategory(cat) {
+    this.#offset = 0;
+    this.#cat = cat;
   }
 
   // Dönemde abonelik çekimleri ve önceki alışverişlerin taksitleri günlere girmez (kendiliğinden gelen
   // ödemeler; taksitler dönemin ilk gününü şişirmesin), altta kendi gruplarında durur; dönem toplamında sayılır
   render({ now, cutoff, rows }) {
+    this.#renderFilter();
+    if (this.#cat) rows = rows.filter(r => r.cat === this.#cat);
     this.#list.innerHTML = '';
     if (this.#searching) {
       this.#renderDays(this.#renderSearch(rows), this.#query.trim() ? 'Sonuç yok' : 'Henüz harcama yok', now);
@@ -118,6 +136,19 @@ class ListView {
       box.appendChild(ExpenseRow.create(r, when, this.#rowActions));
     });
     this.#list.appendChild(box);
+  }
+
+  // Başlıktaki süzme çipi: kategori ikonu, adı, kaldırma işareti
+  #renderFilter() {
+    const chip = $('catFilter');
+    chip.hidden = !this.#cat;
+    if (!this.#cat) return;
+    chip.dataset.cat = this.#cat;
+    const x = svgEl('svg', { viewBox: '0 0 24 24', class: 'filter-x', 'aria-hidden': 'true' });
+    x.append(svgEl('path', { d: 'M7 7l10 10M17 7 7 17' }));
+    // Haptics.attach'in serdiği etiket korunur
+    chip.querySelectorAll(':scope > :not(.haptic)').forEach(n => n.remove());
+    chip.prepend(CatIcon.create(this.#cat), el('span', '', Format.category(this.#cat)), x);
   }
 
   #step(d) {

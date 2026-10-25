@@ -1,6 +1,6 @@
 # Bilinen sınırlar / fikirler
 
-- İade nadir, şimdilik gerek yok. Özet'te kategori satırına dokununca o kategorinin harcamaları (Harcamalar'da süzme) henüz yok.
+- İade nadir, şimdilik gerek yok.
 
 Bekleyen bilinen konular (2026-10-12 genel kontrolünden):
 

@@ -41,7 +41,8 @@ class App {
     this.#summary = new SummaryView({
       onOpen: id => this.#openDetail(id),
       onEditGoal: () => this.#editGoal(),
-      onStatement: () => this.#openStatement()
+      onStatement: () => this.#openStatement(),
+      onCategory: cat => this.#showCategory(cat)
     });
     this.#settings = new SettingsView({
       onHaptics: on => this.#setHaptics(on),
@@ -274,6 +275,13 @@ class App {
   // "Tümünü gör": Harcamalar bu dönemden açılır
   #seeAll() {
     this.#list.resetPeriod();
+    this.refresh();
+    this.#tabs.show('list');
+  }
+
+  // Özet'te kategoriye dokununca: Harcamalar bu dönemden, o kategoriyle süzülmüş açılır
+  #showCategory(cat) {
+    this.#list.showCategory(cat);
     this.refresh();
     this.#tabs.show('list');
   }

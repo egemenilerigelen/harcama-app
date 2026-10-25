@@ -127,3 +127,58 @@
   overflow: hidden;
 }
 
+
+/* BAŞLIK: süzme çipi ve arama ikonu sağda yan yana */
+.head-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* KATEGORİ SÜZMESİ: kategori renginde ikon, ad, kaldırma işareti; dokununca kalkar */
+.filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  min-height: 32px;
+  padding: 0 8px 0 10px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  box-shadow: var(--hl);
+  color: var(--tx);
+  font: 500 13px var(--ui);
+  cursor: pointer;
+}
+
+.filter-chip[hidden] {
+  display: none;
+}
+
+.filter-chip .cat-ico {
+  width: 16px;
+  height: 16px;
+  color: var(--c);
+}
+
+.filter-chip span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filter-x {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: var(--mut);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.filter-chip:active {
+  opacity: 0.7;
+}

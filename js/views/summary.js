@@ -1,5 +1,7 @@
 // ÖZET: dönem hedefi halkası, günlük / ekstre sütun grafiği, kategoriler, abonelikler, devam eden taksitler.
-// Hedefi kendisi değiştirmez (onEditGoal); aboneliğe ya da taksite dokununca detayı açtırır (onOpen).
+// Hedefi kendisi değiştirmez (onEditGoal); aboneliğe ya da taksite dokununca detayı açtırır (onOpen);
+// başlıktaki bağlantı son kapanan ekstrenin özetini açtırır (onStatement); kategoriye dokununca o kategorinin
+// harcamalarını açtırır (onCategory).
 // Açılış hareketi uygulama açıldıktan sonra Özet'e ilk girişte bir kez oynar (reveal); sekmeden çıkıp dönünce
 // ya da arka plandan gelince oynamaz, uygulama kapatılıp açılınca yine oynar (işaret sadece bellekte).
 // Bağımlılık: Config, Domain, Format, GoalRing, BarChart, CatIcon, Motion, Touch, $, el, svgEl
@@ -12,9 +14,11 @@ class SummaryView {
   #ring;
   #chart;
   #onOpen;
+  #onCategory;
 
-  constructor({ onOpen, onEditGoal, onStatement }) {
+  constructor({ onOpen, onEditGoal, onStatement, onCategory }) {
     this.#onOpen = onOpen;
+    this.#onCategory = onCategory;
     this.#ring = new GoalRing($('ringBtn'));
     this.#chart = new BarChart({
       svg: $('chart'),
@@ -207,8 +211,9 @@ class SummaryView {
       const right = el('div', 'inst-left');
       right.append(el('b', '', Format.money(c.total)), el('small', 'cat-delta ' + (change || ''), Format.categoryDelta(c, change)));
 
-      const row = el('div', 'inst-row cat-row');
+      const row = el('div', 'inst-row cat-row cat-link');
       row.append(CatIcon.well(c.cat), info, right);
+      row.onclick = () => this.#onCategory(c.cat);
       box.appendChild(row);
     });
 

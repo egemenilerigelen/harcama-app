@@ -103,9 +103,13 @@
     <section class="view" data-view="list">
       <header class="view-head">
         <h1>Harcamalar</h1>
-        <button class="icon-btn" id="searchBtn" aria-label="Ara">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
-        </button>
+        <div class="head-actions">
+          <!-- KATEGORİ SÜZMESİ: Özet'te kategoriye dokununca; dokununca kalkar -->
+          <button class="filter-chip" id="catFilter" hidden aria-label="Kategori süzmesini kaldır"></button>
+          <button class="icon-btn" id="searchBtn" aria-label="Ara">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+          </button>
+        </div>
       </header>
 
       <!-- DÖNEM GEZGİNİ: ‹ › ile hesap dönemleri arasında -->

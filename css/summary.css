@@ -306,6 +306,11 @@
   cursor: default;
 }
 
+/* Kategoriler kartının satırları: dokununca Harcamalar o kategoriyle süzülür */
+.cat-row.cat-link {
+  cursor: pointer;
+}
+
 .cat-row .n {
   display: block;
   font-weight: 500;
