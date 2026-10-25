@@ -128,6 +128,7 @@ Ekranların ve bileşenlerin davranışı, kararların gerekçeleri ve bilinen s
 
 - Bir ekrana ya da bileşene dokunmadan önce o dosyayı oku; oradaki davranışlar kullanıcı kararıdır.
 - Davranış değişince o dosyayı güncelle; aynı bilgi iki yere yazılmaz.
+- Yazım kuralı (notlar şişmesin): bugünkü davranış yazılır, geçmişi ("eskiden şöyleydi, sonra ...") git'te kalır. Gerekçe tek cümle. Karar değişince eski paragraf yeniden yazılır, üstüne yenisi eklenmez. Biten "bilinen sınır" ve yol haritası maddeleri silinir (yol haritasında tamamlananlar [x] kalır).
 
 ## Çalışma kuralları
 
