@@ -143,6 +143,11 @@ const Format = Object.freeze({
     return Format.statement(lastDay, now) + ' ›';
   },
 
+  // Harcaması olmayan ekstre (özet yerine)
+  statementEmpty() {
+    return 'Bu ekstrede kayıt yok';
+  },
+
   statementTarget(goal) {
     return 'Hedef ' + Format.money(goal);
   },

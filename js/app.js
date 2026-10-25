@@ -258,9 +258,12 @@ class App {
     return Domain.statementSummary(items, rows, cutoff, Domain.periodStart(now, cutoff, -1).getTime());
   }
 
+  // Başlıktaki bağlantıdan: harcama yoksa boş not
   #openStatement() {
+    const { now, cutoff } = this.#model;
     const s = this.#lastStatement();
-    if (s) this.#statement.open(s, this.#model.goal, this.#model.now);
+    if (s) this.#statement.open(s, this.#model.goal, now);
+    else this.#statement.openEmpty(Domain.periodStart(now, cutoff, -1).getTime(), this.#model.periodStart.getTime(), now);
   }
 
   // Kesimden sonra ilk açılışta (ya da öne gelişte) kapanan ekstrenin özeti bir kez kendiliğinden açılır;

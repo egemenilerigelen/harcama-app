@@ -435,11 +435,13 @@
        Ortada açılır; Kapat ya da arka plana dokununca kapanır -->
   <div class="dialog-wrap" id="stmt">
     <div class="dialog-bg" data-close></div>
-    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="stmtTitle">
+    <div class="dialog" id="stmtCard" role="dialog" aria-modal="true" aria-labelledby="stmtTitle">
       <header class="stmt-head">
         <h2 id="stmtTitle"></h2>
         <small id="stmtRange"></small>
       </header>
+      <!-- Ekstrede harcama yoksa özetin yerine tek not -->
+      <p class="stmt-empty" id="stmtEmpty"></p>
       <div class="stmt-hero">
         <div class="ring" id="stmtRing"></div>
         <div class="stmt-total">

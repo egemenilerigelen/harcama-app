@@ -1,7 +1,7 @@
 // EKSTRE ÖZETİ: kapanan ekstrenin kısa özeti, ortada açılan ekranda. Halka toplamı hedefe göre gösterir
 // (hedef yoksa halka yok, sadece toplam); altında hedefe ve geçen ekstreye göre oklu satırlar, ikiye bölünmüş
 // en büyükler (solda kategoriler, sağda tek harcamalar), varsa haberler (rekor, biten ve başlayan taksitler ve abonelikler;
-// etkisiyle, en fazla Config.STATEMENT_NEWS_MAX).
+// etkisiyle, en fazla Config.STATEMENT_NEWS_MAX). Harcaması olmayan ekstrede sadece başlık, aralık ve tek not (openEmpty).
 // Hesap Domain.statementSummary'de; burası sadece çizer.
 // Bağımlılık: CenterDialog, GoalRing, Config, Domain, Format, CatIcon, Touch, $, el, paintMoney
 class StatementDialog extends CenterDialog {
@@ -15,9 +15,8 @@ class StatementDialog extends CenterDialog {
 
   // s: Domain.statementSummary; goal: dönem hedefi (yoksa 0)
   open(s, goal, now) {
-    const lastDay = s.end - Config.DAY_MS;
-    $('stmtTitle').textContent = Format.statementTitle(lastDay, now);
-    $('stmtRange').textContent = Format.rangeWithYear(s.start, lastDay, now);
+    this.#head(s.start, s.end, now);
+    $('stmtCard').classList.remove('empty');
     paintMoney($('stmtTotal'), Format.money(s.total));
     $('stmtGoal').textContent = goal ? Format.statementTarget(goal) : '';
     $('stmtRing').hidden = !goal;
@@ -53,6 +52,21 @@ class StatementDialog extends CenterDialog {
 
     super.open();
     if (goal) this.#ring.reveal(Config.RING_REVEAL_MS);
+  }
+
+  // Harcaması olmayan ekstre: başlık, aralık ve "kayıt yok" notu
+  openEmpty(start, end, now) {
+    this.#head(start, end, now);
+    $('stmtEmpty').textContent = Format.statementEmpty();
+    $('stmtCard').classList.add('empty');
+    super.open();
+  }
+
+  // Başlık ("Ekim Ekstresi") ve aralık
+  #head(start, end, now) {
+    const lastDay = end - Config.DAY_MS;
+    $('stmtTitle').textContent = Format.statementTitle(lastDay, now);
+    $('stmtRange').textContent = Format.rangeWithYear(start, lastDay, now);
   }
 
   // Haberler, önem sırasıyla: rekor, biten taksitler, yeni taksitler, biten abonelikler, yeni abonelikler.

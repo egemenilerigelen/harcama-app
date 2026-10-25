@@ -75,12 +75,11 @@ class SummaryView {
     return { start: periodStart.getTime(), end: Domain.periodStart(now, cutoff, 1).getTime() };
   }
 
-  // Başlıktaki bağlantı: son kapanan ekstre ("Eylül ekstresi ›"); o ekstrede harcama yoksa gizli
+  // Başlıktaki bağlantı: son kapanan ekstre ("Eylül ekstresi ›"); hep görünür, harcama yoksa özet boş not gösterir
   #renderStatementLink() {
-    const { now, cutoff, items, rows } = this.#model;
-    const s = Domain.statementSummary(items, rows, cutoff, Domain.periodStart(now, cutoff, -1).getTime());
-    $('stmtLink').hidden = !s;
-    if (s) $('stmtLink').textContent = Format.statementLink(s.end - Config.DAY_MS, now);
+    const { now, periodStart } = this.#model;
+    $('stmtLink').hidden = false;
+    $('stmtLink').textContent = Format.statementLink(periodStart.getTime() - Config.DAY_MS, now);
   }
 
   // HEDEF KARTI: başlıkta aralık ve kalan gün; halka, harcanan / hedef / kalan; tek satırda ne yapmalı ve dönem sonu

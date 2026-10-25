@@ -254,6 +254,26 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Harcaması olmayan ekstre: özetin yerine tek gri not */
+.stmt-empty {
+  display: none;
+  margin: 20px 0 8px;
+  color: var(--mut);
+  font-size: 15px;
+  text-align: center;
+}
+
+.dialog.empty .stmt-empty {
+  display: block;
+}
+
+.dialog.empty .stmt-hero,
+.dialog.empty .stmt-says,
+.dialog.empty .stmt-split,
+.dialog.empty .stmt-news {
+  display: none;
+}
+
 /* Kapat: nötr (altın sinyal değil) */
 .stmt-close {
   display: block;
