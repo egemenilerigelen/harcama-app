@@ -297,6 +297,11 @@ const Format = Object.freeze({
     return n + ' × ' + Format.money(amount / n);
   },
 
+  // Ana sayfada kesim yaklaşırken dönem aralığının yerine: "kesime 2 gün" / "kesim yarın" / "kesim bugün"
+  cutoffSoon(n) {
+    return n === 0 ? 'kesim bugün' : n === 1 ? 'kesim yarın' : 'kesime ' + n + ' gün';
+  },
+
   part(no, of) {
     return no + '/' + of + ' taksit';
   },

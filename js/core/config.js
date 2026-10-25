@@ -112,6 +112,9 @@ const Config = Object.freeze({
   // Abonelikler kartında sıradaki çekim bu kadar gün içindeyse vurgulanır
   SUB_SOON_DAYS: 3,
 
+  // Ana sayfa: kesime bu kadar gün (ya da daha az) kalınca dönem aralığının yerinde kısa not
+  CUTOFF_NOTE_DAYS: 2,
+
   // Ekstre özeti: kaç büyük harcama gösterilir; kesimden sonra kendiliğinden açılmadan önceki bekleme
   // (açılış ekranı kalksın, ana sayfa otursun); ortadaki ekranın kapanış süresi (CSS'teki
   // .dialog-wrap.closing geçişiyle aynı olmalı)

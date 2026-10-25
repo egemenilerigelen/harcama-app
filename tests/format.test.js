@@ -102,6 +102,9 @@
       eq(Format.finishedSub(1500), 'Sonraki ekstreler ₺1.500 hafifler');
       eq(Format.installmentShare(6, 12000), '6 × ₺2.000');
       eq(Format.installmentShare(3, 1000), '3 × ₺333,33');
+      eq(Format.cutoffSoon(0), 'kesim bugün');
+      eq(Format.cutoffSoon(1), 'kesim yarın');
+      eq(Format.cutoffSoon(2), 'kesime 2 gün');
       eq(Format.endedTitle(['Netflix']), 'Netflix aboneliği bitti');
       eq(Format.endedTitle(['Netflix', 'Spotify']), '2 abonelik bitti: Netflix, Spotify');
       eq(Format.endedSub(229), 'Her ay ₺229 daha az çekilecek');

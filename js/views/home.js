@@ -29,7 +29,9 @@ class HomeView {
     this.#today.set(Format.money(today), dir(this.#shown?.today, today));
     this.#month.set(Format.money(month), dir(this.#shown?.month, month));
     this.#shown = { month, today };
-    $('sPeriod').textContent = '· ' + Format.range(start, next - Config.DAY_MS);
+    // Kesim yaklaşınca aralığın yerinde kısa not ("kesime 2 gün"): aynı satır, kart zıplamaz
+    const left = Domain.daysLeft(start, next, now) - 1;
+    $('sPeriod').textContent = '· ' + (left <= Config.CUTOFF_NOTE_DAYS ? Format.cutoffSoon(left) : Format.range(start, next - Config.DAY_MS));
 
     this.#renderRecent(rows.slice(0, Config.RECENT_MAX), now);
   }
