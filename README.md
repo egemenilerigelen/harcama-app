@@ -112,7 +112,47 @@ Saf HTML5, CSS3 ve ES6 JavaScript. Font: cihazın sistem fontu (iPhone'da SF Pro
 
 ## Geliştirici notları
 
-Ekranların ayrıntılı davranışı ve kararların gerekçeleri. Genel kurallar (mimari, veri modeli, tasarım dili, çalışma kuralları) `CLAUDE.md`'de.
+İş kuralları, tasarım dili, ekranların ayrıntılı davranışı ve kararların gerekçeleri. Mimari ve çalışma kuralları `CLAUDE.md`'de.
+
+### İş kuralları
+
+**Kategoriler (`Domain.rememberedCategory`)**
+
+- Uygulama kategori tahmin etmez (isimden tahmin sözlüğü kullanıcı kararıyla kaldırıldı; ileride güçlü bir tahminle yeniden ele alınacak). Sadece hatırlar: kullanıcının aynı isme en son verdiği kategori (`Domain.learnedCategories`; büyük/küçük harf ve Türkçe harf farkı aynı isim, yarım isim tutmaz). "Getir"e bir kez Market dendiyse sonraki "Getir" Market gelir; hatırlanan yoksa seçilmemiş, eklenirken "Diğer".
+- Kayıtta `cat` yoksa (eski kayıtlar) ekranda aynı isme verilmiş kategori ya da Diğer gösterilir, veriye yazılmaz (`Domain.categorize`). Kayıt düzenlenince yazılır.
+- Kırılım (`Domain.categoryBreakdown`): bu dönem kategori başına (önceki taksitler dahil, dönemin harcaması), geçen dönemin **aynı gününe kadarki** tutarla kıyaslanır (süren yarım dönem tam dönemle kıyaslanmasın); geçen dönemde henüz kayıt yoksa kıyas yok. Küçük farklar (`Config.CAT_SAME_RATIO` %10 / `CAT_SAME_MIN` ₺50 altı) "aynı" sayılır.
+
+**Taksit (`Domain.expand`)**
+
+- Taksitli kayıt (`inst > 1`) her render'da sanal satırlara açılır: tutar `amt / inst`, id `<id>_<n>`, `rawId` asıl kaydın id'si, `part` / `parts` (etiketi `ExpenseRow`, `Format.part` ile yazar: `n/inst taksit`).
+- İlk taksit kaydın kendi tarihine, sonrakiler sonraki dönemlerin ilk gününe (kesim gününün ertesi) düşer.
+- `ts > now` olan gelecek taksitler listeden gizlenir; toplamlara da girmez.
+- Silme sanal satırdan yapılsa bile asıl kaydı siler: `ExpenseRow` eylemlere `rawId || id` verir.
+- Önceki alışverişlerin bu döneme yansıyan taksitleri (`Domain.isCarried`) dönem toplamına girer ama hiçbir "gün" harcamasına girmez: ana sayfadaki "Bugün", günlük grafik, Harcamalar'daki gün başlıkları ve "Günlük ort." onları saymaz. Harcamalar'da dönemin en altında kendi grubundadır ("Önceki taksitler"), soldaki sütunda saat yerine alışverişin tarihi (`buyTs`).
+- "Bu dönem" = içinde bulunulan hesap dönemi, takvim ayı değil. Kesim günü dahil (bankalardaki gibi): kesim günü 12 ise dönem 13 Eyl – 12 Eki, 12 Ekim'in harcaması Ekim ekstresine girer, yeni dönem ertesi gün başlar (`Domain.periodStart`). Arayüzde "ay" denmez, dönem aralığı yanında yazar.
+
+**Abonelikler (`Domain.charges`)**
+
+- Abonelik kategorisinde tek çekim girilen kayıt abonelik olur (`Domain.subscriptionEntry` → `sub: true`; isim adımında ödeme etiketi "Her ay"). Bir kez girilir, her render'da çekimlere açılır (`Domain.expand(items, cutoff, now)`): ilki kaydın kendisi, sonrakiler her ay aynı gün ve saat (ay kısaysa son günü, `Domain.addMonths`), id `<id>_m<n>`, `rawId` asıl kayıt; sadece `now`'a kadar (gelecek çekim satırı yok). `end` varsa ondan sonrası yok.
+- Taksit gibi dönem toplamına, kategoriye ve hedefe girer, günlük harcamaya girmez (`Domain.isDaily`: Bugün, günlük grafik, gün başlıkları, günlük ort.). Hedefin günlük tutarı dönemin kalanına düşecek çekimler (`Domain.upcomingCharges`) ayrıldıktan sonra hesaplanır.
+- Düzenlemede: elle her ay girilmiş eski Abonelik kayıtları (`sub` yok) kategori değişmeden abonelik olmaz (çift çekim olmasın); kategorisi Abonelik'e çevrilen olur, Abonelik'ten çıkan ya da taksitlenen tekrar etmez. Bitirme `end = şimdi` (geri alınabilir, `Store.put`).
+
+**Tuş takımı (`Calc`)**
+
+`Calc` sınıfı; durumu örnekte, örneği `EntryPanel` tutar (global durum yok). Sadece rakam ve nokta kabul eder: en fazla 9 hane, 2 ondalık, tek nokta. Ham değer `raw()`, sayısal değer `value()`; `set(tutar)` kayıt düzenlemede mevcut tutarı yerleştirir.
+
+### Tasarım dili
+
+- Sade koyu tema ("siyah kart"): zemin `--bg`, yüzeyler `--surface` / `--surface-2` / `--surface-3`, kenar `--line`. Altın (`--gold`, `--gold-soft`) sadece sinyal: EKLE, seçili durumlar, ana toplamlar, bağlantılar. Kategorilerin kendi rengi var (`--cat-*`, düşük doygunluk; altına ve kırmızıya yakın renk yok), ama sadece kategori bağlamında: ikonlarda renk sadece çizgide (kuyu nötr, gömük; satır ve Özet kartı aynı), dolu hali yalnız Özet'teki oran şeridinde ve seçili kategori çipinin tonunda. Renk kodu her yerde aynı (yeşil = Market), ekran sakin kalır. Değişim renkleri: artış `--warn`, azalış `--good`.
+- Derinlik fiziksel mantıkla verilir, süs için değil: ışık tek yerden (yukarıdan, zemindeki nötr radial). Basılan şeyler kabarık (`--raised` + `--hl` + nötr gölge; tuşlarda alt kalınlık, basınca 2px iner), yazılan şeyler gömük (`--sunken` + `--inset`: inputlar, segment izi). EKLE metalik altın (dikey ton + koyu altın alt kenar), parlama yok. Gölgeler her zaman siyah/nötr, asla renkli.
+- Kaçınılacaklar ("AI slop" listesi): arka plan lekeleri, cam/blur efekti (tek istisna: havada duran alt sekme çubuğu; iOS 26'nın kendi kalıbı, içerik arkasından akar), renkli parlama gölgeleri, sürekli dönen animasyonlar, degrade yazı, dekoratif ışık çizgileri, kutu içinde kutu, geniş aralıklı BÜYÜK HARF mini etiketler, emoji ikonlar, başlığı tekrar eden süs ikonları (ikon ancak bilgi taşıyorsa: sekme çubuğu, oklar, arama, kategori), 4.5:1 altı kontrast. Hareket sadece bir şey olduğunda (ör. yeni kayıt `.row.enter`; ana sayfa toplamlarında kayan haneler; Özet'in açılış hareketi).
+- Hareket dili: kütüphane yok (CSS geçişleri + `Motion`, Web Animations API). Dört eğri `:root`'ta, hepsi oradan: `--ease` yerine oturma (çoğu hareket), `--ease-in` çıkış (kapanan panel), `--spring` yaylı oturma (sekme kapsülü), `--spring-soft` hafif yay (Özet açılışı). Renk/opaklık geri bildirimi düz `ease` 0.15–0.2s, basma 0.05s. JS'ten oynayan hareketin süresi `Config`'te. Kurallar: rakamlar beklemez (öğe son halinde çizilir, hareket üstüne oynar; sayı saydırma yok), dokununca ya da kaydırınca hemen biter (`Motion.finish`), "Hareketi Azalt"ta oynamaz.
+- Font: sistem fontu (`--ui`; iPhone'da SF Pro). Dış font yüklenmez. Rakamlarda `font-variant-numeric: tabular-nums`. Büyük toplamlar (`.hero`: ana sayfa "Bu dönem" / "Bugün", Harcamalar dönem toplamı, detaydaki tutar, isim adımının başlığı) büyük ve sıkı; ₺ küçük ve üst hizada, kuruş küçük ve soluk (`paintMoney`; kayan hanelerde de). Satırlardaki küçük tutarlarda yok. Etiketler normal yazım ("Son harcamalar"), en küçük yazı 11px.
+- Düzen sabit: `body { overflow: hidden }`, sayfa kaymaz. `.app` = `.views` (tüm ekran) + `.tabbar`: havada duran cam hap (iOS 26 gibi; `--bar-h` 62pt, kenarlardan `--edge` içeride, alttan `--bar-bottom`: ana ekran çizgisinin hemen üstü). Cam: `backdrop-filter` bulanıklık + doygunluk, üstte ışık çizgisi, kenarlarda hafif parıltı, nötr gölge; seçili sekmede cam kapsül (`.tab-pill`, `TabBar` `--tab-i` ile kaydırır, yaylı geçiş). Kayan sekmeler (Harcamalar, Özet, Ayarlar) ekranın altına kadar uzanır, içerik çubuğun arkasından akar; kayan alanların sonunda `--bar-space` boşluk var. Ana sayfada tuş takımı çubuğun üstünde (`padding-bottom: var(--bar-space)`). "Saydamlığı Azalt" açıksa ya da bulanıklık yoksa çubuk düz koyu. `.app` ekranın dört kenarına sabit (`position: fixed; inset: 0`); yükseklik için vh/dvh kullanılmaz. Ana ekran uygulamasında durum çubuğu düz siyah (`apple-mobile-web-app-status-bar-style: black`): `black-translucent`'ta iOS sayfa yüksekliğini üst güvenli alan kadar kısa hesaplıyor ve altta boşluk kalıyordu. Aynı anda tek `.view.active` görünür; içinde sadece `#list` / `.scroll` kaydırılır.
+- Rakam renkleri: altın = toplamlar (dönem, gün), beyaz kalın = tek harcama, gri = bağlam (saat, ortalama, kategori payı), amber/yeşil = geçen döneme göre artış/azalış.
+- Boşluk ölçüsü `:root`'ta: `--edge` 16px (yan kenar), `--gap` 12px (bloklar arası), `--gap-s` 8px (bileşen içi). Bölüm başlıkları (`.sec-head`, `.sec-title`, `#list h2`) tek kuralı paylaşır. Kaydırma çubukları gizli. Küçük ekran sıkılaştırmaları `media.css`'teki `@media (max-height: 620px)` bloğunda.
+- Dokunmatik: tuşlar, sekmeler, dönem okları ve kesim günü seçicisi `pointerdown` ile `Touch.bindPress` üzerinden tetiklenir ve titreşim verir. `click` ile çalışan düğmeler titreşimi `Touch.hapticOn(el)` ile alır. Yeni tuşlarda aynı yardımcıları kullan; `Touch.haptic()` (koddan) sadece Android'de titretir (kaydırarak silmede eşik, dönem kaydırma).
+- Titreşim: iPhone Safari'de `navigator.vibrate` yok; tek yol iOS anahtarı (`<input type="checkbox" switch>`): değişince sistem titrer. iOS 26.5'ten beri koddan tıklatmak (`label.click()`) titretmiyor (güvenilmeyen tıklama), parmağın gerçekten dokunması gerekiyor. Bu yüzden `Haptics.attach(el)` öğenin üstüne görünmez bir etiket (`.haptic`, içinde gizli anahtar) serer: dokunuş etiketten anahtara geçer, iPhone titrer; tıklama öğeye de ulaşır, anahtarın kopya tıklaması durdurulur. Titreşim parmak kalkınca olur. Öğenin metni `textContent` ile değiştirilirse etiket silinir (bkz. "Tümünü sil": `firstChild` metni değişir). Kapalıyken `html.no-haptics` etiketleri gizler. iOS'ta "Sistem Dokunuş Geri Bildirimi" kapalıysa hiç titremez. Ayarlar > Uygulama > Titreşim anahtarı da gerçek iOS anahtarıdır.
 
 ### Sekmeler ve ana sayfa
 
@@ -170,11 +210,13 @@ Ekranların ayrıntılı davranışı ve kararların gerekçeleri. Genel kuralla
 
 ### Ana ekran uygulaması, çevrimdışı, açılış
 
-- Ana ekran uygulaması: `index.html`'de iOS meta etiketleri (tam ekran, durum çubuğu `black`: düz siyah, içerik altından başlar; sebebi CLAUDE.md'deki "Düzen sabit" notunda), `manifest.webmanifest`, `apple-touch-icon`. `App` açılışta `Device.registerOffline()` (sadece http(s); `file://`'da yok) ve `Device.persistStorage()` çağırır. Safari, ana ekrana eklenmemiş sitelerin verisini 7 gün kullanılmazsa silebilir; ana ekran uygulaması bundan muaf, yedekleme ikinci güvence.
+- Ana ekran uygulaması: `index.html`'de iOS meta etiketleri (tam ekran, durum çubuğu `black`: düz siyah, içerik altından başlar; sebebi yukarıda Tasarım dili > "Düzen sabit"), `manifest.webmanifest`, `apple-touch-icon`. `App` açılışta `Device.registerOffline()` (sadece http(s); `file://`'da yok) ve `Device.persistStorage()` çağırır. Safari, ana ekrana eklenmemiş sitelerin verisini 7 gün kullanılmazsa silebilir; ana ekran uygulaması bundan muaf, yedekleme ikinci güvence.
 - Çevrimdışı katman (`sw.js`): önce ağ (yeni sürüm hemen gelsin), ama ağ `NETWORK_WAIT_MS` (2,5 sn) içinde yanıt vermezse önbellekteki sürümle açılır (kasada zayıf çekimde açılış takılmasın); geç gelen yanıt yine önbelleğe yazılır, yeni sürüm sonraki açılışta gelir. İnternet hiç yoksa doğrudan önbellek.
 - Açılış ekranı (`#splash`): `App` kurulana kadar `--bg` zeminde ikondaki metalik altın kart; dönen/bekleme animasyonu yok. Stili `index.html`'de satır içi (css/ dosyalarını beklemesin). `App` kurulumun sonunda `body.ready` verir, kısa geçişle kalkar; kurulum hata verirse 6 sn sonra kendiliğinden çekilir.
 
 ### Bilinen sınırlar / fikirler
+
+- İade nadir, şimdilik gerek yok. Özet'te kategori satırına dokununca o kategorinin harcamaları (Harcamalar'da süzme) henüz yok.
 
 Bekleyen bilinen konular (2026-10-12 genel kontrolünden):
 
