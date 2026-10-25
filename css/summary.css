@@ -226,6 +226,11 @@
   opacity: 1;
 }
 
+/* Ölçeği aşan (kesik) sütun: gövde + başlık bir grup, renk ve opaklık gruptan */
+.chart g.bar path {
+  fill: inherit;
+}
+
 /* Gelecek günler ve harcamasız günler: tabanda ince iz */
 .chart .stub {
   fill: var(--surface-3);

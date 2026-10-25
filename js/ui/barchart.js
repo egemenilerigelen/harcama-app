@@ -3,7 +3,9 @@
 // seçili sütun tam, diğerleri soluk.
 // Veriyi bilmez: render(bars, opts) ile çizer. bar: { value, label, tick, future, missing?, note? }
 // future: henüz gelmemiş (iz, dokunulmaz); missing: verisi yok (iz, dokununca değer yerine "—")
-// opts: { key, selected, title }
+// opts: { key, selected, title, clip }; clip: tek dev değer diğerlerini ezmesin (Config.CHART_CLIP_*): onu aşanlar
+// ölçeğin tepesinde kesik çizilir (gövde, boşluk, yuvarlak başlık), ölçek kalanlara göre
+
 // Bağımlılık: Config, Format, Motion, svgEl
 class BarChart {
   #svg;
@@ -49,9 +51,10 @@ class BarChart {
     const width = svg.getBoundingClientRect().width;
     if (!width || !this.#bars.length) return; // gizliyken ölçülemez
 
-    const { title } = this.#opts;
+    const { title, clip } = this.#opts;
     const H = Config.CHART_H, TOP = Config.CHART_TOP;
-    const top = Math.max(...this.#bars.map(b => b.value));
+    const limit = clip ? BarChart.#clipLimit(this.#bars.map(b => b.value)) : Infinity;
+    const top = Math.max(...this.#bars.map(b => b.value).filter(v => v <= limit));
     const max = BarChart.#niceMax(top);
     const y = v => H - (v / max) * (H - TOP);
 
@@ -76,7 +79,8 @@ class BarChart {
       const h = H - y(b.value);
       const mark = b.future || b.missing || !b.value
         ? svgEl('rect', { class: b.future || b.missing ? 'stub' : 'stub zero', x, y: H - 2, width: barW, height: 2 })
-        : svgEl('path', { class: 'bar', d: BarChart.#barPath(x, H, barW, h) });
+        : b.value > limit ? BarChart.#clipped(x, H, barW, TOP)
+          : svgEl('path', { class: 'bar', d: BarChart.#barPath(x, H, barW, h) });
       mark.dataset.i = i;
       svg.append(mark);
     });
@@ -115,6 +119,26 @@ class BarChart {
     this.#label.textContent = b ? b.label : '';
     this.#value.textContent = !b ? '' : b.missing ? '—' : Format.money(b.value);
     this.#note.textContent = (b && b.note) || '';
+  }
+
+  // Ölçeği aşan sütun: düz gövde, kısa boşluk, ölçek çizgisinde yuvarlak başlık ("kırık" eksen gibi)
+  static #clipped(x, base, w, top) {
+    const cap = Config.CHART_CLIP_CAP, neck = top + cap + Config.CHART_CLIP_CUT;
+    const g = svgEl('g', { class: 'bar' });
+    g.append(
+      svgEl('path', { d: 'M' + x + ',' + base + 'V' + neck + 'H' + (x + w) + 'V' + base + 'Z' }),
+      svgEl('path', { d: BarChart.#barPath(x, top + cap, w, cap) })
+    );
+    return g;
+  }
+
+  // Kesme sınırı: dolu sütunların Config.CHART_CLIP_PCT dilimi × CHART_CLIP_RATIO; en büyük onu aşmıyorsa ya da
+  // dolu sütun azsa kesme yok (Infinity)
+  static #clipLimit(values) {
+    const full = values.filter(v => v > 0).sort((a, b) => a - b);
+    if (full.length < Config.CHART_CLIP_MIN) return Infinity;
+    const limit = full[Math.floor((full.length - 1) * Config.CHART_CLIP_PCT)] * Config.CHART_CLIP_RATIO;
+    return full[full.length - 1] > limit ? limit : Infinity;
   }
 
   // Üstü yuvarlak, tabanı düz sütun

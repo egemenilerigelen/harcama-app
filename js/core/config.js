@@ -92,6 +92,14 @@ const Config = Object.freeze({
   BAR_GAP: 2,
   BAR_RADIUS: 4,
   CHART_PERIODS: 6,
+  // Günlük grafikte tek bir dev gün diğerlerini ezmesin: en az CHART_CLIP_MIN dolu gün varken, dolu günlerin
+  // CHART_CLIP_PCT dilimindeki değerin CHART_CLIP_RATIO katını aşan sütunlar ölçeğin tepesinde kesik çizilir
+  // (gövde ile başlık arasında CHART_CLIP_CUT boşluk, başlık CHART_CLIP_CAP yüksekliğinde); değeri dokununca okunur
+  CHART_CLIP_MIN: 4,
+  CHART_CLIP_PCT: 0.75,
+  CHART_CLIP_RATIO: 3,
+  CHART_CLIP_CUT: 3,
+  CHART_CLIP_CAP: 6,
 
   // Devam eden taksitler kartında kapalıyken görünen satır sayısı (fazlası "n taksit daha" ile açılır)
   INST_VISIBLE: 3,

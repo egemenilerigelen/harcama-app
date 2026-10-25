@@ -126,11 +126,13 @@ class SummaryView {
         tick: i === 0 || i === mid || i === last ? Format.shortDate(d.ts) : '',
         note: carried[i].total ? Format.carriedNote(carried[i].total) : ''
       }));
-      // Günlük görünümde bütçe çizgisi yok: hedef kartındaki "günde ₺X" ile çelişen ikinci bir sayı olurdu
+      // Günlük görünümde bütçe çizgisi yok: hedef kartındaki "günde ₺X" ile çelişen ikinci bir sayı olurdu.
+      // Tek dev gün diğerlerini ezmesin: ölçeği aşan sütun kesik çizilir (clip)
       this.#chart.render(bars, {
         key: 'day',
         selected: days.findIndex(d => Domain.dayKey(d.ts) === today),
-        title: 'Bu dönemin günlük harcamaları'
+        title: 'Bu dönemin günlük harcamaları',
+        clip: true
       });
       return;
     }
