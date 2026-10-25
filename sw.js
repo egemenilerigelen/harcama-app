@@ -43,6 +43,7 @@ const ASSETS = [
   'js/ui/device.js',
   'js/ui/haptics.js',
   'js/ui/touch.js',
+  'js/ui/segmented.js',
   'js/ui/rolling.js',
   'js/ui/row.js',
   'js/ui/undo.js',

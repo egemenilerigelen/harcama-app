@@ -21,7 +21,7 @@ css/                  tasarım, bölümlere ayrılmış; sıra önemli (aynı a�
   row.css             harcama satırı, kaydırarak silme, kategori ikonu, taksit etiketi, fiyat
   summary.css         Özet: kart başlığı, hedef, grafik, kategoriler, abonelikler, taksitler
   settings.css        Ayarlar satırları, yedek, veri işlemlerinin sonucu
-  controls.css        titreşim etiketi (Haptics.attach), açma/kapama anahtarı
+  controls.css        titreşim etiketi (Haptics.attach), açma/kapama anahtarı, kayan seçici (Segmented)
   sheets.css          hedef ve kesim günü panelleri
   name-sheet.css      isim adımı, seçim özeti, kategori çipleri
   sheet.css           BottomSheet temeli, kayıt detayı ve düzenleme
@@ -46,6 +46,7 @@ js/ui/                ARAYÜZ YARDIMCILARI ve ortak bileşenler
   device.js           Device: ana ekran algılama, service worker, kalıcı depolama, dosya paylaş/seç, klavye yüksekliği
   haptics.js          Haptics: titreşim (Android vibrate; iPhone'da gizli iOS anahtarı)
   touch.js            Touch: haptic, bindPress, trackDrag, bindSwipe, bindPager, bindDismiss
+  segmented.js        Segmented: kayan seçici (alt sekme çubuğunun kurallarıyla; Özet grafiği Günlük | Ekstre)
   rolling.js          RollingText: kayan haneler (ana sayfa toplamları)
   row.js              ExpenseRow: harcama satırı (ana sayfa ve Harcamalar ortak)
   undo.js             UndoBar: geri alma kapsülü (show({ kind, title, sub }, geriAl, gecikme))

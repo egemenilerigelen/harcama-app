@@ -1,4 +1,4 @@
-/* Kontroller: titreşim etiketi (Haptics.attach), açma/kapama anahtarı */
+/* Kontroller: titreşim etiketi (Haptics.attach), açma/kapama anahtarı, kayan seçici (Segmented) */
 
 /* TİTREŞİM ETİKETİ (Haptics.attach, sadece iPhone): öğenin üstünü kaplayan görünmez etiket ve içinde
    gizli iOS anahtarı; parmak dokununca anahtar değişir, iPhone titrer. Anahtar parmağın altında durmaz
@@ -72,3 +72,43 @@
   outline-offset: 2px;
 }
 
+
+/* KAYAN SEÇİCİ (Segmented; alt sekme çubuğunun kuralları): seçili düğmenin altındaki altın kapsül seçim
+   değişince yaylanarak kayar (--seg-i); parmak gezerken parmağa yapışır (--pill-x, konumda geçiş yok),
+   biraz büyür; bırakınca yerine oturur. Seçicinin kendi düğme zemini yok, rengi kapsül verir */
+.seg {
+  position: relative;
+  gap: 0;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.seg-pill {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / var(--seg-n, 2));
+  border-radius: 9px;
+  background: linear-gradient(180deg, rgba(217, 184, 119, 0.2), rgba(217, 184, 119, 0.12));
+  box-shadow: inset 0 0 0 1px rgba(217, 184, 119, 0.28), 0 1px 2px rgba(0, 0, 0, 0.4);
+  transform: translateX(calc(var(--seg-i, 0) * 100%));
+  transition: transform 0.42s var(--spring);
+  pointer-events: none;
+}
+
+.seg.dragging .seg-pill {
+  transform: translateX(var(--pill-x, 0px)) scale(1.06);
+  transition: none;
+}
+
+.seg .seg-btn {
+  position: relative;
+  z-index: 1;
+}
+
+.seg .seg-btn.active {
+  background: none;
+  box-shadow: none;
+}

@@ -1,10 +1,10 @@
 // ÖZET: dönem hedefi halkası, günlük / ekstre sütun grafiği, kategoriler, abonelikler, devam eden taksitler.
 // Hedefi kendisi değiştirmez (onEditGoal); aboneliğe ya da taksite dokununca detayı açtırır (onOpen);
-// başlıktaki bağlantı son kapanan ekstrenin özetini açtırır (onStatement); kategoriye dokununca o kategorinin
-// harcamalarını açtırır (onCategory).
+// başlıktaki "Geçmiş Ekstre" bağlantısı ekstre özetini açtırır (onStatement); kategoriye dokununca o kategorinin
+// harcamalarını açtırır (onCategory). Grafik Günlük / Ekstre arasında kayan seçiciyle (Segmented) değişir.
 // Açılış hareketi uygulama açıldıktan sonra Özet'e ilk girişte bir kez oynar (reveal); sekmeden çıkıp dönünce
 // ya da arka plandan gelince oynamaz, uygulama kapatılıp açılınca yine oynar (işaret sadece bellekte).
-// Bağımlılık: Config, Domain, Format, GoalRing, BarChart, CatIcon, Motion, Touch, $, el, svgEl
+// Bağımlılık: Config, Domain, Format, GoalRing, BarChart, Segmented, CatIcon, Motion, Touch, $, el, svgEl
 class SummaryView {
   #mode = 'day'; // 'day' günlük, 'period' ekstre
   #catOpen = false; // kategori listesi tamamen açık mı
@@ -32,16 +32,14 @@ class SummaryView {
     $('stmtLink').onclick = onStatement;
     Touch.hapticOn($('stmtLink'));
 
-    document.querySelectorAll('#chartMode button').forEach(btn => {
-      btn.onclick = () => {
-        if (btn.dataset.mode === this.#mode) return; // seçili olana dokununca sütunlar boşuna oynamasın
-        this.#mode = btn.dataset.mode;
-        document.querySelectorAll('#chartMode button').forEach(b => b.classList.toggle('active', b === btn));
+    // Seçili olana dokununca Segmented bildirmez (sütunlar boşuna oynamasın)
+    new Segmented($('chartMode'), {
+      onChange: mode => {
+        this.#mode = mode;
         this.#renderChart();
         // Grafiğin konusu değişti: sütunlar her geçişte kısa yükselir (okuma satırı anında)
         this.#chart.grow(Config.BARS_SWITCH_MS, Config.BARS_SWITCH_SPREAD_MS);
-      };
-      Touch.hapticOn(btn);
+      }
     });
   }
 
