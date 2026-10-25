@@ -101,7 +101,7 @@ Hesap kesim günü `cutoff_day_v1` (varsayılan 15), dönem hedefi `goal_v1`, so
 - [ ] Güçlü kategori tahmini
 - [x] Abonelikler (her ay kendiliğinden yazılır, günlük harcamaya girmez)
 - [ ] Tutarı hatırlayan çipler
-- [ ] Dönem sonu tahmini ve ekstre kapanış özeti
+- [x] Dönem sonu tahmini ve ekstre kapanış özeti
 - [ ] Son ödeme günü ve kart limiti
 - [ ] İlk açılış rehberi
 - [ ] Çoklu kart

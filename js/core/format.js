@@ -208,17 +208,27 @@ const Format = Object.freeze({
     return 'Önceki en ' + (kind === 'low' ? 'düşük ' : 'yüksek ') + Format.money(ref);
   },
 
-  // Hedef kartının alt satırı: ne yapmalı. p: Domain.goalProgress (hedef yoksa null),
-  // carried: bu döneme yansıyan önceki taksitler. Aşımda tutarı tekrar etmez (halka ve "Aşım" satırı söylüyor).
-  goalHint(p, carried) {
-    if (!p) return 'Halkaya dokunup bir dönem hedefi koy; her ekstre bu tutarla ölçülür.';
-    const days = Format.daysLeft(p.daysLeft);
-    if (p.state === 'over') {
-      return carried ? Format.money(carried) + ' önceki taksitlerden · ' + days : 'Dönemin bitmesine ' + p.daysLeft + ' gün var';
-    }
-    if (p.perDay < 1) return 'Hedefin sınırındasın · ' + days;
-    const perDay = Format.money(Math.floor(p.perDay)) + ' ile hedefte kalırsın · ' + days;
-    return p.state === 'warn' ? 'Hızlı gidiyorsun · günde ' + perDay : 'Günde ' + perDay;
+  // Hedef kartının alt satırı, tek satır: ne yapmalı · dönem sonu tahmini ("Günde ₺642 ile hedefte kalırsın ·
+  // bu tempoyla ₺12.180"). p: Domain.goalProgress (hedef yoksa null), carried: bu döneme yansıyan önceki taksitler,
+  // forecast: Domain.forecast (yoksa null). Hızlı tempoyu halkanın rengi ve tahmin söyler; kalan gün kart başlığında.
+  // Aşımda tutarı tekrar etmez (halka ve "Aşım" satırı söylüyor)
+  goalHint(p, carried, forecast = null) {
+    let text;
+    if (!p) text = 'Halkaya dokunup hedef koy';
+    else if (p.state === 'over') text = carried ? Format.money(carried) + ' önceki taksitlerden' : 'Hedef aşıldı';
+    else if (p.perDay < 1) text = 'Hedefin sınırındasın';
+    else text = 'Günde ' + Format.money(Math.floor(p.perDay)) + ' ile hedefte kalırsın';
+    return forecast == null ? text : text + ' · ' + Format.forecast(forecast);
+  },
+
+  // Dönem sonu tahmini: "bu tempoyla ₺12.180" (Config.FORECAST_ROUND'a yuvarlı: kuruş kesinliği iddia etmez)
+  forecast(amount) {
+    return 'bu tempoyla ' + Format.money(Math.round(amount / Config.FORECAST_ROUND) * Config.FORECAST_ROUND);
+  },
+
+  // Kart başlığı: dönem aralığı ve kalan gün ("16 Eki – 15 Kas · 22 gün kaldı")
+  periodLeft(start, lastDay, daysLeft) {
+    return Format.range(start, lastDay) + ' · ' + Format.daysLeft(daysLeft);
   },
 
   // Hedef önerisi: "Son 3 ekstre ortalaması ≈ ₺8.900" / "Geçen ekstre ≈ ₺8.900"

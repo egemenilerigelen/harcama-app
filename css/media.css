@@ -14,6 +14,11 @@
   .pad button { font-size: 22px; }
 }
 
+/* Dar ekran (375px): hedef kartının tek satırı uzun rakamlarda da sığsın (tahmin üç noktayla kesilmesin) */
+@media (max-width: 380px) {
+  .goal-hint { font-size: 12px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation: none !important;

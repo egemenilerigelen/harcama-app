@@ -91,8 +91,11 @@ class SummaryView {
     const { start, end } = this.#period();
     const period = rows.filter(r => r.ts >= start);
     const spent = Domain.sum(period);
+    const upcoming = Domain.upcomingCharges(items, now, end);
 
-    $('sumRange').textContent = Format.range(start, end - Config.DAY_MS);
+    const forecast = Domain.forecast(spent, Domain.sum(period.filter(Domain.isDaily)), start, end, now, upcoming);
+
+    $('sumRange').textContent = Format.periodLeft(start, end - Config.DAY_MS, Domain.daysLeft(start, end, now));
     $('gSpent').textContent = Format.money(spent);
 
     if (!goal) {
@@ -100,17 +103,17 @@ class SummaryView {
       $('gGoal').textContent = '—';
       $('gLeftLabel').textContent = 'Kalan';
       $('gLeft').textContent = '—';
-      $('gHint').textContent = Format.goalHint(null);
+      $('gHint').textContent = Format.goalHint(null, 0, forecast);
       return;
     }
 
-    const p = Domain.goalProgress(spent, goal, start, end, now, Domain.upcomingCharges(items, now, end));
+    const p = Domain.goalProgress(spent, goal, start, end, now, upcoming);
     this.#ring.render(p.ratio, p.state);
 
     $('gGoal').textContent = Format.money(goal);
     $('gLeftLabel').textContent = p.remaining < 0 ? 'Aşım' : 'Kalan';
     $('gLeft').textContent = Format.money(Math.abs(p.remaining));
-    $('gHint').textContent = Format.goalHint(p, Domain.sum(period.filter(Domain.isCarried)));
+    $('gHint').textContent = Format.goalHint(p, Domain.sum(period.filter(Domain.isCarried)), forecast);
   }
 
   // SÜTUN GRAFİK: günlük (bu dönemin günleri) ya da ekstre (son dönemler)

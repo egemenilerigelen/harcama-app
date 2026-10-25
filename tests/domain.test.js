@@ -158,6 +158,16 @@
       const items = [{ id: '3', name: 'c', amt: 9700, ts: D(2026, 9, 20) }];
       eq(Domain.goalSuggestion(items, Domain.expand(items, 15), D(2026, 10, 20), 15), { count: 1, amount: 9700 });
     },
+    'tahmin: harcanan + kalan abonelik + kalan gün × günlük tempo'() {
+      const start = D(2026, 9, 16), end = D(2026, 10, 16);
+      // 10. gün (25 Eyl): günlük 1.000 → günde 100; 20 gün kaldı (bugün hariç)
+      eq(Domain.forecast(3000, 1000, start, end, D(2026, 9, 25, 12), 229), 3000 + 229 + 100 * 20);
+    },
+    'tahmin: ilk günlerde ve son gün yok'() {
+      const start = D(2026, 9, 16), end = D(2026, 10, 16);
+      eq(Domain.forecast(500, 500, start, end, D(2026, 9, 19, 12)), null);
+      eq(Domain.forecast(500, 500, start, end, D(2026, 10, 15, 12)), null);
+    },
     'öneri: biten ekstre yoksa null'() {
       const items = [{ id: '1', name: 'a', amt: 500, ts: D(2026, 10, 18) }];
       eq(Domain.goalSuggestion(items, Domain.expand(items, 15), D(2026, 10, 20), 15), null);

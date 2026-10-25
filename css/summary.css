@@ -140,14 +140,19 @@
   color: var(--gold);
 }
 
+/* Tek satır: ne yapmalı · tahmin (sığmazsa üç nokta; kart yüksekliği hiç değişmez) */
 .goal-hint {
   grid-column: 1 / -1;
   margin: 0;
   padding-top: 12px;
   border-top: 1px solid var(--line);
+  overflow: hidden;
   color: var(--mut);
   font-size: 13px;
+  font-variant-numeric: tabular-nums;
   line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* GRAFİK KARTI */

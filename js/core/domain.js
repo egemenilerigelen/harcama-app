@@ -172,6 +172,16 @@ const Domain = Object.freeze({
     };
   },
 
+  // Dönem sonu tahmini: bugüne kadar harcanan + dönemin kalanına düşecek abonelik çekimleri + kalan gün ×
+  // günlük tempo (tempo sadece günlük harcamalardan: taksit ve abonelik belli tutarlar). Dönemin ilk
+  // Config.FORECAST_MIN_DAYS gününde (tempo oturmadı) ve son gününde (tahmin edilecek gün yok) null
+  forecast(spent, daily, start, end, now, upcoming = 0) {
+    const elapsed = Domain.periodDays(start, end, now);
+    const rest = Domain.daysLeft(start, end, now) - 1;
+    if (elapsed < Config.FORECAST_MIN_DAYS || rest < 1) return null;
+    return spent + upcoming + daily / elapsed * rest;
+  },
+
   // Hedef önerisi: ilk kayıttan beri biten son Config.GOAL_SUGGEST_PERIODS ekstrenin ortalaması,
   // Config.GOAL_SUGGEST_ROUND'a yuvarlanmış: { count, amount }. Biten ekstre ya da harcama yoksa null.
   goalSuggestion(items, rows, now, cutoff) {

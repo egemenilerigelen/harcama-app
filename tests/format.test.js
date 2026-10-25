@@ -102,6 +102,7 @@
       eq(Format.finishedSub(1500), 'Sonraki ekstreler ₺1.500 hafifler');
       eq(Format.installmentShare(6, 12000), '6 × ₺2.000');
       eq(Format.installmentShare(3, 1000), '3 × ₺333,33');
+      eq(Format.forecast(12184), 'bu tempoyla ₺12.180');
       eq(Format.cutoffSoon(0), 'kesim bugün');
       eq(Format.cutoffSoon(1), 'kesim yarın');
       eq(Format.cutoffSoon(2), 'kesime 2 gün');
@@ -121,12 +122,13 @@
       eq(Format.goalNote(10700, 9500), '₺1.200 aştı · hedef ₺9.500');
     },
     'hedef ipucu: tempo, sınır, aşım'() {
-      eq(Format.goalHint({ state: 'ok', perDay: 333.7, daysLeft: 15 }, 0), 'Günde ₺333 ile hedefte kalırsın · 15 gün kaldı');
-      eq(Format.goalHint({ state: 'warn', perDay: 333.7, daysLeft: 15 }, 0), 'Hızlı gidiyorsun · günde ₺333 ile hedefte kalırsın · 15 gün kaldı');
-      eq(Format.goalHint({ state: 'ok', perDay: 0.5, daysLeft: 15 }, 0), 'Hedefin sınırındasın · 15 gün kaldı');
-      eq(Format.goalHint({ state: 'over', perDay: 0, daysLeft: 15 }, 7000), '₺7.000 önceki taksitlerden · 15 gün kaldı');
-      eq(Format.goalHint({ state: 'over', perDay: 0, daysLeft: 15 }, 0), 'Dönemin bitmesine 15 gün var');
-      eq(Format.goalHint(null, 0).startsWith('Halkaya dokunup'), true);
+      eq(Format.goalHint({ state: 'ok', perDay: 333.7 }, 0), 'Günde ₺333 ile hedefte kalırsın');
+      eq(Format.goalHint({ state: 'warn', perDay: 333.7 }, 0, 12184), 'Günde ₺333 ile hedefte kalırsın · bu tempoyla ₺12.180');
+      eq(Format.goalHint({ state: 'ok', perDay: 0.5 }, 0), 'Hedefin sınırındasın');
+      eq(Format.goalHint({ state: 'over', perDay: 0 }, 7000), '₺7.000 önceki taksitlerden');
+      eq(Format.goalHint({ state: 'over', perDay: 0 }, 0, 16000), 'Hedef aşıldı · bu tempoyla ₺16.000');
+      eq(Format.goalHint(null, 0, 8000), 'Halkaya dokunup hedef koy · bu tempoyla ₺8.000');
+      eq(Format.periodLeft(new Date(2026, 9, 16).getTime(), new Date(2026, 10, 15).getTime(), 22), '16 Eki – 15 Kas · 22 gün kaldı');
     },
     'hedef önerisi'() {
       eq(Format.goalSuggestion({ count: 3, amount: 8900 }), 'Son 3 ekstre ortalaması ≈ ₺8.900');
