@@ -76,6 +76,11 @@ const Config = Object.freeze({
   GOAL_PACE_SLACK: 0.1,
   GOAL_MAX_DIGITS: 9,
 
+  // Hedef halkasının rengi doluluğa göre ısınır: bu orana kadar altın, sonra turuncuya döner, burada tam
+  // turuncu, %100'e doğru kırmızıya geçer (tempo uyarısında en az turuncu)
+  RING_HEAT_FROM: 0.5,
+  RING_HEAT_FULL: 0.8,
+
   // Hedef geçmişi: en fazla kaç değişiklik saklanır (eskiler düşer)
   GOAL_LOG_MAX: 100,
 

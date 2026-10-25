@@ -1,6 +1,7 @@
 // HEDEF HALKASI: harcamanın hedefe oranını gösteren ilerleme halkası.
-// Durum (ok / warn / over / none) rengi belirler; aynı bilgi ortadaki yazıda da var (sadece renge kalmaz).
-// Bağımlılık: Format, Motion, el, svgEl
+// Renk doluluğa göre ısınır: altından turuncuya, %100'e doğru kırmızıya (--heat-a, --heat-b; karışım CSS'te);
+// tempo uyarısında (warn) en az turuncu, aşımda (over) kırmızı. Aynı bilgi ortadaki yazıda da var (sadece renge kalmaz).
+// Bağımlılık: Config, Format, Motion, el, svgEl
 class GoalRing {
   static #RADIUS = 42;
 
@@ -32,6 +33,11 @@ class GoalRing {
 
     this.#root.classList.remove('ok', 'warn', 'over', 'none');
     this.#root.classList.add(state);
+    const clamp = v => Math.min(1, Math.max(0, v));
+    const a = state === 'warn' || state === 'over' ? 1 : clamp((ratio - Config.RING_HEAT_FROM) / (Config.RING_HEAT_FULL - Config.RING_HEAT_FROM));
+    const b = state === 'over' ? 1 : clamp((ratio - Config.RING_HEAT_FULL) / (1 - Config.RING_HEAT_FULL));
+    this.#root.style.setProperty('--heat-a', Math.round(a * 100) + '%');
+    this.#root.style.setProperty('--heat-b', Math.round(b * 100) + '%');
     this.#arc.style.strokeDasharray = filled + ' ' + circumference;
     this.#arc.style.opacity = filled > 0 ? '' : '0'; // %0'da yuvarlak uç nokta gibi görünmesin
 

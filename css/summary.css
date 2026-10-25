@@ -61,6 +61,13 @@
 .ring.warn { color: var(--warn); }
 .ring.over { color: var(--danger); }
 
+/* Doluluğa göre ısınma (GoalRing verir: --heat-a altın → turuncu, --heat-b turuncu → kırmızı) */
+@supports (color: color-mix(in oklab, red, blue)) {
+  .ring, .ring.warn, .ring.over {
+    color: color-mix(in oklab, color-mix(in oklab, var(--gold), var(--warn) var(--heat-a, 0%)), var(--danger) var(--heat-b, 0%));
+  }
+}
+
 .ring svg {
   display: block;
   width: 100%;
