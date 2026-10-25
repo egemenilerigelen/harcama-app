@@ -3,21 +3,23 @@
 // Bağımlılık: Config, Categories, Format
 const Backup = Object.freeze({
   APP: 'harcama',
-  VERSION: 1,
+  VERSION: 2,
 
-  // Tam yedek: harcamalar + kesim günü + hedef
-  json({ items, cutoff, goal }, now) {
+  // Tam yedek: harcamalar + kesim günü + hedef + hedef geçmişi (2. sürümle geldi; 1. sürüm yedeklerde yok)
+  json({ items, cutoff, goal, goals = [] }, now) {
     return JSON.stringify({
       app: Backup.APP,
       version: Backup.VERSION,
       exportedAt: new Date(now).toISOString(),
       cutoff,
       goal,
+      goals,
       expenses: items
     });
   },
 
-  // Yedek dosyasını okur ve doğrular: { items, cutoff, goal } (geçersiz ayar null).
+  // Yedek dosyasını okur ve doğrular: { items, cutoff, goal, goals } (geçersiz ayar null; hedef geçmişi yoksa
+  // ya da hiç geçerli kaydı yoksa null).
   // Bozuk ya da başka bir dosyada Error fırlatır; mesajı ekranda gösterilir.
   parse(text) {
     let data;
@@ -43,10 +45,15 @@ const Backup = Object.freeze({
     }));
     const cutoff = Number(data.cutoff);
     const goal = Number(data.goal);
+    const goals = Array.isArray(data.goals)
+      ? data.goals.filter(e => e && Number.isFinite(Number(e.ts)) && Number(e.goal) >= 0)
+        .map(e => ({ ts: Number(e.ts), goal: Number(e.goal) })).sort((a, b) => a.ts - b.ts)
+      : [];
     return {
       items,
       cutoff: Number.isInteger(cutoff) && cutoff >= Config.CUTOFF_MIN && cutoff <= Config.CUTOFF_MAX ? cutoff : null,
-      goal: goal > 0 ? goal : null
+      goal: goal > 0 ? goal : null,
+      goals: goals.length ? goals : null
     };
   },
 

@@ -9,11 +9,12 @@
 
   Test.group('Backup · yedek', {
     'yazılan yedek aynen geri okunur'() {
-      const back = Backup.parse(Backup.json({ items, cutoff: 12, goal: 9500 }, D(2026, 10, 17)));
-      eq(back, { items, cutoff: 12, goal: 9500 });
+      const goals = [{ ts: 0, goal: 8000 }, { ts: D(2026, 10, 2), goal: 9500 }];
+      const back = Backup.parse(Backup.json({ items, cutoff: 12, goal: 9500, goals }, D(2026, 10, 17)));
+      eq(back, { items, cutoff: 12, goal: 9500, goals });
     },
     'ham expenses_v1 dizisi de kabul edilir (ayarsız)'() {
-      eq(Backup.parse(JSON.stringify(items)), { items, cutoff: null, goal: null });
+      eq(Backup.parse(JSON.stringify(items)), { items, cutoff: null, goal: null, goals: null });
     },
     'JSON olmayan dosya'() {
       throws(() => Backup.parse('merhaba'), 'Dosya okunamadı; JSON yedeği değil.');
@@ -36,6 +37,10 @@
     'aralık dışı kesim günü ve eksi hedef alınmaz'() {
       const back = Backup.parse(JSON.stringify({ app: 'harcama', version: 1, cutoff: 29, goal: -5, expenses: [] }));
       eq([back.cutoff, back.goal], [null, null]);
+    },
+    'hedef geçmişi: bozuk kayıt elenir, eskiden yeniye sıralanır'() {
+      const back = Backup.parse(JSON.stringify({ app: 'harcama', version: 2, goals: [{ ts: 5, goal: 900 }, { ts: 'x', goal: 1 }, { ts: 1, goal: 800 }, null], expenses: [] }));
+      eq(back.goals, [{ ts: 1, goal: 800 }, { ts: 5, goal: 900 }]);
     }
   });
 

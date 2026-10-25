@@ -94,6 +94,7 @@ class App {
       now,
       cutoff,
       goal: Store.getGoal(),
+      goalLog: Store.getGoalLog(),
       periodStart: Domain.periodStart(now, cutoff),
       items,
       rows: Domain.visibleRows(items, cutoff, now),
@@ -197,22 +198,24 @@ class App {
     this.#goalSheet.open(Store.getGoal(), Domain.goalSuggestion(items, rows, now, cutoff));
   }
 
+  // Özet'ten de Ayarlar'dan da buraya gelir; her değişiklik hedef geçmişine yazılır (eski ekstreler kendi hedefiyle)
   #setGoal(goal) {
+    Store.setGoalLog(Domain.goalLogAdd(Store.getGoalLog(), Store.getGoal(), goal, Date.now()));
     Store.setGoal(goal);
     this.#settings.showGoal(goal);
     this.refresh();
   }
 
-  // YEDEK: harcamalar + kesim günü + hedef tek dosyada; paylaşımdan vazgeçilirse yedek sayılmaz
+  // YEDEK: harcamalar + kesim günü + hedef + hedef geçmişi tek dosyada; paylaşımdan vazgeçilirse yedek sayılmaz
   async #backup() {
     const now = Date.now();
-    const text = Backup.json({ items: Store.all(), cutoff: Store.getCutoff(), goal: Store.getGoal() }, now);
+    const text = Backup.json({ items: Store.all(), cutoff: Store.getCutoff(), goal: Store.getGoal(), goals: Store.getGoalLog() }, now);
     if (!await Device.saveFile(Format.backupName(now), 'application/json', text)) return;
     Store.setBackupAt(now);
     this.refresh();
   }
 
-  // GERİ YÜKLEME: kayıtlar birleştirilir (aynısı iki kez eklenmez); yedekteki kesim günü ve hedef alınır
+  // GERİ YÜKLEME: kayıtlar birleştirilir (aynısı iki kez eklenmez); yedekteki kesim günü, hedef ve hedef geçmişi alınır
   async #import() {
     const text = await Device.pickFile('.json,application/json');
     if (text == null) return;
@@ -233,6 +236,7 @@ class App {
       Store.setGoal(data.goal);
       this.#settings.showGoal(data.goal);
     }
+    if (data.goals) Store.setGoalLog(data.goals);
     this.refresh();
     this.#settings.flash(Format.importResult(added, data.items.length - added));
   }

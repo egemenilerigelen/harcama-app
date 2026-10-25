@@ -172,6 +172,24 @@ const Domain = Object.freeze({
     };
   },
 
+  // Hedef geçmişi: hedef değişince eklenen kayıt. Geçmiş boşken eski hedef varsa en başa (ts 0) yazılır:
+  // değişiklikten önceki ekstreler o hedefle ölçülür. Aynı hedef tekrar yazılmaz; en fazla Config.GOAL_LOG_MAX
+  goalLogAdd(log, oldGoal, goal, now) {
+    const next = log.length ? log.slice() : oldGoal > 0 ? [{ ts: 0, goal: oldGoal }] : [];
+    if (next.length && next[next.length - 1].goal === goal) return next;
+    next.push({ ts: now, goal });
+    return next.slice(-Config.GOAL_LOG_MAX);
+  },
+
+  // Bir ekstrenin hedefi: dönem sonundan (end) önceki son değişiklik. Geçmiş hiç yoksa bugünkü hedef (current);
+  // ilk değişiklikten önceki ekstrede hedef yoktu (0)
+  goalAt(log, end, current) {
+    if (!log.length) return current;
+    let goal = 0;
+    log.forEach(e => { if (e.ts < end) goal = e.goal; });
+    return goal;
+  },
+
   // Dönem sonu tahmini: bugüne kadar harcanan + dönemin kalanına düşecek abonelik çekimleri + kalan gün ×
   // günlük tempo (tempo sadece günlük harcamalardan: taksit ve abonelik belli tutarlar). Dönemin ilk
   // Config.FORECAST_MIN_DAYS gününde (tempo oturmadı) ve son gününde (tahmin edilecek gün yok) null

@@ -171,6 +171,20 @@
     'öneri: biten ekstre yoksa null'() {
       const items = [{ id: '1', name: 'a', amt: 500, ts: D(2026, 10, 18) }];
       eq(Domain.goalSuggestion(items, Domain.expand(items, 15), D(2026, 10, 20), 15), null);
+    },
+    'hedef geçmişi: ilk değişiklikte eski hedef başa yazılır, aynısı tekrar yazılmaz'() {
+      let log = Domain.goalLogAdd([], 8000, 9500, D(2026, 10, 2));
+      eq(log, [{ ts: 0, goal: 8000 }, { ts: D(2026, 10, 2), goal: 9500 }]);
+      log = Domain.goalLogAdd(log, 9500, 9500, D(2026, 10, 3));
+      eq(log.length, 2);
+      eq(Domain.goalLogAdd([], 0, 5000, D(2026, 10, 2)), [{ ts: D(2026, 10, 2), goal: 5000 }]);
+    },
+    'hedef geçmişi: ekstrenin hedefi dönem sonundan önceki son değişiklik'() {
+      const log = [{ ts: 0, goal: 8000 }, { ts: D(2026, 10, 2), goal: 9500 }];
+      eq(Domain.goalAt(log, D(2026, 9, 16), 9500), 8000);
+      eq(Domain.goalAt(log, D(2026, 10, 16), 9500), 9500);
+      eq(Domain.goalAt([], D(2026, 9, 16), 9500), 9500);
+      eq(Domain.goalAt([{ ts: D(2026, 10, 2), goal: 5000 }], D(2026, 9, 16), 5000), 0);
     }
   });
 

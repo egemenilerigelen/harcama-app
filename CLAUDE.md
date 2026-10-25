@@ -87,7 +87,7 @@ Her yeni özellikte uygulanır (OOP, clean code, loose coupling):
 - **Durumu sahibi tutar.** Her sınıf kendi durumunu private alanlarda (`#`) tutar (`Calc` örneği `EntryPanel`'de, dönem/arama `ListView`'de, geri alma kaydı `UndoBar`'da). Global değişebilir durum yok; tek istisna `Haptics.enabled`, onu da sadece `App` verir.
 - **İş mantığı saf.** `Domain` ve `Format` veriyi ve zamanı (`now`, `cutoff`) parametre alır; DOM, Store ve `Date.now()` kullanmaz. Zamanı sadece `App` okur. Dönem hesabı tek yerde: `Domain.periodStart(date, cutoff, offset)`.
 - **Metin ve sabit tek yerde.** Ekran metinleri `Format`'ta, sayılar `Config`'te (sihirli sayı yok).
-- **Render tek yönlü.** Veri değişince `App.refresh()`: veriyi bir kez okur, `model = { now, cutoff, goal, periodStart, items, rows }` kurar (`items` ham kayıtlar, `rows` ekrandaki satırlar; eylemden geliyorsa `refresh({ animate: true })`), `HomeView`, `ListView`, `SummaryView`'in `render`'ına verir; listeler baştan kurulur. Görünüm kendi durumu değişince `onChange` ile yeniden çizim ister. `visibilitychange` ile öne gelince de `refresh()` (gün ya da dönem değişmiş olabilir).
+- **Render tek yönlü.** Veri değişince `App.refresh()`: veriyi bir kez okur, `model = { now, cutoff, goal, goalLog, periodStart, items, rows }` kurar (`items` ham kayıtlar, `rows` ekrandaki satırlar; eylemden geliyorsa `refresh({ animate: true })`), `HomeView`, `ListView`, `SummaryView`'in `render`'ına verir; listeler baştan kurulur. Görünüm kendi durumu değişince `onChange` ile yeniden çizim ister. `visibilitychange` ile öne gelince de `refresh()` (gün ya da dönem değişmiş olabilir).
 - **Güvenli DOM.** Kullanıcı metni `textContent` (veya `el(tag, cls, text)`) ile yazılır; `innerHTML`'e veri konmaz (sadece temizlemek için boş string).
 - **Refactor kanıtlanır.** Yapısal değişiklikte görünüm ve davranış aynı kalmalı; önizlemede önce/sonra DOM ya da computed style karşılaştırmasıyla doğrulanır.
 
@@ -102,8 +102,8 @@ Her yeni özellikte uygulanır (OOP, clean code, loose coupling):
 - `id` Base36 zaman damgası + rastgele 3 karakter · `amt` toplam tutar (taksitliyse tamamı) · `inst` taksit sayısı, yoksa 1 · `ts` epoch ms
 - `cat`: `Categories.KEYS` (market, food, transport, subs, shopping, bills, health, fun, other). Yeni kayıtlarda hep yazılır (yoksa `other`); eski kayıtta yoksa ekranda `Domain.categorize` tamamlar, veriye yazılmaz.
 - `sub`: abonelik (her ay kendiliğinden çekilir). `end`: aboneliğin bitirildiği an; sonrasında çekim yok.
-- Ek anahtarlar: `cutoff_day_v1` (kesim günü, varsayılan 15, 1–28), `goal_v1` (dönem hedefi ₺, yoksa 0), `backup_at_v1` (son yedek zamanı), `haptics_v1` (`'0'` = titreşim kapalı; cihaza özel, yedeğe girmez), `statement_seen_v1` (kendiliğinden gösterilen son ekstre özetinin dönem başı; cihaza özel, yedeğe girmez).
-- Yedek (`Backup.json`): `{ app: 'harcama', version: 1, exportedAt, cutoff, goal, expenses }`. `Backup.parse` her kaydı doğrular, ham `expenses_v1` dizisini de kabul eder; şema değişirse `version` artar, eski sürümler okunmaya devam eder.
+- Ek anahtarlar: `cutoff_day_v1` (kesim günü, varsayılan 15, 1–28), `goal_v1` (dönem hedefi ₺, yoksa 0), `goal_log_v1` (hedef geçmişi `[{ ts, goal }]` eskiden yeniye; eski ekstreler kendi hedefiyle ölçülür), `backup_at_v1` (son yedek zamanı), `haptics_v1` (`'0'` = titreşim kapalı; cihaza özel, yedeğe girmez), `statement_seen_v1` (kendiliğinden gösterilen son ekstre özetinin dönem başı; cihaza özel, yedeğe girmez).
+- Yedek (`Backup.json`): `{ app: 'harcama', version: 2, exportedAt, cutoff, goal, goals, expenses }` (`goals` hedef geçmişi; 1. sürüm yedeklerde yok). `Backup.parse` her kaydı doğrular, ham `expenses_v1` dizisini de kabul eder; şema değişirse `version` artar, eski sürümler okunmaya devam eder.
 - Şemayı değiştirirsen eski kayıtları bozma: `Domain.expand` ve `DetailSheet` eksik `inst`/`amt` için varsayılan, eksik `cat` için `Domain.categorize` kullanır.
 
 ## İş kuralları (özet)

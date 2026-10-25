@@ -76,6 +76,9 @@ const Config = Object.freeze({
   GOAL_PACE_SLACK: 0.1,
   GOAL_MAX_DIGITS: 9,
 
+  // Hedef geçmişi: en fazla kaç değişiklik saklanır (eskiler düşer)
+  GOAL_LOG_MAX: 100,
+
   // Hedef önerisi: son kaç bitmiş ekstrenin ortalaması, kaça yuvarlanır
   GOAL_SUGGEST_PERIODS: 3,
   GOAL_SUGGEST_ROUND: 100,

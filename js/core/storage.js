@@ -4,6 +4,7 @@ const Store = {
   KEY: 'expenses_v1',
   CUTOFF_KEY: 'cutoff_day_v1',
   GOAL_KEY: 'goal_v1',
+  GOAL_LOG_KEY: 'goal_log_v1',
   BACKUP_KEY: 'backup_at_v1',
   HAPTICS_KEY: 'haptics_v1',
   STATEMENT_KEY: 'statement_seen_v1',
@@ -94,6 +95,20 @@ const Store = {
   setGoal(amount) {
     if (amount > 0) localStorage.setItem(this.GOAL_KEY, amount);
     else localStorage.removeItem(this.GOAL_KEY);
+  },
+
+  // Hedef geçmişi: [{ ts, goal }] eskiden yeniye (Domain.goalLogAdd yazar, Domain.goalAt okur); yoksa []
+  getGoalLog() {
+    try {
+      const log = JSON.parse(localStorage.getItem(this.GOAL_LOG_KEY));
+      return Array.isArray(log) ? log : [];
+    } catch {
+      return [];
+    }
+  },
+
+  setGoalLog(log) {
+    localStorage.setItem(this.GOAL_LOG_KEY, JSON.stringify(log));
   },
 
   // Son yedeğin zamanı (ms); hiç alınmadıysa 0

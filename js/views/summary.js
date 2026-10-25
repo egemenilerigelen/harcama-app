@@ -117,7 +117,7 @@ class SummaryView {
 
   // SÜTUN GRAFİK: günlük (bu dönemin günleri) ya da ekstre (son dönemler)
   #renderChart() {
-    const { now, cutoff, items, rows, goal } = this.#model;
+    const { now, cutoff, items, rows, goal, goalLog } = this.#model;
     const { start, end } = this.#period();
 
     if (this.#mode === 'day') {
@@ -153,14 +153,15 @@ class SummaryView {
       const offset = i - (periods.length - 1);
       const lastDay = p.end - Config.DAY_MS;
       const missing = p.start < since;
+      const target = Domain.goalAt(goalLog, p.end, goal); // o ekstrenin hedefi (hedef geçmişi)
       return {
         value: p.total,
         future: false,
         missing,
         label: offset === 0 ? current : Format.periodName(offset, lastDay, now),
         tick: Format.monthShort(lastDay),
-        // Hedef grafiğe çizilmez; dokunulan ekstrenin hedefe göre durumu okuma satırında
-        note: missing ? Format.noRecord : goal ? Format.goalNote(p.total, goal) : ''
+        // Hedef grafiğe çizilmez; dokunulan ekstrenin kendi hedefine göre durumu okuma satırında
+        note: missing ? Format.noRecord : target ? Format.goalNote(p.total, target) : ''
       };
     });
     this.#chart.render(bars, {
