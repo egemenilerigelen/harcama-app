@@ -14,6 +14,8 @@
 - Silme sanal satırdan yapılsa bile asıl kaydı siler: `ExpenseRow` eylemlere `rawId || id` verir.
 - Önceki alışverişlerin bu döneme yansıyan taksitleri (`Domain.isCarried`) dönem toplamına girer ama hiçbir "gün" harcamasına girmez: ana sayfadaki "Bugün", günlük grafik, Harcamalar'daki gün başlıkları ve "Günlük ort." onları saymaz. Harcamalar'da dönemin en altında kendi grubundadır ("Önceki taksitler"), soldaki sütunda saat yerine alışverişin tarihi (`buyTs`).
 - "Bu dönem" = içinde bulunulan hesap dönemi, takvim ayı değil. Kesim günü dahil (bankalardaki gibi): kesim günü 12 ise dönem 13 Eyl – 12 Eki, 12 Ekim'in harcaması Ekim ekstresine girer, yeni dönem ertesi gün başlar (`Domain.periodStart`). Arayüzde "ay" denmez, dönem aralığı yanında yazar.
+- Ekstreler (özet, grafik, Harcamalar) saklanmaz, her render'da güncel kesim günü ve kayıtlardan hesaplanır. Kesim günü değişince geçmiş dönemler yeni güne göre kayar; son kapanan ekstrenin "görüldü" işareti (`statement_seen_v1`) ona taşınır, yeni ekstre kapanmadan özet kendiliğinden yeniden açılmaz. Kapanmış bir ekstreye sonradan eski tarihli kayıt girilebilir ya da oradaki kayıt düzenlenip silinebilir (unutulan harcama gerçek dönemine yazılsın); o ekstrenin özeti ve toplamları buna göre değişir. Tarih seçerken kapanmış döneme düşen gün etikette söylenir ("Ekim ekstresine").
+- Hedef geçmişi (`goal_log_v1`): hedef her değiştiğinde (Özet'teki halkadan da Ayarlar'dan da aynı yol, `App.#setGoal`) `{ ts, goal }` eklenir (`Domain.goalLogAdd`; ilk değişiklikte eski hedef ts 0 ile başa yazılır). Bir ekstrenin hedefi dönem sonundan önceki son kayıt (`Domain.goalAt`); bu dönem bugünkü hedefle ölçülür.
 
 **Abonelikler (`Domain.charges`)**
 

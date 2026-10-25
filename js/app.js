@@ -185,9 +185,13 @@ class App {
     this.#cutSheet.open(Store.getCutoff(), Date.now());
   }
 
+  // Kesim günü değişince geçmiş dönemler yeni güne göre yeniden hesaplanır (ekstre özetleri dahil). Son kapanan
+  // ekstre kaydığı için "görüldü" işareti ona taşınır: yeni bir ekstre kapanmadan özet kendiliğinden yeniden açılmasın
   #setCutoff(day) {
     const cutoff = Domain.clampCutoff(day);
     Store.setCutoff(cutoff);
+    const last = Domain.periodStart(Date.now(), cutoff, -1).getTime();
+    if (Store.getStatementSeen() && Store.getStatementSeen() < last) Store.setStatementSeen(last);
     this.#settings.showCutoff(cutoff);
     this.refresh();
   }
