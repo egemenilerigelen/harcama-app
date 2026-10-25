@@ -49,6 +49,7 @@
       eq(Format.statement(D(2026, 9, 15), now), 'Eylül ekstresi');
       eq(Format.statement(D(2025, 12, 15), now), 'Aralık 2025 ekstresi');
       eq(Format.intoStatement(D(2026, 11, 15), now), 'Kasım ekstresine');
+      eq(Format.intoStatementTitle(D(2026, 11, 15), now), 'Kasım Ekstresine');
       eq(Format.periodName(0, D(2026, 11, 15), now), 'Bu dönem');
     },
     'isim adımı tarih etiketi: kesilmiş dönemde hangi ekstre'() {
@@ -103,7 +104,6 @@
       eq(Format.finishedSub(1500), 'Sonraki ekstreler ₺1.500 hafifler');
       eq(Format.installmentShare(6, 12000), '6 × ₺2.000');
       eq(Format.installmentShare(3, 1000), '3 × ₺333,33');
-      eq(Format.forecast(12184), 'bu tempoyla ₺12.180');
       eq(Format.cutoffSoon(0), 'kesim bugün');
       eq(Format.cutoffSoon(1), 'kesim yarın');
       eq(Format.cutoffSoon(2), 'kesime 2 gün');
@@ -123,12 +123,12 @@
       eq(Format.goalNote(10700, 9500), '₺1.200 aştı · hedef ₺9.500');
     },
     'hedef ipucu: tempo, sınır, aşım'() {
-      eq(Format.goalHint({ state: 'ok', perDay: 333.7 }, 0), 'Günde ₺333 ile hedefte kalırsın');
-      eq(Format.goalHint({ state: 'warn', perDay: 333.7 }, 0, 12184), 'Günde ₺333 ile hedefte kalırsın · bu tempoyla ₺12.180');
+      eq(Format.goalHint({ state: 'ok', perDay: 333.7 }, 0), 'Günde ₺333 harcayabilirsin');
+      eq(Format.goalHint({ state: 'warn', perDay: 333.7 }, 0, true), 'Bu gidişle hedefi aşarsın');
       eq(Format.goalHint({ state: 'ok', perDay: 0.5 }, 0), 'Hedefin sınırındasın');
       eq(Format.goalHint({ state: 'over', perDay: 0 }, 7000), '₺7.000 önceki taksitlerden');
-      eq(Format.goalHint({ state: 'over', perDay: 0 }, 0, 16000), 'Hedef aşıldı · bu tempoyla ₺16.000');
-      eq(Format.goalHint(null, 0, 8000), 'Halkaya dokunup hedef koy · bu tempoyla ₺8.000');
+      eq(Format.goalHint({ state: 'over', perDay: 0 }, 0, true), 'Hedef aşıldı');
+      eq(Format.goalHint(null, 0), 'Halkaya dokunup hedef koy');
       eq(Format.periodLeft(new Date(2026, 9, 16).getTime(), new Date(2026, 10, 15).getTime(), 22), '16 Eki – 15 Kas · 22 gün kaldı');
     },
     'hedef önerisi'() {

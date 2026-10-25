@@ -47,7 +47,6 @@ class SummaryView {
 
   render(model) {
     this.#model = model;
-    this.#renderStatementLink();
     this.#renderGoal();
     this.#renderChart();
     this.#renderCategories();
@@ -75,16 +74,9 @@ class SummaryView {
     return { start: periodStart.getTime(), end: Domain.periodStart(now, cutoff, 1).getTime() };
   }
 
-  // Başlıktaki bağlantı: son kapanan ekstre ("Eylül ekstresi ›"); hep görünür, harcama yoksa özet boş not gösterir
-  #renderStatementLink() {
-    const { now, periodStart } = this.#model;
-    $('stmtLink').hidden = false;
-    $('stmtLink').textContent = Format.statementLink(periodStart.getTime() - Config.DAY_MS, now);
-  }
-
-  // HEDEF KARTI: başlıkta aralık ve kalan gün; halka, harcanan / hedef / kalan; tek satırda ne yapmalı ve dönem sonu
-  // tahmini. Günlük tutar ve tahmin
-  // dönemin kalanına düşecek abonelik çekimlerini hesaba katar (onlar zaten gelecek)
+  // HEDEF KARTI: başlıkta aralık ve kalan gün; halka, harcanan / hedef / kalan; altta tek kısa not (günde ne
+  // kadar harcanabilir ya da bu tempoyla hedef aşılacak mı). Günlük tutar ve tahmin dönemin kalanına düşecek
+  // abonelik çekimlerini hesaba katar (onlar zaten gelecek)
   #renderGoal() {
     const { now, items, rows, goal } = this.#model;
     const { start, end } = this.#period();
@@ -102,7 +94,7 @@ class SummaryView {
       $('gGoal').textContent = '—';
       $('gLeftLabel').textContent = 'Kalan';
       $('gLeft').textContent = '—';
-      $('gHint').textContent = Format.goalHint(null, 0, forecast);
+      $('gHint').textContent = Format.goalHint(null, 0);
       return;
     }
 
@@ -112,7 +104,7 @@ class SummaryView {
     $('gGoal').textContent = Format.money(goal);
     $('gLeftLabel').textContent = p.remaining < 0 ? 'Aşım' : 'Kalan';
     $('gLeft').textContent = Format.money(Math.abs(p.remaining));
-    $('gHint').textContent = Format.goalHint(p, Domain.sum(period.filter(Domain.isCarried)), forecast);
+    $('gHint').textContent = Format.goalHint(p, Domain.sum(period.filter(Domain.isCarried)), forecast != null && forecast > goal);
   }
 
   // SÜTUN GRAFİK: günlük (bu dönemin günleri) ya da ekstre (son dönemler)
@@ -270,7 +262,7 @@ class SummaryView {
 
     // "Gelecek ekstre" değil ay adı: bankacılıkta gelecek ekstre bu dönemin ekstresidir
     $('instSum').hidden = !active.length;
-    $('instNextLabel').textContent = Format.intoStatement(after - Config.DAY_MS, now);
+    $('instNextLabel').textContent = Format.intoStatementTitle(after - Config.DAY_MS, now);
     $('instNext').textContent = Format.money(nextAmt);
     $('instNextNote').textContent = goal && nextAmt ? Format.goalShare(nextAmt, goal) : '';
     $('instTotal').textContent = Format.money(active.reduce((s, i) => s + i.remaining, 0));

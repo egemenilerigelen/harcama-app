@@ -141,15 +141,15 @@
     <section class="view" data-view="summary">
       <header class="view-head">
         <h1>Özet</h1>
-        <!-- Son kapanan ekstrenin özeti (ortada açılır); kapanmış ekstrede harcama yoksa gizli -->
-        <button class="link" id="stmtLink" hidden></button>
+        <!-- Geçmiş ekstrelerin özeti (ortada açılır, son kapanandan başlar) -->
+        <button class="link" id="stmtLink">Geçmiş Ekstre ›</button>
       </header>
       <div class="scroll">
 
         <!-- HEDEF: halka (dokununca hedef paneli) + harcanan / hedef / kalan -->
         <div class="card goal">
           <header class="card-head">
-            <h2>Dönem hedefi</h2>
+            <h2>Dönem Hedefi</h2>
             <span id="sumRange"></span>
           </header>
           <button class="ring" id="ringBtn" aria-label="Dönem hedefini düzenle"></button>
@@ -158,14 +158,14 @@
             <div class="kv-s"><span>Hedef</span><b id="gGoal"></b></div>
             <div class="kv-s"><span id="gLeftLabel">Kalan</span><b id="gLeft"></b></div>
           </div>
-          <!-- Tek satır: ne yapmalı · dönem sonu tahmini (ilk günlerde ve son gün tahmin yok) -->
+          <!-- Tek kısa not: günde ne kadar harcanabilir ya da bu tempoyla hedef aşılacak mı -->
           <p class="goal-hint" id="gHint"></p>
         </div>
 
         <!-- GRAFİK: adım sayacı tarzı; günlük ya da ekstre -->
         <div class="card chart-card">
           <header class="card-head">
-            <h2>Harcama grafiği</h2>
+            <h2>Harcama Grafiği</h2>
           </header>
           <div class="inst-selector seg" id="chartMode">
             <button class="seg-btn active" data-mode="day">Günlük</button>
@@ -182,7 +182,7 @@
         <div class="card cat-card">
           <header class="card-head">
             <h2>Kategoriler</h2>
-            <span>Bu dönem</span>
+            <span>Bu Dönem</span>
           </header>
           <div class="cat-stack" id="catStack" aria-hidden="true"></div>
           <p class="cat-insight" id="catInsight"></p>
@@ -196,7 +196,7 @@
             <span id="subsCount"></span>
           </header>
           <div class="inst-sum" id="subsSum">
-            <div><small>Her ay</small><b id="subsMonth"></b><span class="inst-note" id="subsMonthNote"></span></div>
+            <div><small>Her Ay</small><b id="subsMonth"></b><span class="inst-note" id="subsMonthNote"></span></div>
             <div><small>Yılda</small><b id="subsYear"></b></div>
           </div>
           <div id="subsList"></div>
@@ -205,11 +205,11 @@
         <!-- TAKSİTLER: gelecek ekstreye yazılan, toplam kalan, alışveriş başına ilerleme -->
         <div class="card inst-card">
           <header class="card-head">
-            <h2>Devam eden taksitler</h2>
+            <h2>Devam Eden Taksitler</h2>
           </header>
           <div class="inst-sum" id="instSum">
             <div><small id="instNextLabel"></small><b id="instNext"></b><span class="inst-note" id="instNextNote"></span></div>
-            <div><small>Toplam kalan</small><b id="instTotal"></b></div>
+            <div><small>Toplam Kalan</small><b id="instTotal"></b></div>
           </div>
           <div id="instList"></div>
         </div>

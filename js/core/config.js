@@ -115,9 +115,8 @@ const Config = Object.freeze({
   // Abonelikler kartında sıradaki çekim bu kadar gün içindeyse vurgulanır
   SUB_SOON_DAYS: 3,
 
-  // Dönem sonu tahmini: dönemin kaçıncı gününden itibaren (tempo otursun) ve kaça yuvarlanır (kuruş kesinliği iddia etmesin)
+  // Dönem sonu tahmini: dönemin kaçıncı gününden itibaren (tempo otursun)
   FORECAST_MIN_DAYS: 5,
-  FORECAST_ROUND: 10,
 
   // Ana sayfa: kesime bu kadar gün (ya da daha az) kalınca dönem aralığının yerinde kısa not
   CUTOFF_NOTE_DAYS: 2,

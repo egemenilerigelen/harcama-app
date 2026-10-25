@@ -61,9 +61,13 @@ const Format = Object.freeze({
     return d.toLocaleDateString('tr-TR', { month: 'long' }) + year + ' ekstresi';
   },
 
-  // Taksitlerin şimdiden yazıldığı ekstre: "Kasım ekstresine"
+  // Taksitlerin şimdiden yazıldığı ekstre: "Kasım ekstresine"; başlık olarak (Özet) "Kasım Ekstresine"
   intoStatement(lastDay, now) {
     return Format.statement(lastDay, now) + 'ne';
+  },
+
+  intoStatementTitle(lastDay, now) {
+    return Format.intoStatement(lastDay, now).replace('ekstresine', 'Ekstresine');
   },
 
   // Kesim günü: "Ayın 13'ü"
@@ -139,10 +143,6 @@ const Format = Object.freeze({
     return Format.statement(lastDay, now).replace('ekstresi', 'Ekstresi');
   },
 
-  statementLink(lastDay, now) {
-    return Format.statement(lastDay, now) + ' ›';
-  },
-
   // Harcaması olmayan ekstre (özet yerine)
   statementEmpty() {
     return 'Bu ekstrede kayıt yok';
@@ -215,20 +215,14 @@ const Format = Object.freeze({
 
   // Hedef kartının alt satırı, tek satır: ne yapmalı · dönem sonu tahmini ("Günde ₺642 ile hedefte kalırsın ·
   // bu tempoyla ₺12.180"). p: Domain.goalProgress (hedef yoksa null), carried: bu döneme yansıyan önceki taksitler,
-  // forecast: Domain.forecast (yoksa null). Hızlı tempoyu halkanın rengi ve tahmin söyler; kalan gün kart başlığında.
-  // Aşımda tutarı tekrar etmez (halka ve "Aşım" satırı söylüyor)
-  goalHint(p, carried, forecast = null) {
-    let text;
-    if (!p) text = 'Halkaya dokunup hedef koy';
-    else if (p.state === 'over') text = carried ? Format.money(carried) + ' önceki taksitlerden' : 'Hedef aşıldı';
-    else if (p.perDay < 1) text = 'Hedefin sınırındasın';
-    else text = 'Günde ' + Format.money(Math.floor(p.perDay)) + ' ile hedefte kalırsın';
-    return forecast == null ? text : text + ' · ' + Format.forecast(forecast);
-  },
-
-  // Dönem sonu tahmini: "bu tempoyla ₺12.180" (Config.FORECAST_ROUND'a yuvarlı: kuruş kesinliği iddia etmez)
-  forecast(amount) {
-    return 'bu tempoyla ' + Format.money(Math.round(amount / Config.FORECAST_ROUND) * Config.FORECAST_ROUND);
+  // Tek kısa not, en önemlisi: overPace bu tempoyla dönem sonunda hedef aşılıyor (Domain.forecast).
+  // Aşımda tutarı tekrar etmez (halka ve "Aşım" satırı söylüyor); kalan gün kart başlığında
+  goalHint(p, carried, overPace = false) {
+    if (!p) return 'Halkaya dokunup hedef koy';
+    if (p.state === 'over') return carried ? Format.money(carried) + ' önceki taksitlerden' : 'Hedef aşıldı';
+    if (p.perDay < 1) return 'Hedefin sınırındasın';
+    if (overPace) return 'Bu gidişle hedefi aşarsın';
+    return 'Günde ' + Format.money(Math.floor(p.perDay)) + ' harcayabilirsin';
   },
 
   // Kart başlığı: dönem aralığı ve kalan gün ("16 Eki – 15 Kas · 22 gün kaldı")
