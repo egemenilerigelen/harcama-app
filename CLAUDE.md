@@ -59,7 +59,7 @@ js/ui/                ARAYÜZ YARDIMCILARI ve ortak bileşenler
   ring.js             GoalRing: hedef halkası (SVG)
   barchart.js         BarChart: tek serili sütun grafik (SVG)
   dialog.js           CenterDialog: ortada açılan ekran (temel sınıf; arka plan kararır)
-  statement.js        StatementDialog extends CenterDialog: kapanan ekstrenin özeti
+  statement.js        StatementDialog extends CenterDialog: geçmiş ekstrelerin özeti (‹ › ve kaydırma)
 
 js/views/             EKRANLAR: her biri kendi DOM'unu ve durumunu yönetir
   entry.js            EntryPanel: girişin 1. adımı (tutar, tuş takımı, Devam)

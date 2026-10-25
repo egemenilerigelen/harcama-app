@@ -436,9 +436,16 @@
   <div class="dialog-wrap" id="stmt">
     <div class="dialog-bg" data-close></div>
     <div class="dialog" id="stmtCard" role="dialog" aria-modal="true" aria-labelledby="stmtTitle">
+      <!-- Sayfa: ‹ › ya da yatay kaydırmayla geçmiş ekstreler arasında (Kapat sabit) -->
+      <div class="stmt-page" id="stmtPage">
       <header class="stmt-head">
-        <h2 id="stmtTitle"></h2>
-        <small id="stmtRange"></small>
+        <button class="icon-btn" id="stmtPrev" aria-label="Önceki ekstre">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6"/></svg>
+        </button>
+        <div class="stmt-label"><h2 id="stmtTitle"></h2><small id="stmtRange"></small></div>
+        <button class="icon-btn" id="stmtNext" aria-label="Sonraki ekstre">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg>
+        </button>
       </header>
       <!-- Ekstrede harcama yoksa özetin yerine tek not -->
       <p class="stmt-empty" id="stmtEmpty"></p>
@@ -460,6 +467,7 @@
       <div class="stmt-news" id="stmtNews">
         <h3 class="stmt-sec">Haberler</h3>
         <div id="stmtNewsList"></div>
+      </div>
       </div>
       <button class="stmt-close" id="stmtClose" data-close>Kapat</button>
     </div>

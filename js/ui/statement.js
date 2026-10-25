@@ -1,22 +1,66 @@
 // EKSTRE ÖZETİ: kapanan ekstrenin kısa özeti, ortada açılan ekranda. Halka toplamı hedefe göre gösterir
 // (hedef yoksa halka yok, sadece toplam); altında hedefe ve geçen ekstreye göre oklu satırlar, ikiye bölünmüş
 // en büyükler (solda kategoriler, sağda tek harcamalar), varsa haberler (rekor, biten ve başlayan taksitler ve abonelikler;
-// etkisiyle, en fazla Config.STATEMENT_NEWS_MAX). Harcaması olmayan ekstrede sadece başlık, aralık ve tek not (openEmpty).
-// Hesap Domain.statementSummary'de; burası sadece çizer.
+// etkisiyle, en fazla Config.STATEMENT_NEWS_MAX). Harcaması olmayan ekstrede sadece başlık, aralık ve tek not.
+// Geçmiş ekstreler arasında Harcamalar'daki dönem kartı gibi gezilir: ‹ › ya da sayfayı yatay kaydırma
+// (Touch.bindPager); hangi ekstrede olduğunu (offset: -1 son kapanan, -2 ondan önceki ...) kendisi tutar.
+// Hesap Domain.statementSummary'de, veriyi load(offset) verir (App); burası sadece çizer.
 // Bağımlılık: CenterDialog, GoalRing, Config, Domain, Format, CatIcon, Touch, $, el, paintMoney
 class StatementDialog extends CenterDialog {
   #ring;
+  #load;
+  #offset = -1;
+  #prev = $('stmtPrev');
+  #next = $('stmtNext');
 
-  constructor() {
+  // load(offset): { start, end, summary (Domain.statementSummary ya da null), goal (o ekstrenin hedefi), now,
+  // canPrev (daha eski ekstre var mı) }
+  constructor({ load }) {
     super($('stmt'));
+    this.#load = load;
     this.#ring = new GoalRing($('stmtRing'));
     Touch.hapticOn($('stmtClose'));
+
+    Touch.bindPress(this.#prev, () => { if (!this.#prev.disabled) this.#step(-1); });
+    Touch.bindPress(this.#next, () => { if (!this.#next.disabled) this.#step(1); });
+    Touch.bindPager($('stmtPage'), {
+      canPrev: () => !this.#prev.disabled,
+      canNext: () => !this.#next.disabled,
+      onPrev: () => this.#step(-1),
+      onNext: () => this.#step(1)
+    });
   }
 
-  // s: Domain.statementSummary; goal: dönem hedefi (yoksa 0)
-  open(s, goal, now) {
-    this.#head(s.start, s.end, now);
-    $('stmtCard').classList.remove('empty');
+  // Son kapanan ekstreden açılır (halka dolarak)
+  open() {
+    this.#offset = -1;
+    const goal = this.#paint();
+    super.open();
+    if (goal) this.#ring.reveal(Config.RING_REVEAL_MS);
+  }
+
+  #step(d) {
+    this.#offset += d;
+    this.#paint();
+  }
+
+  // Seçili ekstreyi çizer; o ekstrenin hedefini döner (halka için)
+  #paint() {
+    const p = this.#load(this.#offset);
+    this.#prev.disabled = !p.canPrev;
+    this.#next.disabled = this.#offset >= -1;
+    this.#head(p.start, p.end, p.now);
+    $('stmtCard').classList.toggle('empty', !p.summary);
+    if (!p.summary) {
+      $('stmtEmpty').textContent = Format.statementEmpty();
+      return 0;
+    }
+    this.#fillSummary(p.summary, p.goal);
+    return p.goal;
+  }
+
+  // s: Domain.statementSummary; goal: o ekstrenin hedefi (yoksa 0)
+  #fillSummary(s, goal) {
     paintMoney($('stmtTotal'), Format.money(s.total));
     $('stmtGoal').textContent = goal ? Format.statementTarget(goal) : '';
     $('stmtRing').hidden = !goal;
@@ -49,17 +93,6 @@ class StatementDialog extends CenterDialog {
       row.append(el('b', '', n.title), el('small', '', n.sub));
       list.appendChild(row);
     });
-
-    super.open();
-    if (goal) this.#ring.reveal(Config.RING_REVEAL_MS);
-  }
-
-  // Harcaması olmayan ekstre: başlık, aralık ve "kayıt yok" notu
-  openEmpty(start, end, now) {
-    this.#head(start, end, now);
-    $('stmtEmpty').textContent = Format.statementEmpty();
-    $('stmtCard').classList.add('empty');
-    super.open();
   }
 
   // Başlık ("Ekim Ekstresi") ve aralık

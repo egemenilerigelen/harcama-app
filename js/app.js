@@ -35,7 +35,7 @@ class App {
     this.#goalSheet = new GoalSheet({ onSave: goal => this.#setGoal(goal) });
     this.#cutSheet = new CutoffSheet({ onSave: day => this.#setCutoff(day) });
     this.#nameSheet = new NameSheet({ onAdd: entry => this.#add(entry) });
-    this.#statement = new StatementDialog();
+    this.#statement = new StatementDialog({ load: offset => this.#statementAt(offset) });
     this.#home = new HomeView({ rowActions, onSeeAll: () => this.#seeAll() });
     this.#list = new ListView({ rowActions, onChange: () => this.refresh() });
     this.#summary = new SummaryView({
@@ -266,12 +266,26 @@ class App {
     return Domain.statementSummary(items, rows, cutoff, Domain.periodStart(now, cutoff, -1).getTime());
   }
 
-  // Başlıktaki bağlantıdan: harcama yoksa boş not
+  // Özet ekranının bir sayfası (offset: -1 son kapanan ...): o ekstrenin özeti (harcama yoksa null) ve kendi
+  // hedefi; en eski kaydın dönemine kadar geri gidilir
+  #statementAt(offset) {
+    const { now, cutoff, items, rows, goal, goalLog } = this.#model;
+    const start = Domain.periodStart(now, cutoff, offset).getTime();
+    const end = Domain.periodStart(now, cutoff, offset + 1).getTime();
+    const oldest = rows.length ? rows[rows.length - 1].ts : now;
+    return {
+      start,
+      end,
+      now,
+      summary: Domain.statementSummary(items, rows, cutoff, start),
+      goal: Domain.goalAt(goalLog, end, goal),
+      canPrev: start > oldest
+    };
+  }
+
+  // Başlıktaki bağlantıdan: son kapanan ekstre (harcama yoksa boş not), oradan geçmişe gezilir
   #openStatement() {
-    const { now, cutoff } = this.#model;
-    const s = this.#lastStatement();
-    if (s) this.#statement.open(s, this.#model.goal, now);
-    else this.#statement.openEmpty(Domain.periodStart(now, cutoff, -1).getTime(), this.#model.periodStart.getTime(), now);
+    this.#statement.open();
   }
 
   // Kesimden sonra ilk açılışta (ya da öne gelişte) kapanan ekstrenin özeti bir kez kendiliğinden açılır;
@@ -280,7 +294,7 @@ class App {
     const s = this.#lastStatement();
     if (!s || Store.getStatementSeen() >= s.start) return;
     Store.setStatementSeen(s.start);
-    setTimeout(() => this.#statement.open(s, this.#model.goal, this.#model.now), Config.STATEMENT_DELAY_MS);
+    setTimeout(() => this.#statement.open(), Config.STATEMENT_DELAY_MS);
   }
 
   // "Tümünü gör": Harcamalar bu dönemden açılır

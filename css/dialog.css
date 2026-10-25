@@ -27,6 +27,7 @@
   width: 100%;
   max-width: 360px;
   max-height: 100%;
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 18px 18px 12px;
@@ -58,12 +59,33 @@
   to { opacity: 1; transform: none; }
 }
 
-/* EKSTRE ÖZETİ: kısa kart (393×659'da ~415px); başlık ve aralık aynı satırda */
+/* EKSTRE ÖZETİ: kısa kart; sayfa (başlık + içerik) Harcamalar'daki dönem kartı gibi yatay kaydırılır
+   (Touch.bindPager; süre Config.PAGER_SLIDE_MS ile aynı), Kapat sabit */
+.stmt-page {
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.18s var(--ease), opacity 0.18s ease;
+}
+
+.stmt-page.dragging {
+  transition: none;
+}
+
+/* Başlık: ‹ ortada başlık ve altında aralık › */
 .stmt-head {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
+  align-items: center;
+  margin: -6px -8px 0;
+}
+
+.stmt-label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
 }
 
 .stmt-head h2 {
@@ -74,7 +96,6 @@
 }
 
 .stmt-head small {
-  flex-shrink: 0;
   color: var(--mut);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
