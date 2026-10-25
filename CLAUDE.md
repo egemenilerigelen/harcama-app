@@ -68,6 +68,8 @@ js/views/             EKRANLAR: her biri kendi DOM'unu ve durumunu yönetir
 
 js/app.js             App: bileşenleri kurar ve bağlar (composition root), veri akışını yönetir
 
+docs/                 geliştirici notları, konu başına bir dosya (uygulamanın parçası değil, ASSETS'e girmez)
+
 tests/                ÇEKİRDEK TESTLERİ (sw.js ASSETS'e girmez): index.html tarayıcıda açılır; runner.js, *.test.js
 ```
 
@@ -103,7 +105,7 @@ Her yeni özellikte uygulanır (OOP, clean code, loose coupling):
 
 ## İş kuralları (özet)
 
-Ayrıntı README > Geliştirici notları > İş kuralları. Bunlar kullanıcı kararıdır:
+Ayrıntı `docs/is-kurallari.md`. Bunlar kullanıcı kararıdır:
 
 - **Dönem** = hesap dönemi, takvim ayı değil; kesim günü dahil (kesim 12 → 13 Eyl – 12 Eki). Arayüzde "ay" denmez.
 - **Taksit ve abonelik** her render'da `Domain.expand` ile sanal satırlara açılır (`rawId` asıl kayıt; silme/düzenleme ona gider). Gelecek satır yok, toplamlara girmez. Dönem toplamına, kategoriye ve hedefe girer, günlük harcamaya (Bugün, günlük grafik, gün başlıkları, günlük ort.) girmez.
@@ -111,18 +113,21 @@ Ayrıntı README > Geliştirici notları > İş kuralları. Bunlar kullanıcı k
 
 ## Tasarım (özet)
 
-Ayrıntı README > Geliştirici notları > Tasarım dili; CSS'e dokunmadan önce oku.
+Ayrıntı `docs/tasarim.md`; CSS'e dokunmadan önce oku.
 
 - Koyu "siyah kart" tema; renk, boşluk ve eğri değişkenleri `base.css` `:root`'ta. Altın sadece sinyal (EKLE, seçili, ana toplamlar, bağlantılar); kategori rengi sadece kategori bağlamında; gölgeler hep nötr.
 - "AI slop" yok: lekeler, cam/blur (tek istisna alt sekme çubuğu), renkli parlama, sürekli dönen animasyon, degrade yazı, kutu içinde kutu, aralıklı BÜYÜK HARF etiket, emoji ikon, süs ikon, 4.5:1 altı kontrast.
 - Hareket kütüphanesiz (CSS + `Motion`), sadece bir şey olduğunda; rakamlar beklemez, dokununca biter, Hareketi Azalt'ta oynamaz.
 - Düzen sabit: sayfa kaymaz, `.app` `position: fixed; inset: 0`, vh/dvh yok. Hedef ekranlar 393×659, 430×739, 375×548: yatay kaydırma yok, tuş takımı ve alt bar sığar.
-- Yeni tuşlar `Touch.bindPress` / `Touch.hapticOn` kullanır (iPhone titreşimi `Haptics.attach`, README'de).
+- Yeni tuşlar `Touch.bindPress` / `Touch.hapticOn` kullanır (iPhone titreşimi `Haptics.attach`, `docs/tasarim.md`'de).
 - Sistem fontu, rakamlarda `tabular-nums`, en küçük yazı 11px. Arayüz Türkçe, `tr-TR`, ₺.
 
-## README'deki ayrıntılar
+## Geliştirici notları (`docs/`)
 
-Ekranların ve bileşenlerin davranışı, kararların gerekçeleri ve bilinen sınırlar `README.md`'nin "Geliştirici notları" bölümünde. Bir ekrana ya da bileşene dokunmadan önce o bölümü oku (başlığı Grep ile bul, sadece o bölümü oku); oradaki davranışlar kullanıcı kararıdır. Davranış değişince o bölümü güncelle; aynı bilgi iki dosyaya yazılmaz.
+Ekranların ve bileşenlerin davranışı, kararların gerekçeleri ve bilinen sınırlar `docs/`'ta, konu başına bir dosya: `is-kurallari`, `tasarim`, `ana-sayfa` (sekmeler, son harcamalar, kayan haneler), `giris` (`EntryPanel`, `NameSheet`), `geri-alma` (`UndoBar`), `satir` (`ExpenseRow`, kaydırarak silme, `DetailSheet`), `harcamalar` (`ListView`), `ozet` (`SummaryView`), `paneller` (`BottomSheet`), `ayarlar`, `pwa` (ana ekran, çevrimdışı, açılış), `sinirlar` (bilinen sınırlar, sunucuya geçiş planı).
+
+- Bir ekrana ya da bileşene dokunmadan önce o dosyayı oku; oradaki davranışlar kullanıcı kararıdır.
+- Davranış değişince o dosyayı güncelle; aynı bilgi iki yere yazılmaz.
 
 ## Çalışma kuralları
 
@@ -135,8 +140,8 @@ Ekranların ve bileşenlerin davranışı, kararların gerekçeleri ve bilinen s
 - Commit mesajları Türkçe ve kısa; `Co-Authored-By` veya benzeri atıf satırı yok. Commit ve push sadece kullanıcı isteyince; ana dal `main`; her commit tek bir karar/özellik ve kendi başına çalışır.
 - Her yayında (push) `Config.VERSION` artırılır (`YYYY.AA.GG-n`, Ayarlar'ın en altında görünür) ve `sw.js`'teki `CACHE` adı artırılır.
 - Yeni uygulama dosyası (js, css, ikon) `index.html`'e doğru sıraya ve `sw.js` `ASSETS` listesine eklenir (`tests/` hariç); eksik ya da yanlış yol service worker kurulumunu bozar.
-- README ve bu dosya kodla uyumlu kalmalı; mimari değişirse ikisini de güncelle.
+- README, `docs/` ve bu dosya kodla uyumlu kalmalı; mimari değişirse hepsini güncelle.
 
 ## Yayın
 
-GitHub Pages: https://egemenilerigelen.github.io/harcama-app/ (repo herkese açık; `main`'e her push birkaç dakikada yayına çıkar, `.nojekyll` var). Her push uygulamayı kullanan herkese gider: önce önizlemede doğrulanır. Veri her kullanıcının cihazında kalır. Commit e-postası GitHub'ın gizli adresi (repoda ayarlı). Sıradaki işler README'deki yol haritasında.
+GitHub Pages: https://egemenilerigelen.github.io/harcama-app/ (repo herkese açık; `main`'e her push birkaç dakikada yayına çıkar, `.nojekyll` var). Her push uygulamayı kullanan herkese gider: önce önizlemede doğrulanır. Veri her kullanıcının cihazında kalır. Commit e-postası GitHub'ın gizli adresi (repoda ayarlı). Sıradaki işler README'deki yol haritasında; bekleyen konular `docs/sinirlar.md`'de.
