@@ -1,0 +1,129 @@
+/* Harcamalar: dönem kartı, arama, liste alanı, gün başlıkları */
+
+/* HARCAMALAR: DÖNEM KARTI (gezgin + toplam + günlük ortalama) */
+.period {
+  flex-shrink: 0;
+  margin-bottom: 20px;
+  padding: 6px 6px 14px;
+  border-radius: 18px;
+  background: var(--raised);
+  border: 1px solid var(--line);
+  box-shadow: var(--hl), var(--elev);
+  text-align: center;
+  /* Yatay kaydırarak dönem değişir (Touch.bindPager); süre Config.PAGER_SLIDE_MS ile aynı */
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.18s var(--ease), opacity 0.18s ease;
+}
+
+/* Parmak sürüklerken kart gecikmesiz izler */
+.period.dragging {
+  transition: none;
+}
+
+.period-nav {
+  display: flex;
+  align-items: center;
+}
+
+.period-label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.period-label small {
+  color: var(--mut);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.period-label span {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+#perTotal {
+  display: block;
+  margin-top: 6px;
+  color: var(--gold);
+  font-size: 34px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+#listSum {
+  display: block;
+  margin-top: 4px;
+  color: var(--mut);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ARAMA: ikonla açılır, açıkken dönem kartının yerini alır */
+.search-bar, .search-sum {
+  display: none;
+}
+
+.searching .period {
+  display: none;
+}
+
+.searching .search-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--gap-s);
+}
+
+.searching .search-bar .link {
+  margin: 0;
+  padding: 0 4px;
+  min-height: 40px;
+}
+
+.searching .search-sum {
+  display: block;
+  flex-shrink: 0;
+  margin: var(--gap) 4px var(--gap-s);
+  color: var(--mut);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 2. LİSTE ALANI VE GÜNLÜK HARCAMALAR */
+#list, #recent, .scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: var(--bar-space); /* son satırlar çubuğun altında kalmasın */
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  /* Alt kenarda yumuşak kaybolma: kaydırılabildiğini hissettirir */
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 18px), transparent);
+  mask-image: linear-gradient(180deg, #000 calc(100% - 18px), transparent);
+}
+
+/* Kaydırma çubuğu gizli; alt kenardaki solma kaydırılabildiğini gösterir */
+#list::-webkit-scrollbar, #recent::-webkit-scrollbar, .scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* TARİH BAŞLIĞINDAKİ GÜNLÜK TOPLAM: altın = toplam, beyaz = tek harcama */
+#list h2 span:last-child {
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.day, .card {
+  border-radius: 16px;
+  background: var(--raised);
+  border: 1px solid var(--line);
+  box-shadow: var(--hl), var(--elev);
+  overflow: hidden;
+}
+

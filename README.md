@@ -44,8 +44,7 @@ harcama-app/
 ├── manifest.webmanifest  ana ekran uygulaması: ad, ikon, renkler
 ├── sw.js                 çevrimdışı katman (service worker)
 ├── icons/                uygulama ikonu
-├── css/
-│   └── style.css         tüm tasarım (renk, font ve boşluk değişkenleri :root'ta)
+├── css/                bölümlere ayrılmış tasarım (base.css'te :root değişkenleri, media.css en sonda)
 └── js/
     ├── core/             çekirdek, DOM'a dokunmaz
     │   ├── config.js     sabitler
@@ -173,7 +172,7 @@ Ekranların ayrıntılı davranışı ve kararların gerekçeleri. Genel kuralla
 
 - Ana ekran uygulaması: `index.html`'de iOS meta etiketleri (tam ekran, durum çubuğu `black`: düz siyah, içerik altından başlar; sebebi CLAUDE.md'deki "Düzen sabit" notunda), `manifest.webmanifest`, `apple-touch-icon`. `App` açılışta `Device.registerOffline()` (sadece http(s); `file://`'da yok) ve `Device.persistStorage()` çağırır. Safari, ana ekrana eklenmemiş sitelerin verisini 7 gün kullanılmazsa silebilir; ana ekran uygulaması bundan muaf, yedekleme ikinci güvence.
 - Çevrimdışı katman (`sw.js`): önce ağ (yeni sürüm hemen gelsin), ama ağ `NETWORK_WAIT_MS` (2,5 sn) içinde yanıt vermezse önbellekteki sürümle açılır (kasada zayıf çekimde açılış takılmasın); geç gelen yanıt yine önbelleğe yazılır, yeni sürüm sonraki açılışta gelir. İnternet hiç yoksa doğrudan önbellek.
-- Açılış ekranı (`#splash`): `App` kurulana kadar `--bg` zeminde ikondaki metalik altın kart; dönen/bekleme animasyonu yok. Stili `index.html`'de satır içi (style.css'i beklemesin). `App` kurulumun sonunda `body.ready` verir, kısa geçişle kalkar; kurulum hata verirse 6 sn sonra kendiliğinden çekilir.
+- Açılış ekranı (`#splash`): `App` kurulana kadar `--bg` zeminde ikondaki metalik altın kart; dönen/bekleme animasyonu yok. Stili `index.html`'de satır içi (css/ dosyalarını beklemesin). `App` kurulumun sonunda `body.ready` verir, kısa geçişle kalkar; kurulum hata verirse 6 sn sonra kendiliğinden çekilir.
 
 ### Bilinen sınırlar / fikirler
 

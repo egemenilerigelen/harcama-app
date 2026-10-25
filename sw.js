@@ -5,13 +5,27 @@
 // Çekim zayıfsa ağ NETWORK_WAIT_MS içinde yanıt vermezse önbellekteki sürümle açılır; ağ yanıtı
 // yine önbelleğe yazılır, yeni sürüm bir sonraki açılışta gelir (kasada açılış takılmasın).
 // Yeni dosya eklenince ASSETS listesine de eklenir (eksik dosya kurulumu bozar).
-const CACHE = 'harcama-v17';
+const CACHE = 'harcama-v18';
 const NETWORK_WAIT_MS = 2500;
 const ASSETS = [
   './',
   'index.html',
   'manifest.webmanifest',
-  'css/style.css',
+  'css/base.css',
+  'css/home.css',
+  'css/entry.css',
+  'css/common.css',
+  'css/list.css',
+  'css/row.css',
+  'css/summary.css',
+  'css/settings.css',
+  'css/controls.css',
+  'css/sheets.css',
+  'css/name-sheet.css',
+  'css/sheet.css',
+  'css/undo.css',
+  'css/tabbar.css',
+  'css/media.css',
   'icons/apple-touch-icon.png',
   'icons/icon-192.png',
   'icons/icon-512.png',

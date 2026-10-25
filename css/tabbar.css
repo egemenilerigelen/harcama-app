@@ -1,0 +1,125 @@
+/* Alt sekme çubuğu */
+
+/* ALT SEKME ÇUBUĞU: havada duran cam hap (iOS 26 sekme çubuğu gibi). AI slop listesindeki cam/blur
+   yasağının tek istisnası: sistem çubuğu, içerik arkasından akar. Cam = bulanıklık + doygunluk,
+   üst kenarda ışık çizgisi, kenarlarda hafif kırılma parıltısı; gölge nötr, renkli parlama yok. */
+.tabbar {
+  position: absolute;
+  left: var(--edge);
+  right: var(--edge);
+  bottom: var(--bar-bottom);
+  z-index: 3;
+  display: flex;
+  height: var(--bar-h);
+  padding: 4px;
+  border-radius: calc(var(--bar-h) / 2);
+  background: linear-gradient(180deg, rgba(52, 56, 66, 0.46), rgba(20, 22, 28, 0.6));
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+    0 12px 32px rgba(0, 0, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.35);
+  isolation: isolate;
+  /* Parmakla sağa sola gezinmeyi çubuk kendisi izler (tarayıcı kaydırma sanmasın) */
+  touch-action: none;
+}
+
+/* Camın parıltısı: üstten yumuşak ışık, iki yanda kenar kırılması */
+.tabbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    radial-gradient(120% 95% at 50% -35%, rgba(255, 255, 255, 0.11), transparent 62%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06), transparent 14%, transparent 86%, rgba(255, 255, 255, 0.06));
+  pointer-events: none;
+}
+
+/* Seçili sekmenin cam kapsülü: sekme değişince yaylanarak kayar (--tab-i: TabBar verir) */
+.tab-pill {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / 4);
+  border-radius: calc(var(--bar-h) / 2 - 4px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.05));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 1px 4px rgba(0, 0, 0, 0.3);
+  transform: translateX(calc(var(--tab-i, 0) * 100%));
+  transition: transform 0.42s var(--spring), background 0.2s ease;
+  pointer-events: none;
+}
+
+/* Parmak çubukta gezerken: kapsül parmağın altına yapışır (--pill-x: TabBar verir; konumda geçiş yok,
+   geçiş parmağı geriden takip ettiriyordu), basılı bir mercek gibi biraz büyür ve aydınlanır; bırakınca
+   sekmenin yerine yaylanarak oturur (yaylı geçiş yukarıdaki temel kuralda) */
+.tabbar.dragging .tab-pill {
+  transform: translateX(var(--pill-x, 0px)) scale(1.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08));
+  transition: background 0.2s ease;
+}
+
+/* Saydamlığı azalt açıksa ya da bulanıklık desteklenmiyorsa: düz, koyu, okunaklı */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .tabbar { background: rgba(21, 23, 29, 0.97); }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .tabbar {
+    background: #16181d;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+.tab {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--mut);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: color 0.15s ease;
+}
+
+.tab svg {
+  width: 24px;
+  height: 24px;
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.12s var(--ease), fill 0.15s ease;
+}
+
+.tab.pressed svg {
+  transform: scale(0.88);
+}
+
+/* Aktif sekme: altın renk, ikon hafif dolu */
+.tab.active {
+  color: var(--gold);
+}
+
+.tab.active svg {
+  fill: var(--gold-soft);
+}
+

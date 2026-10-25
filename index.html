@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>Harcama</title>
 <!-- AÇILIŞ EKRANI: uygulama kurulana kadar (çekim zayıfken dosyalar geç gelebilir) ikondaki altın kart.
-     Satır içi: style.css'i beklemez. Renkler :root'takilerin aynısı (--bg, EKLE'nin metalik altını).
+     Satır içi: css/ dosyalarını beklemez. Renkler :root'takilerin aynısı (--bg, EKLE'nin metalik altını).
      App hazır olunca body.ready ile kaybolur; kurulum hata verirse 6 sn sonra kendiliğinden çekilir. -->
 <style>
   html { background: #0a0b0e; }
@@ -29,7 +29,22 @@
   body.ready #splash { opacity: 0; visibility: hidden; }
   @keyframes splashOut { to { opacity: 0; visibility: hidden; } }
 </style>
-<link rel="stylesheet" href="css/style.css">
+<!-- Stil dosyaları: sıra önemli (aynı ağırlıktaki kuralda sonraki kazanır); media.css en sonda -->
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/entry.css">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/list.css">
+<link rel="stylesheet" href="css/row.css">
+<link rel="stylesheet" href="css/summary.css">
+<link rel="stylesheet" href="css/settings.css">
+<link rel="stylesheet" href="css/controls.css">
+<link rel="stylesheet" href="css/sheets.css">
+<link rel="stylesheet" href="css/name-sheet.css">
+<link rel="stylesheet" href="css/sheet.css">
+<link rel="stylesheet" href="css/undo.css">
+<link rel="stylesheet" href="css/tabbar.css">
+<link rel="stylesheet" href="css/media.css">
 </head>
 <body>
 <div id="splash" aria-hidden="true">

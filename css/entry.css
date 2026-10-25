@@ -1,0 +1,254 @@
+/* Giriş: tutar ekranı, taksit ve tarih seçimi, tuş takımı, EKLE */
+
+/* GİRİŞ PANELİ: çerçevesiz, ekranın altında, başparmak bölgesinde */
+.panel {
+  flex-shrink: 0;
+}
+
+#nName, #search, #eName {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--inset);
+  color: var(--tx);
+  padding: 10px 14px;
+  font: 16px var(--ui); /* iOS 16px altı inputta sayfayı yakınlaştırır */
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+#nName::placeholder, #search::placeholder, #eName::placeholder {
+  color: var(--mut-2);
+}
+
+#nName:focus, #search:focus, #eName:focus {
+  border-color: rgba(217, 184, 119, 0.6);
+}
+
+#search {
+  margin-top: var(--gap-s);
+}
+
+#search::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+/* TAKSİT SEÇİMİ: tek parça segmentli kontrol */
+.inst-selector {
+  display: flex;
+  gap: 2px;
+  margin-top: var(--gap-s);
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  box-shadow: var(--inset);
+}
+
+.inst-btn, .seg-btn {
+  flex: 1;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 9px;
+  background: transparent;
+  border: 0;
+  color: var(--mut);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.inst-btn.active, .seg-btn.active {
+  background: linear-gradient(180deg, rgba(217, 184, 119, 0.2), rgba(217, 184, 119, 0.12));
+  color: var(--gold);
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(217, 184, 119, 0.28), 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* TARİH SEÇİMİ (DateChoice): taksit seçicisinin altında Bugün · Dün · Takvim. Takvim'in üstünde
+   görünmez tarih alanı: dokununca iPhone'un kendi tarih seçicisi açılır */
+.date-choice {
+  margin-top: var(--gap-s);
+}
+
+.date-cal {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.date-cal svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.date-cal input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Seçilen gün kesilmiş bir döneme düşerse hangi ekstreye girdiği */
+.date-hint {
+  margin: 6px 2px 0;
+  color: var(--mut);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.date-hint b {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.date-hint:empty {
+  display: none;
+}
+
+/* TUTAR EKRANI: kutusuz, hesap makinesi gibi sağa yaslı; ₺ rakamın hemen solunda */
+.display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: var(--gap-s) 0;
+  min-height: 56px;
+}
+
+.amt-line {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.cur {
+  flex-shrink: 0;
+  color: var(--mut);
+  font-size: 24px;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+/* Tutar yokken ₺ de sönük */
+.amt-line:has(.amt:empty) .cur {
+  color: #3a3e47;
+}
+
+.amt {
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 40px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  transition: font-size 0.15s ease;
+}
+
+/* Boşken sönük "0" göster: rakamın nerede çıkacağını gösterir */
+.amt:empty::before {
+  content: "0";
+  color: #3a3e47;
+}
+
+/* Uzun tutarda yazıyı küçült ki taşmasın */
+.amt.sm { font-size: 32px; }
+.amt.xs { font-size: 25px; }
+
+#back {
+  background: none;
+  border: 0;
+  color: var(--mut);
+  font-size: 22px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color 0.1s ease;
+}
+
+#back.pressed {
+  color: var(--tx);
+}
+
+/* TUŞ TAKIMI: tek kutu katmanı */
+.pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap-s);
+}
+
+.pad button {
+  height: var(--key-h);
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  box-shadow: var(--hl), 0 2px 0 rgba(0, 0, 0, 0.45), 0 4px 10px rgba(0, 0, 0, 0.2);
+  color: var(--tx);
+  font-size: 24px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.05s ease-out, background 0.05s ease-out, box-shadow 0.05s ease-out;
+}
+
+/* Basınca tuş kalınlığı kadar iner */
+.pad button.pressed {
+  transform: translateY(2px);
+  background: var(--surface-2);
+  box-shadow: var(--hl), 0 0 0 rgba(0, 0, 0, 0.45);
+}
+
+/* EKLE: tutar yokken soluk altın, tutar girilince dolu altın */
+.pad .add {
+  background: var(--gold-soft);
+  border-color: transparent;
+  color: var(--gold);
+  font-size: 16px;
+  font-weight: 600;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.05s ease-out;
+}
+
+/* Metalik altın: yukarıdan ışık, koyu altın alt kenar (parlama yok) */
+body.has-amt .pad .add {
+  background: linear-gradient(180deg, #e4c88e, #cfac68);
+  color: #1b1407;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 0 #7d6331, 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.pad .add.pressed {
+  background: var(--gold-soft);
+}
+
+body.has-amt .pad .add.pressed {
+  background: linear-gradient(180deg, #d4b679, #c09c5b);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 0 0 #7d6331;
+}
+

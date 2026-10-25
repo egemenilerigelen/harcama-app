@@ -1,0 +1,169 @@
+/* Hedef ve kesim günü panelleri */
+
+/* HEDEF PANELİ */
+.sheet-note {
+  margin: 4px 0 0;
+  color: var(--mut);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.sheet-head .save {
+  color: var(--gold);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.goal-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 0 16px;
+  border-radius: 14px;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  box-shadow: var(--inset);
+  transition: border-color 0.15s ease;
+}
+
+.goal-input:focus-within {
+  border-color: rgba(217, 184, 119, 0.6);
+}
+
+.goal-input input {
+  flex: 1;
+  min-width: 0;
+  height: 60px;
+  padding: 0;
+  background: none;
+  border: 0;
+  outline: none;
+  color: var(--tx);
+  font: 600 30px var(--ui);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.goal-input input::placeholder {
+  color: var(--surface-3);
+}
+
+/* Geçmiş ekstrelerden öneri: satırın tamamı dokunulur, "Kullan" altın bağlantı */
+.suggest {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 0 2px;
+  background: none;
+  border: 0;
+  color: var(--mut);
+  font: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.15s ease;
+}
+
+.suggest b {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* İkincil eylem: geri alınabilir işler için sade yazı düğmesi (kırmızı sadece silmede) */
+.plain-btn {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 8px;
+  background: none;
+  border: 0;
+  color: var(--mut);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.15s ease;
+}
+
+.suggest:active, .plain-btn:active {
+  opacity: 0.55;
+}
+
+.suggest[hidden], .plain-btn[hidden] {
+  display: none;
+}
+
+/* KESİM GÜNÜ PANELİ: ayın 1–28. günleri, 7 sütunda tam 4 satır (iOS Hatırlatıcılar "her ay" seçicisi gibi).
+   Kutusuz düz rakamlar; kesim günü metalik altın daire (EKLE ile aynı malzeme), bugün rakamın altında nokta. */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 6px;
+  margin-top: 16px;
+}
+
+.cal-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--tx);
+  font: 500 16px var(--ui);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Rakamın dairesi: seçim ve basma bu daireye işlenir, hücre düz kalır */
+.cal-day .n {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.08s ease-out;
+}
+
+.cal-day.pressed .n {
+  transform: scale(0.9);
+  background: var(--surface-3);
+}
+
+.cal-day.sel .n {
+  background: linear-gradient(180deg, #e4c88e, #cfac68);
+  color: #1b1407;
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 1px 0 #7d6331, 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* Bugün: rakamın altında küçük nokta (rengi rakamınki) */
+.cal-day.today .n::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Altta seçime göre dönem aralığı ve sonraki kesim */
+.cut-preview {
+  margin-top: 16px;
+}
+

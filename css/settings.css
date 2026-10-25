@@ -1,0 +1,145 @@
+/* Ayarlar: satırlar, tümünü sil, notlar, yedek, veri işlemlerinin sonucu */
+
+/* 4. AYARLAR */
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 62px;
+  padding: 11px var(--gap) 11px 14px;
+  border-top: 1px solid var(--line);
+}
+
+.set-row:first-child {
+  border-top: 0;
+}
+
+.set-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.set-info b {
+  font-weight: 500;
+}
+
+.set-info small {
+  color: var(--mut);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.danger {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(232, 143, 143, 0.35);
+  background: transparent;
+  color: var(--danger);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.danger.armed {
+  background: rgba(232, 143, 143, 0.16);
+  border-color: rgba(232, 143, 143, 0.7);
+}
+
+.note {
+  margin: 20px var(--gap) 0;
+  text-align: center;
+  color: var(--mut);
+  font-size: 13px;
+}
+
+.note.version {
+  margin-top: 6px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* AYARLAR: dokununca panel açan ya da işlem yapan satır */
+.set-link {
+  width: 100%;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--line);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.set-link:active {
+  background: var(--surface-2);
+}
+
+/* Yedek hatırlatması: uzun süredir yedek yoksa uyarı rengi */
+.set-info small.warn {
+  color: var(--warn);
+}
+
+/* Ana ekrana ekleme yönergesindeki Paylaş işareti (Safari'deki düğmenin aynısı) */
+.share-ico {
+  width: 15px;
+  height: 15px;
+  vertical-align: -2px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Ana ekrandan açılınca yönerge gizli; sıradaki satır kartın ilk satırı olur */
+#installRow[hidden] {
+  display: none;
+}
+
+#installRow[hidden] + .set-row {
+  border-top: 0;
+}
+
+/* Veri işlemlerinin sonucu (geri yükleme, hata): kartın altında birkaç saniye */
+.set-status {
+  margin: 8px var(--gap) 0;
+  color: var(--mut);
+  font-size: 13px;
+  text-align: center;
+}
+
+.set-status:empty {
+  display: none;
+}
+
+.set-status.err {
+  color: var(--danger);
+}
+
+.set-value {
+  color: var(--mut);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.chev {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-left: -6px;
+  fill: none;
+  stroke: var(--mut-2);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+

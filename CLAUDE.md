@@ -8,7 +8,23 @@ Katmanlar; script sırası = bağımlılık yönü (bir dosya sadece kendinden �
 
 ```
 index.html            iskelet (açılış ekranı + 4 sekme görünümü + alt bar + paneller) + script sırası
-css/style.css         tüm tasarım; renk, font ve boşluk değişkenleri :root'ta
+css/                  tasarım, bölümlere ayrılmış; sıra önemli (aynı ağırlıktaki kuralda sonraki kazanır)
+  base.css            :root değişkenleri (renk, font, boşluk, eğri), zemin, uygulama çerçevesi, sekme görünümleri
+  home.css            ana sayfa özet kartı, büyük rakam (.hero), kayan haneler
+  entry.css           giriş: tutar ekranı, taksit ve tarih seçimi, tuş takımı, EKLE
+  common.css          son harcamalar, bölüm başlıkları, ikon butonu
+  list.css            Harcamalar: dönem kartı, arama, liste, gün başlıkları
+  row.css             harcama satırı, kaydırarak silme, kategori ikonu, taksit etiketi, fiyat
+  summary.css         Özet: kart başlığı, hedef, grafik, kategoriler, abonelikler, taksitler
+  settings.css        Ayarlar satırları, yedek, veri işlemlerinin sonucu
+  controls.css        titreşim etiketi (Haptics.attach), açma/kapama anahtarı
+  sheets.css          hedef ve kesim günü panelleri
+  name-sheet.css      isim adımı, seçim özeti, kategori çipleri
+  sheet.css           BottomSheet temeli, kayıt detayı ve düzenleme
+  undo.css            geri alma kapsülü
+  tabbar.css          alt sekme çubuğu (cam)
+  media.css           küçük ekran, Hareketi Azalt (hep en son)
+
 manifest.webmanifest  ana ekran uygulaması: ad, ikon, tam ekran (standalone), renkler
 sw.js                 çevrimdışı katman (service worker): önce ağ, geç kalırsa ya da yoksa önbellek; ASSETS listesi
 icons/                uygulama ikonu (apple-touch-icon 180, 192, 512; koyu zemin + metalik altın kart)
@@ -134,7 +150,7 @@ Veri şemasını değiştirirsen eski kayıtları bozma. `Domain.expand` ve `Det
 - Font: sistem fontu (`--ui`; iPhone'da SF Pro). Dış font yüklenmez. Rakamlarda `font-variant-numeric: tabular-nums`. Büyük toplamlar (`.hero`: ana sayfa "Bu dönem" / "Bugün", Harcamalar dönem toplamı, detaydaki tutar, isim adımının başlığı) büyük ve sıkı; ₺ küçük ve üst hizada, kuruş küçük ve soluk (`paintMoney`; kayan hanelerde de). Satırlardaki küçük tutarlarda yok. Etiketler normal yazım ("Son harcamalar"), en küçük yazı 11px.
 - Düzen sabit: `body { overflow: hidden }`, sayfa kaymaz. `.app` = `.views` (tüm ekran) + `.tabbar`: havada duran cam hap (iOS 26 gibi; `--bar-h` 62pt, kenarlardan `--edge` içeride, alttan `--bar-bottom`: ana ekran çizgisinin hemen üstü). Cam: `backdrop-filter` bulanıklık + doygunluk, üstte ışık çizgisi, kenarlarda hafif parıltı, nötr gölge; seçili sekmede cam kapsül (`.tab-pill`, `TabBar` `--tab-i` ile kaydırır, yaylı geçiş). Kayan sekmeler (Harcamalar, Özet, Ayarlar) ekranın altına kadar uzanır, içerik çubuğun arkasından akar; kayan alanların sonunda `--bar-space` boşluk var. Ana sayfada tuş takımı çubuğun üstünde (`padding-bottom: var(--bar-space)`). "Saydamlığı Azalt" açıksa ya da bulanıklık yoksa çubuk düz koyu. `.app` ekranın dört kenarına sabit (`position: fixed; inset: 0`); yükseklik için vh/dvh kullanılmaz. Ana ekran uygulamasında durum çubuğu düz siyah (`apple-mobile-web-app-status-bar-style: black`): `black-translucent`'ta iOS sayfa yüksekliğini üst güvenli alan kadar kısa hesaplıyor ve altta boşluk kalıyordu. Aynı anda tek `.view.active` görünür; içinde sadece `#list` / `.scroll` kaydırılır.
 - Rakam renkleri: altın = toplamlar (dönem, gün), beyaz kalın = tek harcama, gri = bağlam (saat, ortalama, kategori payı), amber/yeşil = geçen döneme göre artış/azalış.
-- Boşluk ölçüsü `:root`'ta: `--edge` 16px (yan kenar), `--gap` 12px (bloklar arası), `--gap-s` 8px (bileşen içi). Bölüm başlıkları (`.sec-head`, `.sec-title`, `#list h2`) tek kuralı paylaşır. Kaydırma çubukları gizli. Küçük ekran sıkılaştırmaları `@media (max-height: 620px)` bloğunda.
+- Boşluk ölçüsü `:root`'ta: `--edge` 16px (yan kenar), `--gap` 12px (bloklar arası), `--gap-s` 8px (bileşen içi). Bölüm başlıkları (`.sec-head`, `.sec-title`, `#list h2`) tek kuralı paylaşır. Kaydırma çubukları gizli. Küçük ekran sıkılaştırmaları `media.css`'teki `@media (max-height: 620px)` bloğunda.
 - Hedef ekranlar: iPhone Safari içerik alanları 393×659 (iPhone 15), 430×739 (Pro Max), 375×548 (SE). Yatay kaydırma olmamalı, tuş takımı ve alt bar her birine sığmalı.
 - Dokunmatik: tuşlar, sekmeler, dönem okları ve kesim günü seçicisi `pointerdown` ile `Touch.bindPress` üzerinden tetiklenir ve titreşim verir. `click` ile çalışan düğmeler titreşimi `Touch.hapticOn(el)` ile alır. Yeni tuşlarda aynı yardımcıları kullan; `Touch.haptic()` (koddan) sadece Android'de titretir (kaydırarak silmede eşik, dönem kaydırma).
 - Titreşim: iPhone Safari'de `navigator.vibrate` yok; tek yol iOS anahtarı (`<input type="checkbox" switch>`): değişince sistem titrer. iOS 26.5'ten beri koddan tıklatmak (`label.click()`) titretmiyor (güvenilmeyen tıklama), parmağın gerçekten dokunması gerekiyor. Bu yüzden `Haptics.attach(el)` öğenin üstüne görünmez bir etiket (`.haptic`, içinde gizli anahtar) serer: dokunuş etiketten anahtara geçer, iPhone titrer; tıklama öğeye de ulaşır, anahtarın kopya tıklaması durdurulur. Titreşim parmak kalkınca olur. Öğenin metni `textContent` ile değiştirilirse etiket silinir (bkz. "Tümünü sil": `firstChild` metni değişir). Kapalıyken `html.no-haptics` etiketleri gizler. iOS'ta "Sistem Dokunuş Geri Bildirimi" kapalıysa hiç titremez. Ayarlar > Uygulama > Titreşim anahtarı da gerçek iOS anahtarıdır.
@@ -156,7 +172,7 @@ Ekranların ve bileşenlerin ayrıntılı davranışı, kararların gerekçeleri
 - Commit mesajlarına ve PR açıklamalarına `Co-Authored-By` veya benzeri atıf satırı ekleme.
 - Commit ve push sadece kullanıcı isteyince yapılır. Ana dal `main`. Commit'ler konu konu: her commit tek bir karar/özellik ve kendi başına çalışır.
 - Her yayında (push) `Config.VERSION` artırılır (`YYYY.AA.GG-n`); Ayarlar'ın en altında görünür, telefonda yeni sürümün geldiği buradan kontrol edilir. `sw.js` ağdan alırken HTTP önbelleğini atlar (`cache: 'no-cache'`), değişince `CACHE` adı da artırılır.
-- Yeni bir uygulama dosyası (js, css, ikon) eklenince `sw.js`'teki `ASSETS` listesine de eklenir (`tests/` hariç); eksik ya da yanlış yol service worker kurulumunu bozar (internetsiz açılış çalışmaz).
+- Yeni bir uygulama dosyası (js, css, ikon) eklenince `index.html`'e doğru sıraya ve `sw.js`'teki `ASSETS` listesine de eklenir (`tests/` hariç); eksik ya da yanlış yol service worker kurulumunu bozar (internetsiz açılış çalışmaz).
 - README ve bu dosya kodla uyumlu kalmalı; mimari değişirse ikisini de güncelle.
 
 ## Yayın

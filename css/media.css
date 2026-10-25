@@ -1,0 +1,27 @@
+/* Küçük ekran ve Hareketi Azalt (en son yüklenir) */
+
+/* Küçük ekran (iPhone SE vb.): tuş takımını ve kartları sıkılaştır */
+@media (max-height: 620px) {
+  :root { --key-h: 40px; --bar-h: 58px; --gap: 10px; --gap-s: 6px; }
+  .totals { padding: 10px 14px 11px; }
+  .tot-main b { font-size: 30px; }
+  .tot-side b { font-size: 16px; }
+  .inst-btn { min-height: 30px; }
+  .display { min-height: 46px; }
+  .amt { font-size: 34px; }
+  .amt.sm { font-size: 27px; }
+  .amt.xs { font-size: 21px; }
+  .pad button { font-size: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Kayan haneler: hareket yok, yeni değer hemen */
+  .slot .old, .slot.gone {
+    display: none;
+  }
+}

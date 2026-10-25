@@ -1,0 +1,512 @@
+/* Özet: kart başlığı, hedef, grafik, kategoriler, abonelikler, taksitler */
+
+/* 3. ÖZET */
+
+/* MODÜL KARTI BAŞLIĞI (Apple Sağlık tarzı, ikonsuz): başlık kartın içinde, solda beyaz başlık,
+   sağda gri ikincil bilgi. Hiyerarşi: ekran başlığı → kart başlığı (beyaz) → kart içi etiketler (gri).
+   Süs ikonu yok: başlığı tekrar eden ikon bilgi taşımaz */
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.card-head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.card-head span {
+  margin-left: auto;
+  color: var(--mut);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Özet kartları arasında boşluk (dışarıda başlık yok) */
+.scroll > .card + .card {
+  margin-top: 14px;
+}
+
+/* HEDEF KARTI: solda halka, sağda tutarlar, altta ne yapmalı satırı */
+.goal {
+  display: grid;
+  grid-template-columns: 108px 1fr;
+  align-items: center;
+  gap: 14px 18px;
+  padding: 14px 16px 16px;
+}
+
+/* Başlık iki sütunu da kaplar */
+.goal .card-head {
+  grid-column: 1 / -1;
+}
+
+.ring {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--gold);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Durum rengi; aynı bilgi halkanın ortasında ve alt satırda yazıyla da var */
+.ring.warn { color: var(--warn); }
+.ring.over { color: var(--danger); }
+
+.ring svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.ring circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 9;
+}
+
+/* Boş iz: dolgunun aynı renginin açık tonu */
+.ring-track {
+  opacity: 0.16;
+}
+
+.ring-arc {
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.5s var(--ease), opacity 0.2s ease;
+}
+
+.ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Büyük tekil rakam: orantılı rakamlar (tabular değil) */
+.ring-text b {
+  color: var(--tx);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.ring.none .ring-text b {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.ring-text small {
+  color: var(--mut);
+  font-size: 12px;
+}
+
+.goal-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.kv-s {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.kv-s span {
+  color: var(--mut);
+  font-size: 13px;
+}
+
+.kv-s b {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Harcanan bir toplam: altın */
+#gSpent {
+  color: var(--gold);
+}
+
+.goal-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--mut);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* GRAFİK KARTI */
+.chart-card {
+  padding: 14px 14px 10px;
+}
+
+.chart-card .card-head {
+  margin-bottom: 12px;
+}
+
+.seg {
+  margin-top: 0;
+}
+
+/* Okuma satırı: seçili sütunun etiketi, notu ve değeri (değer öne çıkar).
+   Not satırının yeri her görünümde ayrılır ki Günlük / Ekstre geçişinde grafik zıplamasın */
+.chart-read {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 12px 2px 4px;
+}
+
+.chart-read-l {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chart-read span {
+  color: var(--mut);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.chart-read small {
+  min-height: 16px;
+  color: var(--mut-2);
+  font-size: 12px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-read b {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  touch-action: pan-y;
+}
+
+/* Tek seri: tüm sütunlar aynı altın; seçili tam, diğerleri soluk */
+/* Sütunlar tabandan büyür (Özet açılışı, Günlük ↔ Ekstre: BarChart.grow) */
+.chart .bar {
+  fill: var(--gold);
+  opacity: 0.5;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition: opacity 0.15s ease;
+}
+
+.chart .bar.sel {
+  opacity: 1;
+}
+
+/* Gelecek günler ve harcamasız günler: tabanda ince iz */
+.chart .stub {
+  fill: var(--surface-3);
+}
+
+/* Verisi olmayan dönem seçilince iz biraz belirginleşir */
+.chart .stub.sel {
+  fill: var(--mut-2);
+}
+
+.chart .stub.zero {
+  fill: var(--gold);
+  opacity: 0.25;
+}
+
+.chart .stub.zero.sel {
+  opacity: 0.6;
+}
+
+/* Izgara: düz, silik kıl çizgi */
+.chart .grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+
+.chart text {
+  fill: var(--mut);
+  font-family: var(--ui);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart .hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+/* KATEGORİLER KARTI: üstte renkli oran şeridi (iPhone depolama ekranı gibi), altında satırlar taksit
+   kartıyla aynı kalıpta: renkli kategori kuyusu, ad ve pay, tutar ve değişim (artış uyarı, azalış iyi) */
+.cat-card .card-head {
+  padding: 14px 14px 0;
+}
+
+.cat-stack {
+  display: flex;
+  gap: 2px;
+  height: 10px;
+  margin: 12px 14px 0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.cat-stack[hidden] {
+  display: none;
+}
+
+/* Çok küçük pay da görünsün */
+.cat-stack i {
+  flex-basis: 0;
+  min-width: 3px;
+  background: var(--c);
+}
+
+.cat-insight {
+  margin: 10px 14px 0;
+  color: var(--mut);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.cat-insight:empty {
+  display: none;
+}
+
+#catList {
+  margin-top: 8px;
+}
+
+.cat-row {
+  gap: 12px;
+  padding: 10px 14px;
+  cursor: default;
+}
+
+.cat-row .n {
+  display: block;
+  font-weight: 500;
+}
+
+.cat-share {
+  color: var(--mut);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cat-delta {
+  font-variant-numeric: tabular-nums;
+}
+
+.cat-delta.up {
+  color: var(--warn);
+}
+
+.cat-delta.down {
+  color: var(--good);
+}
+
+/* ABONELİKLER KARTI: taksit kartının kalıbı, satırlar kategori satırı gibi (ikon, ad, altında sıradaki çekim) */
+.sub-row {
+  cursor: pointer;
+}
+
+.sub-next {
+  display: block;
+  color: var(--mut);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sıradaki çekim yakın (Config.SUB_SOON_DAYS): altın sinyal */
+.sub-next.soon {
+  color: var(--gold);
+}
+
+/* TAKSİTLER KARTI */
+.inst-card .card-head {
+  padding: 14px 14px 0;
+}
+
+.inst-sum {
+  display: flex;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.inst-sum[hidden] {
+  display: none;
+}
+
+.inst-sum div {
+  flex: 1;
+  min-width: 0;
+}
+
+.inst-sum div + div {
+  padding-left: 14px;
+  border-left: 1px solid var(--line);
+}
+
+.inst-sum small {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--mut);
+  font-size: 12px;
+}
+
+.inst-sum b {
+  color: var(--gold);
+  font-size: 17px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sonraki ekstreye yazılan taksitlerin hedefe payı (hedef yoksa boş, yer kaplamaz) */
+.inst-note {
+  display: block;
+  margin-top: 2px;
+  color: var(--mut);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.inst-note:empty {
+  display: none;
+}
+
+.inst-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.inst-row:first-child {
+  border-top: 0;
+}
+
+.inst-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.inst-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.inst-top .n {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.inst-meta {
+  flex-shrink: 0;
+  color: var(--mut);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* İlerleme çubuğu: iz aynı rengin açık tonu */
+.inst-bar {
+  height: 4px;
+  margin-top: 8px;
+  border-radius: 2px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.inst-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--gold);
+}
+
+.inst-left {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.inst-left b {
+  display: block;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.inst-left small {
+  color: var(--mut);
+  font-size: 12px;
+}
+
+/* Taksit listesini açan / kapatan satır: listenin devamı, beyaz bağlantı yazısı (ana sayfadaki "Tümünü gör" gibi) */
+.inst-more {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--line);
+  color: var(--tx);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.15s ease;
+}
+
+.inst-more:active {
+  opacity: 0.55;
+}
+
+/* Aşağı ok: liste açıkken yukarı döner */
+.inst-more svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--mut);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.inst-more[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
