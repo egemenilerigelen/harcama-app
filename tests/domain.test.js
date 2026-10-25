@@ -164,6 +164,61 @@
     }
   });
 
+  Test.group('Domain · ekstre özeti', {
+    'toplam, geçen ekstre, en büyük 3 kategori ve harcama, son taksiti düşen alışveriş'() {
+      const items = [
+        { id: 'a', name: 'Kulaklık', amt: 3000, ts: D(2026, 9, 20), cat: 'shopping' },
+        { id: 'b', name: 'Market', amt: 500, ts: D(2026, 9, 25), cat: 'market' },
+        { id: 'c', name: 'Kahve', amt: 100, ts: D(2026, 10, 1), cat: 'food' },
+        { id: 'd', name: 'Simit', amt: 20, ts: D(2026, 10, 2), cat: 'food' },
+        { id: 'e', name: 'TV', amt: 600, inst: 2, ts: D(2026, 8, 20), cat: 'shopping' }
+      ];
+      const rows = Domain.visibleRows(items, 15, D(2026, 10, 20));
+      const s = Domain.statementSummary(items, rows, 15, D(2026, 9, 16));
+      eq(s.end, D(2026, 10, 16));
+      eq(s.total, 3920);
+      eq(s.prev, 300);
+      eq(s.cats, [{ cat: 'shopping', total: 3300 }, { cat: 'market', total: 500 }, { cat: 'food', total: 120 }]);
+      eq(s.top.map(r => r.name), ['Kulaklık', 'Market', 'TV']);
+      eq(s.finished.map(r => r.name), ['TV']);
+      eq(s.ended, []);
+      eq(s.started, []);
+      eq(s.record, null);
+    },
+    'bu ekstrede taksite bölünen alışverişler ve başlayan abonelikler'() {
+      const items = [
+        { id: 'l', name: 'Laptop', amt: 12000, inst: 6, ts: D(2026, 9, 20), cat: 'shopping' },
+        { id: 's', name: 'Spotify', amt: 59, ts: D(2026, 10, 1), cat: 'subs', sub: true }
+      ];
+      const s = Domain.statementSummary(items, Domain.visibleRows(items, 15, D(2026, 10, 20)), 15, D(2026, 9, 16));
+      eq(s.started.map(r => [r.name, r.parts, r.displayAmt]), [['Laptop', 6, 2000]]);
+      eq(s.newSubs.map(i => i.name), ['Spotify']);
+    },
+    'rekor: önceki ekstrelerin hepsinden düşük ya da yüksek; kıyas azsa yok'() {
+      eq(Domain.statementRecord(800, [1000, 1200]), { kind: 'low', count: 3, ref: 1000 });
+      eq(Domain.statementRecord(1500, [1000, 1200, 900]), { kind: 'high', count: 4, ref: 1200 });
+      eq(Domain.statementRecord(1100, [1000, 1200]), null);
+      eq(Domain.statementRecord(800, [1000]), null);
+    },
+    'bu ekstrede bitirilen abonelikler; önce ya da sonra bitenler değil'() {
+      const sub = (id, end) => ({ id, name: id, amt: 59, ts: D(2026, 6, 5), cat: 'subs', sub: true, end });
+      const items = [sub('a', D(2026, 10, 1)), sub('b', D(2026, 9, 10)), sub('c', D(2026, 10, 18)), sub('d')];
+      const rows = Domain.visibleRows(items, 15, D(2026, 10, 20));
+      eq(Domain.statementSummary(items, rows, 15, D(2026, 9, 16)).ended.map(i => i.id), ['a']);
+    },
+    'yön liraya yuvarlanır'() {
+      eq(Domain.trend(120, 100), 'up');
+      eq(Domain.trend(80, 100), 'down');
+      eq(Domain.trend(100.3, 100), 'same');
+    },
+    'geçen ekstre ilk kayıttan önceyse null; harcama yoksa özet yok'() {
+      const items = [{ id: 'a', name: 'a', amt: 100, ts: D(2026, 9, 20) }];
+      const rows = Domain.visibleRows(items, 15, D(2026, 10, 20));
+      eq(Domain.statementSummary(items, rows, 15, D(2026, 9, 16)).prev, null);
+      eq(Domain.statementSummary(items, rows, 15, D(2026, 8, 16)), null);
+    }
+  });
+
   Test.group('Domain · sık kullanılan isimler', {
     'en çok girilen önce; büyük/küçük harf aynı, son yazılış; Adsız ve boş girmez'() {
       const items = [

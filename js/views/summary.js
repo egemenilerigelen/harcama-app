@@ -13,7 +13,7 @@ class SummaryView {
   #chart;
   #onOpen;
 
-  constructor({ onOpen, onEditGoal }) {
+  constructor({ onOpen, onEditGoal, onStatement }) {
     this.#onOpen = onOpen;
     this.#ring = new GoalRing($('ringBtn'));
     this.#chart = new BarChart({
@@ -25,6 +25,8 @@ class SummaryView {
 
     // Halkaya dokununca hedef paneli (click: iPhone klavyesi açılabilsin)
     $('ringBtn').onclick = onEditGoal;
+    $('stmtLink').onclick = onStatement;
+    Touch.hapticOn($('stmtLink'));
 
     document.querySelectorAll('#chartMode button').forEach(btn => {
       btn.onclick = () => {
@@ -41,6 +43,7 @@ class SummaryView {
 
   render(model) {
     this.#model = model;
+    this.#renderStatementLink();
     this.#renderGoal();
     this.#renderChart();
     this.#renderCategories();
@@ -68,8 +71,17 @@ class SummaryView {
     return { start: periodStart.getTime(), end: Domain.periodStart(now, cutoff, 1).getTime() };
   }
 
-  // HEDEF KARTI: halka, harcanan / hedef / kalan, ne yapmalı satırı. Günlük tutar dönemin kalanına
-  // düşecek abonelik çekimleri ayrıldıktan sonra hesaplanır (onlar zaten gelecek)
+  // Başlıktaki bağlantı: son kapanan ekstre ("Eylül ekstresi ›"); o ekstrede harcama yoksa gizli
+  #renderStatementLink() {
+    const { now, cutoff, items, rows } = this.#model;
+    const s = Domain.statementSummary(items, rows, cutoff, Domain.periodStart(now, cutoff, -1).getTime());
+    $('stmtLink').hidden = !s;
+    if (s) $('stmtLink').textContent = Format.statementLink(s.end - Config.DAY_MS, now);
+  }
+
+  // HEDEF KARTI: başlıkta aralık ve kalan gün; halka, harcanan / hedef / kalan; tek satırda ne yapmalı ve dönem sonu
+  // tahmini. Günlük tutar ve tahmin
+  // dönemin kalanına düşecek abonelik çekimlerini hesaba katar (onlar zaten gelecek)
   #renderGoal() {
     const { now, items, rows, goal } = this.#model;
     const { start, end } = this.#period();

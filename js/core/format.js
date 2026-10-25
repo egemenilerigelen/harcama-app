@@ -132,6 +132,82 @@ const Format = Object.freeze({
     return status + ' · hedef ' + Format.money(goal);
   },
 
+  // EKSTRE ÖZETİ: başlıktaki bağlantı ("Eylül ekstresi ›"), toplamın altındaki hedef, hedefe ve geçen
+  // ekstreye göre cümleler, biten taksitlerin notu
+  // Ekranın başlığı: "Ekim Ekstresi"
+  statementTitle(lastDay, now) {
+    return Format.statement(lastDay, now).replace('ekstresi', 'Ekstresi');
+  },
+
+  statementLink(lastDay, now) {
+    return Format.statement(lastDay, now) + ' ›';
+  },
+
+  statementTarget(goal) {
+    return 'Hedef ' + Format.money(goal);
+  },
+
+  // Oklu kısa satırlar (Kategoriler kartındaki gibi); trend: Domain.trend
+  // "↓ ₺750 hedefin altında" / "↑ ₺1.200 hedefin üstünde" / "Hedefe tam denk"
+  statementGoal(total, goal, trend) {
+    if (trend === 'same') return 'Hedefe tam denk';
+    return (trend === 'up' ? '↑ ' : '↓ ') + Format.money(Math.abs(Math.round(total - goal))) + (trend === 'up' ? ' hedefin üstünde' : ' hedefin altında');
+  },
+
+  // "↓ ₺850 geçen ekstreden az" / "↑ ₺850 geçen ekstreden fazla" / "Geçen ekstreyle aynı"
+  statementChange(total, prev, trend) {
+    if (trend === 'same') return 'Geçen ekstreyle aynı';
+    return (trend === 'up' ? '↑ ' : '↓ ') + Format.money(Math.abs(Math.round(total - prev))) + ' geçen ekstreden ' + (trend === 'up' ? 'fazla' : 'az');
+  },
+
+  // HABERLER (ekstre özetinin altı): başlık ve altında etkisi. Birden fazlaysa sayı ve adlar.
+  // Biten taksit ve abonelik
+  // "Telefon taksitleri bitti" / "3 taksit bitti: Telefon, TV, Koltuk" · "Sonraki ekstreler ₺1.500 hafifler"
+  finishedTitle(names) {
+    return names.length === 1 ? names[0] + ' taksitleri bitti' : names.length + ' taksit bitti: ' + names.join(', ');
+  },
+
+  finishedSub(amount) {
+    return 'Sonraki ekstreler ' + Format.money(amount) + ' hafifler';
+  },
+
+  // "Netflix aboneliği bitti" / "2 abonelik bitti: Netflix, Spotify" · "Her ay ₺229 daha az çekilecek"
+  endedTitle(names) {
+    return names.length === 1 ? names[0] + ' aboneliği bitti' : names.length + ' abonelik bitti: ' + names.join(', ');
+  },
+
+  endedSub(amount) {
+    return 'Her ay ' + Format.money(amount) + ' daha az çekilecek';
+  },
+
+  // "Laptop 6 taksite bölündü" / "2 alışveriş taksitlendi: Laptop, Koltuk" · "Sonraki ekstreye ₺2.000 yazıldı"
+  startedTitle(rows) {
+    return rows.length === 1 ? rows[0].name + ' ' + rows[0].parts + ' taksite bölündü'
+      : rows.length + ' alışveriş taksitlendi: ' + rows.map(r => r.name).join(', ');
+  },
+
+  startedSub(amount) {
+    return 'Sonraki ekstreye ' + Format.money(amount) + ' yazıldı';
+  },
+
+  // "Spotify aboneliği başladı" / "2 yeni abonelik: Spotify, YouTube" · "Her ay ₺59"
+  newSubTitle(names) {
+    return names.length === 1 ? names[0] + ' aboneliği başladı' : names.length + ' yeni abonelik: ' + names.join(', ');
+  },
+
+  newSubSub(amount) {
+    return Format.monthly + ' ' + Format.money(amount);
+  },
+
+  // Rekor: "Son 4 ekstrenin en düşüğü" · "Önceki en düşük ₺9.800"
+  recordTitle({ kind, count }) {
+    return 'Son ' + count + ' ekstrenin en ' + (kind === 'low' ? 'düşüğü' : 'yükseği');
+  },
+
+  recordSub({ kind, ref }) {
+    return 'Önceki en ' + (kind === 'low' ? 'düşük ' : 'yüksek ') + Format.money(ref);
+  },
+
   // Hedef kartının alt satırı: ne yapmalı. p: Domain.goalProgress (hedef yoksa null),
   // carried: bu döneme yansıyan önceki taksitler. Aşımda tutarı tekrar etmez (halka ve "Aşım" satırı söylüyor).
   goalHint(p, carried) {

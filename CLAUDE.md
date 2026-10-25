@@ -25,6 +25,7 @@ css/                  tasarım, bölümlere ayrılmış; sıra önemli (aynı a�
   sheets.css          hedef ve kesim günü panelleri
   name-sheet.css      isim adımı, seçim özeti, kategori çipleri
   sheet.css           BottomSheet temeli, kayıt detayı ve düzenleme
+  dialog.css          ortada açılan ekran (CenterDialog), ekstre özeti
   undo.css            geri alma kapsülü
   tabbar.css          alt sekme çubuğu (cam)
   media.css           küçük ekran, Hareketi Azalt (hep en son)
@@ -57,6 +58,8 @@ js/ui/                ARAYÜZ YARDIMCILARI ve ortak bileşenler
   name-sheet.js       NameSheet extends BottomSheet: girişin 2. adımı (isim, çipler, özet satırı)
   ring.js             GoalRing: hedef halkası (SVG)
   barchart.js         BarChart: tek serili sütun grafik (SVG)
+  dialog.js           CenterDialog: ortada açılan ekran (temel sınıf; arka plan kararır)
+  statement.js        StatementDialog extends CenterDialog: kapanan ekstrenin özeti
 
 js/views/             EKRANLAR: her biri kendi DOM'unu ve durumunu yönetir
   entry.js            EntryPanel: girişin 1. adımı (tutar, tuş takımı, Devam)
@@ -99,7 +102,7 @@ Her yeni özellikte uygulanır (OOP, clean code, loose coupling):
 - `id` Base36 zaman damgası + rastgele 3 karakter · `amt` toplam tutar (taksitliyse tamamı) · `inst` taksit sayısı, yoksa 1 · `ts` epoch ms
 - `cat`: `Categories.KEYS` (market, food, transport, subs, shopping, bills, health, fun, other). Yeni kayıtlarda hep yazılır (yoksa `other`); eski kayıtta yoksa ekranda `Domain.categorize` tamamlar, veriye yazılmaz.
 - `sub`: abonelik (her ay kendiliğinden çekilir). `end`: aboneliğin bitirildiği an; sonrasında çekim yok.
-- Ek anahtarlar: `cutoff_day_v1` (kesim günü, varsayılan 15, 1–28), `goal_v1` (dönem hedefi ₺, yoksa 0), `backup_at_v1` (son yedek zamanı), `haptics_v1` (`'0'` = titreşim kapalı; cihaza özel, yedeğe girmez).
+- Ek anahtarlar: `cutoff_day_v1` (kesim günü, varsayılan 15, 1–28), `goal_v1` (dönem hedefi ₺, yoksa 0), `backup_at_v1` (son yedek zamanı), `haptics_v1` (`'0'` = titreşim kapalı; cihaza özel, yedeğe girmez), `statement_seen_v1` (kendiliğinden gösterilen son ekstre özetinin dönem başı; cihaza özel, yedeğe girmez).
 - Yedek (`Backup.json`): `{ app: 'harcama', version: 1, exportedAt, cutoff, goal, expenses }`. `Backup.parse` her kaydı doğrular, ham `expenses_v1` dizisini de kabul eder; şema değişirse `version` artar, eski sürümler okunmaya devam eder.
 - Şemayı değiştirirsen eski kayıtları bozma: `Domain.expand` ve `DetailSheet` eksik `inst`/`amt` için varsayılan, eksik `cat` için `Domain.categorize` kullanır.
 
@@ -124,7 +127,7 @@ Ayrıntı `docs/tasarim.md`; CSS'e dokunmadan önce oku.
 
 ## Geliştirici notları (`docs/`)
 
-Ekranların ve bileşenlerin davranışı, kararların gerekçeleri ve bilinen sınırlar `docs/`'ta, konu başına bir dosya: `is-kurallari`, `tasarim`, `ana-sayfa` (sekmeler, son harcamalar, kayan haneler), `giris` (`EntryPanel`, `NameSheet`), `geri-alma` (`UndoBar`), `satir` (`ExpenseRow`, kaydırarak silme, `DetailSheet`), `harcamalar` (`ListView`), `ozet` (`SummaryView`), `paneller` (`BottomSheet`), `ayarlar`, `pwa` (ana ekran, çevrimdışı, açılış), `sinirlar` (bilinen sınırlar, sunucuya geçiş planı).
+Ekranların ve bileşenlerin davranışı, kararların gerekçeleri ve bilinen sınırlar `docs/`'ta, konu başına bir dosya: `is-kurallari`, `tasarim`, `ana-sayfa` (sekmeler, son harcamalar, kayan haneler), `giris` (`EntryPanel`, `NameSheet`), `geri-alma` (`UndoBar`), `satir` (`ExpenseRow`, kaydırarak silme, `DetailSheet`), `harcamalar` (`ListView`), `ozet` (`SummaryView`), `paneller` (`BottomSheet`, `CenterDialog`), `ayarlar`, `pwa` (ana ekran, çevrimdışı, açılış), `sinirlar` (bilinen sınırlar, sunucuya geçiş planı).
 
 - Bir ekrana ya da bileşene dokunmadan önce o dosyayı oku; oradaki davranışlar kullanıcı kararıdır.
 - Davranış değişince o dosyayı güncelle; aynı bilgi iki yere yazılmaz.

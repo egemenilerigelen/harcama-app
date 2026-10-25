@@ -42,6 +42,7 @@
 <link rel="stylesheet" href="css/sheets.css">
 <link rel="stylesheet" href="css/name-sheet.css">
 <link rel="stylesheet" href="css/sheet.css">
+<link rel="stylesheet" href="css/dialog.css">
 <link rel="stylesheet" href="css/undo.css">
 <link rel="stylesheet" href="css/tabbar.css">
 <link rel="stylesheet" href="css/media.css">
@@ -134,7 +135,11 @@
 
     <!-- 3. ÖZET: dönem hedefi, harcama grafiği, kategoriler, devam eden taksitler -->
     <section class="view" data-view="summary">
-      <header class="view-head"><h1>Özet</h1></header>
+      <header class="view-head">
+        <h1>Özet</h1>
+        <!-- Son kapanan ekstrenin özeti (ortada açılır); kapanmış ekstrede harcama yoksa gizli -->
+        <button class="link" id="stmtLink" hidden></button>
+      </header>
       <div class="scroll">
 
         <!-- HEDEF: halka (dokununca hedef paneli) + harcanan / hedef / kalan -->
@@ -421,6 +426,38 @@
     </div>
   </div>
 
+  <!-- EKSTRE ÖZETİ: kesimden sonra ilk açılışta bir kez kendiliğinden, sonra Özet başlığındaki bağlantıyla.
+       Ortada açılır; Kapat ya da arka plana dokununca kapanır -->
+  <div class="dialog-wrap" id="stmt">
+    <div class="dialog-bg" data-close></div>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="stmtTitle">
+      <header class="stmt-head">
+        <h2 id="stmtTitle"></h2>
+        <small id="stmtRange"></small>
+      </header>
+      <div class="stmt-hero">
+        <div class="ring" id="stmtRing"></div>
+        <div class="stmt-total">
+          <small>Toplam</small>
+          <b class="hero" id="stmtTotal"></b>
+          <small id="stmtGoal"></small>
+        </div>
+      </div>
+      <div class="stmt-says" id="stmtSays"></div>
+      <!-- En büyükler: solda kategoriye göre, sağda tek harcama -->
+      <div class="stmt-split">
+        <div><h3 class="stmt-sec">Kategoriye Göre</h3><div id="stmtCats"></div></div>
+        <div><h3 class="stmt-sec">Tek Harcama</h3><div id="stmtTop"></div></div>
+      </div>
+      <!-- HABERLER (varsa): biten taksitler, biten abonelikler; her biri etkisiyle -->
+      <div class="stmt-news" id="stmtNews">
+        <h3 class="stmt-sec">Haberler</h3>
+        <div id="stmtNewsList"></div>
+      </div>
+      <button class="stmt-close" id="stmtClose" data-close>Kapat</button>
+    </div>
+  </div>
+
   <!-- GERİ ALMA KAPSÜLÜ: ekleme, silme ve düzenlemeden sonra birkaç saniye; ekranın tepesinden
        Dynamic Island gibi büyür -->
   <div id="undo" role="status" aria-live="polite">
@@ -477,6 +514,8 @@
 <script src="js/ui/name-sheet.js"></script>
 <script src="js/ui/ring.js"></script>
 <script src="js/ui/barchart.js"></script>
+<script src="js/ui/dialog.js"></script>
+<script src="js/ui/statement.js"></script>
 <script src="js/views/entry.js"></script>
 <script src="js/views/home.js"></script>
 <script src="js/views/list.js"></script>

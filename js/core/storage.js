@@ -6,6 +6,7 @@ const Store = {
   GOAL_KEY: 'goal_v1',
   BACKUP_KEY: 'backup_at_v1',
   HAPTICS_KEY: 'haptics_v1',
+  STATEMENT_KEY: 'statement_seen_v1',
 
   all() {
     try {
@@ -112,5 +113,14 @@ const Store = {
   setHaptics(on) {
     if (on) localStorage.removeItem(this.HAPTICS_KEY);
     else localStorage.setItem(this.HAPTICS_KEY, '0');
+  },
+
+  // Kendiliğinden gösterilen son ekstre özetinin dönem başı (her ekstre bir kez; cihaza özel, yedeğe girmez)
+  getStatementSeen() {
+    return Number(localStorage.getItem(this.STATEMENT_KEY)) || 0;
+  },
+
+  setStatementSeen(start) {
+    localStorage.setItem(this.STATEMENT_KEY, start);
   }
 };

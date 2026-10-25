@@ -1,13 +1,14 @@
 // UYGULAMA: bileşenleri kurar ve birbirine bağlar (composition root).
 // Veriye (Store) sadece burası erişir; bileşenler birbirini tanımaz,
 // kendilerine verilen geri çağrılarla konuşur.
-// Bağımlılık: Store, Domain, Haptics ve tüm görünümler
+// Bağımlılık: Store, Domain, Config, Haptics, StatementDialog ve tüm görünümler
 class App {
   #undo;
   #detail;
   #goalSheet;
   #cutSheet;
   #nameSheet;
+  #statement;
   #entry;
   #model = null;
   #home;
@@ -34,11 +35,13 @@ class App {
     this.#goalSheet = new GoalSheet({ onSave: goal => this.#setGoal(goal) });
     this.#cutSheet = new CutoffSheet({ onSave: day => this.#setCutoff(day) });
     this.#nameSheet = new NameSheet({ onAdd: entry => this.#add(entry) });
+    this.#statement = new StatementDialog();
     this.#home = new HomeView({ rowActions, onSeeAll: () => this.#seeAll() });
     this.#list = new ListView({ rowActions, onChange: () => this.refresh() });
     this.#summary = new SummaryView({
       onOpen: id => this.#openDetail(id),
-      onEditGoal: () => this.#editGoal()
+      onEditGoal: () => this.#editGoal(),
+      onStatement: () => this.#openStatement()
     });
     this.#settings = new SettingsView({
       onHaptics: on => this.#setHaptics(on),
@@ -54,7 +57,9 @@ class App {
 
     // Ana ekran uygulaması kapanmadan arka planda bekler; öne gelince gün ya da dönem değişmiş olabilir
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) this.refresh();
+      if (document.hidden) return;
+      this.refresh();
+      this.#offerStatement();
     });
     window.addEventListener('resize', () => this.#fit());
     // Fontlar yüklenince satır yükseklikleri değişebilir
@@ -67,6 +72,7 @@ class App {
     this.#settings.showInstall(!Device.isStandalone());
     this.refresh();
     document.body.classList.add('ready'); // açılış ekranı kalkar
+    this.#offerStatement();
 
     // Ana ekran uygulaması: internetsiz açılsın, veriler kendiliğinden silinmesin
     Device.registerOffline();
@@ -245,6 +251,26 @@ class App {
     this.refresh();
   }
 
+  // EKSTRE ÖZETİ: son kapanan ekstre (harcama yoksa null)
+  #lastStatement() {
+    const { now, cutoff, items, rows } = this.#model;
+    return Domain.statementSummary(items, rows, cutoff, Domain.periodStart(now, cutoff, -1).getTime());
+  }
+
+  #openStatement() {
+    const s = this.#lastStatement();
+    if (s) this.#statement.open(s, this.#model.goal, this.#model.now);
+  }
+
+  // Kesimden sonra ilk açılışta (ya da öne gelişte) kapanan ekstrenin özeti bir kez kendiliğinden açılır;
+  // açılış ekranı kalkıp ana sayfa oturduktan sonra
+  #offerStatement() {
+    const s = this.#lastStatement();
+    if (!s || Store.getStatementSeen() >= s.start) return;
+    Store.setStatementSeen(s.start);
+    setTimeout(() => this.#statement.open(s, this.#model.goal, this.#model.now), Config.STATEMENT_DELAY_MS);
+  }
+
   // "Tümünü gör": Harcamalar bu dönemden açılır
   #seeAll() {
     this.#list.resetPeriod();
@@ -258,6 +284,7 @@ class App {
     this.#goalSheet.close();
     this.#cutSheet.close();
     this.#nameSheet.close();
+    this.#statement.close();
     if (name === 'home') this.#home.fit();
     if (name === 'summary') {
       this.#summary.redraw();

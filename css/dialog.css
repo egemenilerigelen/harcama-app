@@ -1,0 +1,280 @@
+/* Ortada açılan ekran (CenterDialog) ve ekstre özeti */
+
+/* Arka plan kararır (bulanıklık yok: cam sadece alt sekme çubuğunda); kart ortada, sığmazsa kendi içinde kayar */
+.dialog-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.dialog-wrap.open {
+  display: flex;
+}
+
+.dialog-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  animation: fadeIn 0.2s ease;
+}
+
+.dialog {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px 18px 12px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #1a1c22, #121418);
+  border: 1px solid var(--line);
+  box-shadow: var(--hl), 0 24px 48px rgba(0, 0, 0, 0.55);
+  animation: dialogIn 0.26s var(--ease);
+}
+
+/* Kapanış: kart küçülerek solar, arka plan açılır (Config.DIALOG_CLOSE_MS) */
+.dialog-wrap.closing {
+  pointer-events: none;
+}
+
+.dialog-wrap.closing .dialog {
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 0.2s ease, transform 0.2s var(--ease-in);
+}
+
+.dialog-wrap.closing .dialog-bg {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+@keyframes dialogIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
+
+/* EKSTRE ÖZETİ: kısa kart (393×659'da ~415px); başlık ve aralık aynı satırda */
+.stmt-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.stmt-head h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.stmt-head small {
+  flex-shrink: 0;
+  color: var(--mut);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Halka + toplam (hedef yoksa sadece toplam) */
+.stmt-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 12px 0 10px;
+}
+
+.stmt-hero .ring {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  cursor: default;
+}
+
+.stmt-hero .ring[hidden] {
+  display: none;
+}
+
+.stmt-hero .ring-text b {
+  font-size: 18px;
+}
+
+.stmt-hero .ring-text small {
+  font-size: 11px;
+}
+
+.stmt-total {
+  min-width: 0;
+}
+
+.stmt-total small {
+  display: block;
+  color: var(--mut);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.stmt-total b {
+  display: block;
+  margin: 1px 0;
+  color: var(--gold);
+  font-size: 30px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+/* Oklu satırlar: Kategoriler kartındaki değişim dili (fazla uyarı, az iyi rengi, aynı gri) */
+.stmt-says p {
+  margin: 0;
+  color: var(--mut);
+  font-size: 14px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
+}
+
+.stmt-says p.up {
+  color: var(--warn);
+}
+
+.stmt-says p.down {
+  color: var(--good);
+}
+
+.stmt-says[hidden] {
+  display: none;
+}
+
+/* En büyükler: iki sütun, arada kıl çizgi */
+.stmt-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.stmt-split > div {
+  min-width: 0;
+}
+
+.stmt-split > div + div {
+  padding-left: 12px;
+  border-left: 1px solid var(--line);
+}
+
+.stmt-split > div:first-child {
+  padding-right: 12px;
+}
+
+.stmt-sec {
+  margin: 0 0 5px;
+  color: var(--mut);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Satır: kategori ikonu (kuyuda), ad, sağda tutar */
+.stmt-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stmt-item + .stmt-item {
+  margin-top: 8px;
+}
+
+.stmt-item .cat-well {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+}
+
+.stmt-item .cat-ico {
+  width: 15px;
+  height: 15px;
+}
+
+.stmt-item .n {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stmt-item b {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Haberler: ikonsuz ve renksiz (renk üstteki hükümde) */
+.stmt-news {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.stmt-news[hidden] {
+  display: none;
+}
+
+/* Haber: solda kıl çizgi, başlık, altında gri etkisi */
+.stmt-news-row {
+  min-width: 0;
+  padding-left: 10px;
+  border-left: 2px solid var(--surface-3);
+}
+
+.stmt-news-row + .stmt-news-row {
+  margin-top: 10px;
+}
+
+.stmt-news-row b {
+  display: block;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stmt-news-row small {
+  color: var(--mut);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Kapat: nötr (altın sinyal değil) */
+.stmt-close {
+  display: block;
+  width: 100%;
+  min-height: 40px;
+  margin-top: 12px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface-3);
+  box-shadow: var(--hl);
+  color: var(--tx);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.stmt-close:active {
+  opacity: 0.7;
+}
+
+/* Özet başlığındaki ekstre özeti bağlantısı */
+.view-head .link[hidden] {
+  display: none;
+}

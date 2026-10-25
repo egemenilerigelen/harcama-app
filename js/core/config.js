@@ -110,5 +110,16 @@ const Config = Object.freeze({
   CAT_SAME_MIN: 50,
 
   // Abonelikler kartında sıradaki çekim bu kadar gün içindeyse vurgulanır
-  SUB_SOON_DAYS: 3
+  SUB_SOON_DAYS: 3,
+
+  // Ekstre özeti: kaç büyük harcama gösterilir; kesimden sonra kendiliğinden açılmadan önceki bekleme
+  // (açılış ekranı kalksın, ana sayfa otursun); ortadaki ekranın kapanış süresi (CSS'teki
+  // .dialog-wrap.closing geçişiyle aynı olmalı)
+  STATEMENT_TOP: 3,
+  // Haberler: en fazla kaç satır; rekor (en düşük / en yüksek ekstre) için en az ve en çok kaç önceki ekstre
+  STATEMENT_NEWS_MAX: 3,
+  STATEMENT_RECORD_MIN: 2,
+  STATEMENT_RECORD_PERIODS: 5,
+  STATEMENT_DELAY_MS: 450,
+  DIALOG_CLOSE_MS: 200
 });

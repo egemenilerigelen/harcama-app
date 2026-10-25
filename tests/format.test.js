@@ -89,6 +89,28 @@
   });
 
   Test.group('Format · cümleler', {
+    'ekstre özeti: hedefe ve geçen ekstreye göre oklu satırlar, biten taksitler'() {
+      eq(Format.statementGoal(14250, 15000, 'down'), '↓ ₺750 hedefin altında');
+      eq(Format.statementGoal(16200, 15000, 'up'), '↑ ₺1.200 hedefin üstünde');
+      eq(Format.statementGoal(15000, 15000, 'same'), 'Hedefe tam denk');
+      eq(Format.statementChange(14250, 15100, 'down'), '↓ ₺850 geçen ekstreden az');
+      eq(Format.statementChange(15100, 14250, 'up'), '↑ ₺850 geçen ekstreden fazla');
+      eq(Format.statementChange(100, 100, 'same'), 'Geçen ekstreyle aynı');
+      eq(Format.statementTitle(new Date(2026, 9, 15).getTime(), new Date(2026, 9, 25).getTime()), 'Ekim Ekstresi');
+      eq(Format.finishedTitle(['Telefon']), 'Telefon taksitleri bitti');
+      eq(Format.finishedTitle(['Telefon', 'TV', 'Koltuk']), '3 taksit bitti: Telefon, TV, Koltuk');
+      eq(Format.finishedSub(1500), 'Sonraki ekstreler ₺1.500 hafifler');
+      eq(Format.endedTitle(['Netflix']), 'Netflix aboneliği bitti');
+      eq(Format.endedTitle(['Netflix', 'Spotify']), '2 abonelik bitti: Netflix, Spotify');
+      eq(Format.endedSub(229), 'Her ay ₺229 daha az çekilecek');
+      eq(Format.startedTitle([{ name: 'Laptop', parts: 6 }]), 'Laptop 6 taksite bölündü');
+      eq(Format.startedTitle([{ name: 'Laptop', parts: 6 }, { name: 'Koltuk', parts: 3 }]), '2 alışveriş taksitlendi: Laptop, Koltuk');
+      eq(Format.startedSub(2000), 'Sonraki ekstreye ₺2.000 yazıldı');
+      eq(Format.newSubTitle(['Spotify']), 'Spotify aboneliği başladı');
+      eq(Format.newSubSub(59), 'Her ay ₺59');
+      eq(Format.recordTitle({ kind: 'low', count: 4 }), 'Son 4 ekstrenin en düşüğü');
+      eq(Format.recordSub({ kind: 'high', ref: 9800 }), 'Önceki en yüksek ₺9.800');
+    },
     'hedef notu: yüzde ya da aşım'() {
       eq(Format.goalNote(3135, 9500), '%33 · hedef ₺9.500');
       eq(Format.goalNote(10700, 9500), '₺1.200 aştı · hedef ₺9.500');

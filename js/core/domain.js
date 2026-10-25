@@ -185,6 +185,61 @@ const Domain = Object.freeze({
     return amount > 0 ? { count: done.length, amount } : null;
   },
 
+  // Kapanmış bir ekstrenin özeti (ekstre özeti ekranı); start ekstrenin dönem başı. Ekstrede harcama yoksa null.
+  // prev: geçen ekstre (ilk kayıttan önceyse null); cats, top: en büyük Config.STATEMENT_TOP kategori ve tek satır.
+  // Haberler için: finished son taksiti bu ekstreye düşen, started bu ekstrede taksite bölünen alışverişlerin
+  // satırları (ilk taksit; her taksit aynı tutar); ended bu ekstrede bitirilen, newSubs başlayan abonelikler;
+  // record ilk kayıttan beri en az Config.STATEMENT_RECORD_MIN önceki ekstreyle (en çok
+  // Config.STATEMENT_RECORD_PERIODS) kıyasta en düşük / en yüksek ekstre ise { kind: 'low'|'high', count, ref }
+  statementSummary(items, rows, cutoff, start) {
+    const end = Domain.periodStart(start, cutoff, 1).getTime();
+    const inPeriod = rows.filter(r => r.ts >= start && r.ts < end);
+    if (!inPeriod.length) return null;
+    const total = Domain.sum(inPeriod);
+
+    // Önceki ekstrelerin toplamı, yeniden eskiye; ilk kayıttan öncekiler yok
+    const since = Domain.dataSince(items, cutoff, start);
+    const past = [];
+    for (let k = 1; k <= Config.STATEMENT_RECORD_PERIODS; k++) {
+      const from = Domain.periodStart(start, cutoff, -k).getTime();
+      if (from < since) break;
+      const to = Domain.periodStart(start, cutoff, 1 - k).getTime();
+      past.push(Domain.sum(rows.filter(r => r.ts >= from && r.ts < to)));
+    }
+
+    const byCat = {};
+    inPeriod.forEach(r => { byCat[r.cat] = (byCat[r.cat] || 0) + r.displayAmt; });
+    return {
+      start,
+      end,
+      total,
+      prev: past.length ? past[0] : null,
+      cats: Object.entries(byCat).map(([cat, total]) => ({ cat, total }))
+        .sort((a, b) => b.total - a.total).slice(0, Config.STATEMENT_TOP),
+      top: [...inPeriod].sort((a, b) => b.displayAmt - a.displayAmt).slice(0, Config.STATEMENT_TOP),
+      finished: inPeriod.filter(r => r.parts > 1 && r.part === r.parts),
+      started: inPeriod.filter(r => r.parts > 1 && r.part === 1),
+      ended: items.filter(i => i.sub && i.end >= start && i.end < end),
+      newSubs: items.filter(i => i.sub && i.ts >= start && i.ts < end),
+      record: Domain.statementRecord(total, past)
+    };
+  },
+
+  // Ekstre önceki ekstrelerin hepsinden düşük ya da yüksekse rekor (kıyas Config.STATEMENT_RECORD_MIN'den azsa yok)
+  statementRecord(total, past) {
+    if (past.length < Config.STATEMENT_RECORD_MIN) return null;
+    const low = Math.min(...past), high = Math.max(...past);
+    if (Math.round(total) < Math.round(low)) return { kind: 'low', count: past.length + 1, ref: low };
+    if (Math.round(total) > Math.round(high)) return { kind: 'high', count: past.length + 1, ref: high };
+    return null;
+  },
+
+  // Tutarın bir ölçüye göre yönü, liraya yuvarlanmış: 'up' fazla, 'down' az, 'same' (ekstre özeti: hedef, geçen ekstre)
+  trend(value, ref) {
+    const diff = Math.round(value - ref);
+    return diff > 0 ? 'up' : diff < 0 ? 'down' : 'same';
+  },
+
   // Devam eden taksitli alışverişler, kalan borcu büyükten küçüğe:
   // [{ id, name, paid (yansıyan taksit), parts, single, remaining }]
   activeInstallments(items, cutoff, now) {
