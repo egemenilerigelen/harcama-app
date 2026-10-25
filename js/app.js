@@ -28,7 +28,8 @@ class App {
     this.#undo = new UndoBar();
     this.#detail = new DetailSheet({
       onDelete: id => this.#delete(id),
-      onSave: (id, changes) => this.#edit(id, changes)
+      onSave: (id, changes) => this.#edit(id, changes),
+      onEnd: id => this.#endSubscription(id)
     });
     this.#goalSheet = new GoalSheet({ onSave: goal => this.#setGoal(goal) });
     this.#cutSheet = new CutoffSheet({ onSave: day => this.#setCutoff(day) });
@@ -104,8 +105,9 @@ class App {
 
   // Ekleme: seçilen güne şimdiki saatle yazılır. Geri alma kapsülü yok (en sık işlem, her seferinde
   // bildirim yorar): yeni satır, kayan toplam ve titreşim yeterli onay; yanlışsa satır kaydırılıp silinir
+  // Abonelik kategorisinde tek çekim kayıt abonelik olur: her ay kendiliğinden tekrar eder
   #add({ name, amt, inst, day, cat }) {
-    const item = Store.add(name, amt, inst, Domain.atDay(day, Date.now()), cat);
+    const item = Store.add(name, amt, inst, Domain.atDay(day, Date.now()), cat, Domain.subscriptionEntry(cat, inst));
     this.#entry.clear();
     this.refresh({ animate: true });
     this.#home.flash(item.id);
@@ -127,13 +129,27 @@ class App {
     this.#undo.show(info, undo, this.#tab === 'home' ? Config.UNDO_DELAY_MS : 0);
   }
 
-  // Düzenleme: geri alma kapsülü açılır, geri alınınca kayıt önceki haline döner
+  // Düzenleme: geri alma kapsülü açılır, geri alınınca kayıt önceki haline döner. Kategori Abonelik'e
+  // çevrilirse abonelik olur, çıkarılırsa tekrar etmez (elle girilmiş eski Abonelik kaydı tekrar etmeye başlamaz)
   #edit(id, changes) {
-    const before = Store.update(id, changes);
-    if (!before) return;
+    const old = Store.all().find(e => e.id === id);
+    if (!old) return;
+    const before = Store.update(id, { ...changes, sub: Domain.subscriptionEntry(changes.cat, changes.inst, old) });
     const info = { kind: 'edited', title: Format.undoTitle('edited', changes.name), sub: Format.change(Number(before.amt) || 0, changes.amt) };
     this.#offerUndo(info, () => {
-      Store.update(id, { name: before.name, amt: before.amt, inst: before.inst || 1, ts: before.ts, cat: before.cat });
+      Store.put(before);
+      this.refresh({ animate: true });
+    });
+    this.refresh({ animate: true });
+  }
+
+  // Aboneliği bitir: bu andan sonra çekim olmaz, geçmiş çekimler kalır; geri alınabilir
+  #endSubscription(id) {
+    const before = Store.update(id, { end: Date.now() });
+    if (!before) return;
+    const info = { kind: 'edited', title: Format.undoTitle('ended', before.name), sub: Format.money(Number(before.amt) || 0) };
+    this.#offerUndo(info, () => {
+      Store.put(before);
       this.refresh({ animate: true });
     });
     this.refresh({ animate: true });

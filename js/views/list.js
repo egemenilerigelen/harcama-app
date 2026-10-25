@@ -42,8 +42,8 @@ class ListView {
     this.#offset = 0;
   }
 
-  // Dönemde önceki alışverişlerin taksitleri günlere girmez (dönemin ilk gününü şişirmesin),
-  // altta kendi grubunda durur; dönem toplamında sayılır
+  // Dönemde abonelik çekimleri ve önceki alışverişlerin taksitleri günlere girmez (kendiliğinden gelen
+  // ödemeler; taksitler dönemin ilk gününü şişirmesin), altta kendi gruplarında durur; dönem toplamında sayılır
   render({ now, cutoff, rows }) {
     this.#list.innerHTML = '';
     if (this.#searching) {
@@ -51,8 +51,10 @@ class ListView {
       return;
     }
     const items = this.#renderPeriod(now, cutoff, rows);
+    const subs = items.filter(r => r.sub);
     const carried = items.filter(Domain.isCarried);
-    this.#renderDays(items.filter(r => !Domain.isCarried(r)), carried.length ? '' : 'Bu dönemde harcama yok', now);
+    this.#renderDays(items.filter(Domain.isDaily), subs.length || carried.length ? '' : 'Bu dönemde harcama yok', now);
+    if (subs.length) this.#renderGroup(Format.subsTitle, subs, now);
     if (carried.length) this.#renderGroup(Format.carriedTitle, carried, now);
   }
 
@@ -66,14 +68,14 @@ class ListView {
     return items;
   }
 
-  // Dönem kartı: seçili dönemin toplamı (önceki taksitler dahil) ve günlük ortalaması
+  // Dönem kartı: seçili dönemin toplamı (önceki taksitler ve abonelikler dahil) ve günlük ortalaması
   // (sadece o dönemde yapılan harcamalar: taksitler ilk günde toplanıp ortalamayı şişirmesin)
   #renderPeriod(now, cutoff, rows) {
     const start = Domain.periodStart(now, cutoff, this.#offset).getTime();
     const end = Domain.periodStart(now, cutoff, this.#offset + 1).getTime();
     const items = rows.filter(r => r.ts >= start && r.ts < end);
     const total = Domain.sum(items);
-    const spent = Domain.sum(items.filter(r => !Domain.isCarried(r)));
+    const spent = Domain.sum(items.filter(Domain.isDaily));
 
     const lastDay = end - Config.DAY_MS;
     $('perName').textContent = Format.periodName(this.#offset, lastDay, now);
@@ -103,7 +105,7 @@ class ListView {
   }
 
   // Başlık (etiket + toplam) ve satırlar. Kategorinin yanında saat; önceki taksitte saat anlamsız
-  // (dönem başına düşer), yerine alışverişin tarihi
+  // (dönem başına düşer), yerine alışverişin tarihi; abonelikte çekimin günü (gruplar günlere ayrılmaz)
   #renderGroup(label, rows, now) {
     const head = el('h2');
     head.append(el('span', '', label), el('span', '', Format.money(Domain.sum(rows))));
@@ -111,7 +113,8 @@ class ListView {
 
     const box = el('div', 'day');
     rows.forEach(r => {
-      const when = Domain.isCarried(r) ? Format.shortWhen(r.buyTs, now) : Format.time(r.ts);
+      const when = Domain.isCarried(r) ? Format.shortWhen(r.buyTs, now)
+        : r.sub && !this.#searching ? Format.shortWhen(r.ts, now) : Format.time(r.ts);
       box.appendChild(ExpenseRow.create(r, when, this.#rowActions));
     });
     this.#list.appendChild(box);

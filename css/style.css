@@ -1393,6 +1393,27 @@ body.has-amt .pad .add.pressed {
   color: var(--good);
 }
 
+/* ABONELİKLER KARTI: taksit kartının kalıbı, satırlar kategori satırı gibi (ikon, ad, altında sıradaki çekim) */
+.subs-card[hidden] {
+  display: none;
+}
+
+.sub-row {
+  cursor: pointer;
+}
+
+.sub-next {
+  display: block;
+  color: var(--mut);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sıradaki çekim yakın (Config.SUB_SOON_DAYS): altın sinyal */
+.sub-next.soon {
+  color: var(--gold);
+}
+
 /* TAKSİTLER KARTI */
 .inst-card .card-head {
   padding: 14px 14px 0;

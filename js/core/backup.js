@@ -30,14 +30,16 @@ const Backup = Object.freeze({
     const raw = Array.isArray(data) ? data : data && data.app === Backup.APP ? data.expenses : null;
     if (!Array.isArray(raw)) throw new Error('Bu dosya bir Harcama yedeği değil.');
 
-    // Kategori bilinmiyorsa alınmaz (ekranda aynı isme verilen kategori ya da Diğer)
+    // Kategori bilinmiyorsa alınmaz (ekranda aynı isme verilen kategori ya da Diğer); abonelik ve bitişi korunur
     const items = raw.filter(Backup.isRecord).map(i => ({
       id: i.id,
       name: i.name,
       amt: Number(i.amt),
       inst: Math.max(1, Number(i.inst) || 1),
       ts: Number(i.ts),
-      ...(Categories.KEYS.includes(i.cat) ? { cat: i.cat } : {})
+      ...(Categories.KEYS.includes(i.cat) ? { cat: i.cat } : {}),
+      ...(i.sub === true ? { sub: true } : {}),
+      ...(Number(i.end) > 0 ? { end: Number(i.end) } : {})
     }));
     const cutoff = Number(data.cutoff);
     const goal = Number(data.goal);
@@ -55,7 +57,8 @@ const Backup = Object.freeze({
     return { items: current.concat(fresh).sort((a, b) => b.ts - a.ts), added: fresh.length };
   },
 
-  // Excel için: alışveriş başına bir satır, yeniden eskiye. Kategorisi olmayan kayıt "Diğer"
+  // Excel için: alışveriş başına bir satır, yeniden eskiye (abonelik tek satır, Taksit sütununda "Her ay").
+  // Kategorisi olmayan kayıt "Diğer"
   // (App kategorilenmiş kayıtları verir: Domain.categorize)
   csv(items) {
     const num = n => n.toFixed(2).replace('.', ',');
@@ -70,7 +73,7 @@ const Backup = Object.freeze({
         cell(String(i.name)),
         Format.category(i.cat),
         num(amt),
-        inst,
+        i.sub ? Format.monthly : inst,
         num(amt / inst)
       ].join(';'));
     });

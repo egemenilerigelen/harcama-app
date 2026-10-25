@@ -20,9 +20,10 @@ class HomeView {
     const next = Domain.periodStart(now, cutoff, 1).getTime();
     const todayKey = Domain.dayKey(now);
 
-    // Bugün: bugün yapılan harcama. Önceki alışverişlerin taksitleri (dönemin ilk gününe düşer) girmez,
-    // yoksa dönemin ilk günü hiç harcama yokken "Bugün" taksit toplamını gösterirdi (dönem toplamında var)
-    const today = Domain.sum(rows.filter(r => !Domain.isCarried(r) && Domain.dayKey(r.ts) === todayKey));
+    // Bugün: bugün yapılan harcama. Önceki alışverişlerin taksitleri (dönemin ilk gününe düşer) ve abonelik
+    // çekimleri girmez, yoksa dönemin ilk günü hiç harcama yokken "Bugün" taksit toplamını gösterirdi
+    // (ikisi de dönem toplamında var)
+    const today = Domain.sum(rows.filter(r => Domain.isDaily(r) && Domain.dayKey(r.ts) === todayKey));
     const month = Domain.sum(rows.filter(r => r.ts >= start));
     const dir = (from, to) => animate && this.#shown && from !== to ? (to > from ? 'up' : 'down') : null;
     this.#today.set(Format.money(today), dir(this.#shown?.today, today));

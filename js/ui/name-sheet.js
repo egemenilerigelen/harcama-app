@@ -2,10 +2,11 @@
 // isimlerden biri seçilir (çipe dokunmak kaydı hemen ekler). Altında tek satır özet: kategori · taksit · tarih
 // (varsayılan: seçilmemiş · tek çekim · bugün). Bir değere dokununca o satır yerinde seçiciye döner
 // (kategori şeridi, taksit, Bugün · Dün · Takvim), seçince özete geri döner: yükseklik değişmez, panel zıplamaz.
-// Kategori tahmin edilmez; aynı isme daha önce verilen kategori hatırlanır (elle seçilmediyse).
+// Kategori tahmin edilmez; aynı isme daha önce verilen kategori hatırlanır (elle seçilmediyse). Abonelik seçilirse
+// (tek çekim) ödeme etiketi "Her ay" olur: kayıt her ay kendiliğinden tekrar eder.
 // Klavye açıkken panel klavyenin hemen üstünde durur (BottomSheet); seçicilere dokunmak klavyeyi kapatmaz.
 // Nereye kaydedileceğini bilmez; sonucu onAdd({ name, amt, inst, day, cat }) ile dışarı verir (day: seçilen günün başı).
-// Bağımlılık: BottomSheet, CategoryChoice, Categories, CatIcon, DateChoice, Format, Touch, paintMoney, $, el, svgEl
+// Bağımlılık: BottomSheet, CategoryChoice, Categories, CatIcon, DateChoice, Domain, Format, Touch, paintMoney, $, el, svgEl
 class NameSheet extends BottomSheet {
   #input = $('nName');
   #chips = $('nChips');
@@ -105,11 +106,13 @@ class NameSheet extends BottomSheet {
     this.#chips.classList.toggle('empty', !shown.length);
   }
 
-  // Özet satırı: kategori (seçilmemişse "Kategori"), taksit, tarih; varsayılandan farklı değer altınla
+  // Özet satırı: kategori (seçilmemişse "Kategori"), taksit, tarih; varsayılandan farklı değer altınla.
+  // Abonelik tek çekimse ödeme "Her ay": kayıt her ay kendiliğinden tekrar eder (Domain.subscriptionEntry)
   #renderTokens() {
     const cat = this.#cats.value;
+    const monthly = Domain.subscriptionEntry(cat, this.#inst);
     this.#token('cat', cat ? Format.category(cat) : Format.noCategory, false, cat);
-    this.#token('inst', Format.installment(this.#inst), this.#inst !== 1);
+    this.#token('inst', monthly ? Format.monthly : Format.installment(this.#inst), monthly || this.#inst !== 1);
     this.#token('date', Format.dayChoice(this.#date.day, this.#now, this.#cutoff), this.#date.day !== Domain.dayStart(this.#now));
   }
 

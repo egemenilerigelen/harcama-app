@@ -1,5 +1,5 @@
-// ÖZET: dönem hedefi halkası, günlük / ekstre sütun grafiği, kategoriler, devam eden taksitler.
-// Hedefi kendisi değiştirmez (onEditGoal); taksite dokununca detayı açtırır (onOpen).
+// ÖZET: dönem hedefi halkası, günlük / ekstre sütun grafiği, kategoriler, abonelikler, devam eden taksitler.
+// Hedefi kendisi değiştirmez (onEditGoal); aboneliğe ya da taksite dokununca detayı açtırır (onOpen).
 // Açılış hareketi uygulama açıldıktan sonra Özet'e ilk girişte bir kez oynar (reveal); sekmeden çıkıp dönünce
 // ya da arka plandan gelince oynamaz, uygulama kapatılıp açılınca yine oynar (işaret sadece bellekte).
 // Bağımlılık: Config, Domain, Format, GoalRing, BarChart, CatIcon, Motion, Touch, $, el, svgEl
@@ -44,6 +44,7 @@ class SummaryView {
     this.#renderGoal();
     this.#renderChart();
     this.#renderCategories();
+    this.#renderSubscriptions();
     this.#renderInstallments();
   }
 
@@ -67,9 +68,10 @@ class SummaryView {
     return { start: periodStart.getTime(), end: Domain.periodStart(now, cutoff, 1).getTime() };
   }
 
-  // HEDEF KARTI: halka, harcanan / hedef / kalan, ne yapmalı satırı
+  // HEDEF KARTI: halka, harcanan / hedef / kalan, ne yapmalı satırı. Günlük tutar dönemin kalanına
+  // düşecek abonelik çekimleri ayrıldıktan sonra hesaplanır (onlar zaten gelecek)
   #renderGoal() {
-    const { now, rows, goal } = this.#model;
+    const { now, items, rows, goal } = this.#model;
     const { start, end } = this.#period();
     const period = rows.filter(r => r.ts >= start);
     const spent = Domain.sum(period);
@@ -86,7 +88,7 @@ class SummaryView {
       return;
     }
 
-    const p = Domain.goalProgress(spent, goal, start, end, now);
+    const p = Domain.goalProgress(spent, goal, start, end, now, Domain.upcomingCharges(items, now, end));
     this.#ring.render(p.ratio, p.state);
 
     $('gGoal').textContent = Format.money(goal);
@@ -103,8 +105,9 @@ class SummaryView {
     if (this.#mode === 'day') {
       // Sütun o gün yapılan harcama. Önceki alışverişlerin bu döneme yansıyan taksitleri sütuna girmez
       // (dönemin ilk gününde tek dev sütun olup diğer günleri ezerdi); düştükleri günün okuma notunda yazar.
+      // Abonelik çekimleri de girmez (kendiliğinden gelir; Abonelikler kartında)
       const inPeriod = rows.filter(r => r.ts >= start && r.ts < end);
-      const days = Domain.dailyTotals(inPeriod.filter(r => !Domain.isCarried(r)), start, end);
+      const days = Domain.dailyTotals(inPeriod.filter(Domain.isDaily), start, end);
       const carried = Domain.dailyTotals(inPeriod.filter(Domain.isCarried), start, end);
       const today = Domain.dayKey(now);
       const last = days.length - 1, mid = Math.floor(last / 2);
@@ -203,6 +206,33 @@ class SummaryView {
         this.#renderCategories();
       }));
     }
+  }
+
+  // ABONELİKLER: her ay kendiliğinden yazılanlar; aylık ve yıllık toplam (hedef varsa aylığın payı),
+  // abonelik başına sıradaki çekim (yakınsa vurgulu) ve tutar. Hiç yoksa kart görünmez
+  #renderSubscriptions() {
+    const { now, items, goal } = this.#model;
+    const active = Domain.activeSubscriptions(items, now);
+    const monthly = active.reduce((s, i) => s + i.amt, 0);
+    $('subsCard').hidden = !active.length;
+    $('subsCount').textContent = Format.subsCount(active.length);
+    $('subsMonth').textContent = Format.money(monthly);
+    $('subsMonthNote').textContent = goal && monthly ? Format.goalShare(monthly, goal) : '';
+    $('subsYear').textContent = Format.money(monthly * 12);
+
+    const list = $('subsList');
+    list.innerHTML = '';
+    active.forEach(s => {
+      const soon = Domain.daysBetween(now, s.next) <= Config.SUB_SOON_DAYS;
+      const info = el('div', 'inst-info');
+      info.append(el('span', 'n', s.name), el('small', 'sub-next' + (soon ? ' soon' : ''), Format.subNext(s.next, now)));
+      const right = el('div', 'inst-left');
+      right.append(el('b', '', Format.money(s.amt)));
+      const row = el('div', 'inst-row cat-row sub-row');
+      row.append(CatIcon.well(s.cat), info, right);
+      row.onclick = () => this.#onOpen(s.id);
+      list.appendChild(row);
+    });
   }
 
   // DEVAM EDEN TAKSİTLER: sonraki ekstreye şimdiden yazılan (ve hedefe payı), toplam kalan, alışveriş başına ilerleme.

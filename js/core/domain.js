@@ -63,13 +63,18 @@ const Domain = Object.freeze({
 
   // Taksitli kayıtları sanal taksit satırlarına açar (gelecek taksitler dahil).
   // İlk taksit kaydın kendi tarihine, sonrakiler sonraki dönem başlarına düşer; buyTs alışverişin tarihi.
-  expand(items, cutoff) {
+  // Abonelikler her ayın çekimine açılır, now'a kadar (gelecek çekim yok; now verilmezse sadece ilki)
+  expand(items, cutoff, now = 0) {
     const rows = [];
     items.forEach(item => {
       // Eski kayıtlarda inst veya amt yoksa varsayılan
       const parts = Math.max(1, Number(item.inst) || 1);
       const total = Number(item.amt) || 0;
 
+      if (item.sub) {
+        rows.push(...Domain.charges(item, now));
+        return;
+      }
       if (parts === 1) {
         rows.push({ ...item, amt: total, displayAmt: total });
         return;
@@ -96,7 +101,7 @@ const Domain = Object.freeze({
 
   // Ekranda gösterilecek satırlar: gelmemiş taksitler hariç, yeniden eskiye
   visibleRows(items, cutoff, now) {
-    return Domain.expand(items, cutoff)
+    return Domain.expand(items, cutoff, now)
       .filter(r => r.ts <= now)
       .sort((a, b) => b.ts - a.ts);
   },
@@ -104,6 +109,12 @@ const Domain = Object.freeze({
   // Önceki dönemlerde yapılmış alışverişin bu döneme yansıyan taksiti (2. taksit ve sonrası, dönemin ilk gününe düşer)
   isCarried(row) {
     return row.part > 1;
+  },
+
+  // Günün harcaması: önceki taksitler ve abonelik çekimleri değil (ikisi de dönem toplamına girer ama
+  // "Bugün", günlük grafik, gün başlıkları ve günlük ortalama saymaz: kendiliğinden gelen ödemeler)
+  isDaily(row) {
+    return !Domain.isCarried(row) && !row.sub;
   },
 
   // İlk kaydın döneminin başı: daha eski dönemlerde veri yok (₺0 değil). Kayıt yoksa bu dönem.
@@ -145,16 +156,18 @@ const Domain = Object.freeze({
   // Hedef ilerlemesi: oran, kalan (eksiyse aşım), kalan gün, hedefte kalmak için günlük tutar ve durum.
   // Durum tempoya bakar, sadece orana değil: dönemin sonunda %80 normal, başında %50 alarm.
   // 'over' hedef aşıldı, 'warn' harcama dönemin geçen kısmının Config.GOAL_PACE_SLACK'ten fazla önünde, 'ok'
-  goalProgress(spent, goal, start, end, now) {
+  // reserved: dönemin kalanında gelecek abonelik çekimleri; günlük tutar onlar ayrıldıktan sonra hesaplanır
+  goalProgress(spent, goal, start, end, now, reserved = 0) {
     const daysLeft = Domain.daysLeft(start, end, now);
     const remaining = goal - spent;
+    const free = remaining - reserved;
     const ratio = goal ? spent / goal : 0;
     const elapsed = Domain.periodDays(start, end, now) / Domain.periodDays(start, end, end);
     return {
       ratio,
       remaining,
       daysLeft,
-      perDay: remaining > 0 ? remaining / daysLeft : 0,
+      perDay: free > 0 ? free / daysLeft : 0,
       state: ratio > 1 ? 'over' : ratio > elapsed + Config.GOAL_PACE_SLACK ? 'warn' : 'ok'
     };
   },
@@ -209,6 +222,58 @@ const Domain = Object.freeze({
       .sort((a, b) => b.count - a.count || b.last - a.last)
       .slice(0, limit)
       .map(e => e.name);
+  },
+
+  // ABONELİKLER: Abonelik kategorisinde tek çekim kayıt (sub: true) bir kez girilir, her ay aynı gün
+  // kendiliğinden yazılır; bitirilince (end) sonraki çekimler olmaz
+
+  // Kayıt abonelik olarak mı yazılsın: Abonelik kategorisi ve tek çekim. Düzenlemede (before: önceki hali)
+  // abonelik işareti olmayan eski Abonelik kaydı (her ay elle girilmiş) kendiliğinden tekrar etmeye başlamaz;
+  // sadece kategorisi Abonelik'e çevrilen kayıt abonelik olur
+  subscriptionEntry(cat, inst, before = null) {
+    if (cat !== Categories.SUBS || Number(inst) !== 1) return false;
+    return !before || !!before.sub || before.cat !== Categories.SUBS;
+  },
+
+  // n ay sonrası, aynı gün ve saat; ay o kadar uzun değilse ayın son günü (31 Oca → 28 Şub)
+  addMonths(ts, n) {
+    const d = new Date(ts);
+    const last = new Date(d.getFullYear(), d.getMonth() + n + 1, 0).getDate();
+    return new Date(d.getFullYear(), d.getMonth() + n, Math.min(d.getDate(), last),
+      d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds()).getTime();
+  },
+
+  // Aboneliğin çekimleri: ilki kaydın kendisi, sonrakiler her ay aynı gün (id <id>_m<n>, rawId asıl kayıt);
+  // until'e kadar (dahil), bitirildiyse (end) bitişten öncekiler
+  charges(item, until) {
+    const amt = Number(item.amt) || 0;
+    const rows = [{ ...item, amt, displayAmt: amt }];
+    for (let m = 1; ; m++) {
+      const ts = Domain.addMonths(item.ts, m);
+      if (!(ts <= until) || (item.end && ts >= item.end)) break; // tarih bozuksa da (NaN) durur
+      rows.push({ ...item, id: item.id + '_m' + m, rawId: item.id, amt, displayAmt: amt, ts });
+    }
+    return rows;
+  },
+
+  // Aboneliğin now'dan sonraki ilk çekimi
+  nextCharge(item, now) {
+    let m = 1;
+    while (Domain.addMonths(item.ts, m) <= now) m++;
+    return Domain.addMonths(item.ts, m);
+  },
+
+  // Süren abonelikler, sıradaki çekimi yakın olan önce: [{ id, name, cat, amt, next }]
+  activeSubscriptions(items, now) {
+    return items
+      .filter(i => i.sub && (!i.end || i.end > now))
+      .map(i => ({ id: i.id, name: i.name, cat: i.cat, amt: Number(i.amt) || 0, next: Domain.nextCharge(i, now) }))
+      .sort((a, b) => a.next - b.next);
+  },
+
+  // now'dan sonra, end'den önce gelecek abonelik çekimlerinin toplamı (dönemin kalanına ayrılan)
+  upcomingCharges(items, now, end) {
+    return Domain.sum(Domain.expand(items.filter(i => i.sub), 0, end - 1).filter(r => r.ts > now));
   },
 
   // KATEGORİLER

@@ -4,5 +4,6 @@
 // Bağımlılık: yok
 const Categories = Object.freeze({
   KEYS: ['market', 'food', 'transport', 'subs', 'shopping', 'bills', 'health', 'fun', 'other'],
-  OTHER: 'other'
+  OTHER: 'other',
+  SUBS: 'subs' // Abonelik: tek çekimse her ay kendiliğinden tekrar eder (Domain.charges)
 });

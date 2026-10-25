@@ -164,6 +164,19 @@
           <div id="catList"></div>
         </div>
 
+        <!-- ABONELİKLER: her ay kendiliğinden yazılanlar; aylık / yıllık toplam, sıradaki çekim (yoksa kart yok) -->
+        <div class="card inst-card subs-card" id="subsCard" hidden>
+          <header class="card-head">
+            <h2>Abonelikler</h2>
+            <span id="subsCount"></span>
+          </header>
+          <div class="inst-sum">
+            <div><small>Her ay</small><b id="subsMonth"></b><span class="inst-note" id="subsMonthNote"></span></div>
+            <div><small>Yılda</small><b id="subsYear"></b></div>
+          </div>
+          <div id="subsList"></div>
+        </div>
+
         <!-- TAKSİTLER: gelecek ekstreye yazılan, toplam kalan, alışveriş başına ilerleme -->
         <div class="card inst-card">
           <header class="card-head">
@@ -277,10 +290,11 @@
         <b class="sheet-amt hero" id="dAmt"></b>
         <div class="card">
           <div class="kv"><span>Kategori</span><b id="dCat"></b></div>
-          <div class="kv"><span>Tarih</span><b id="dDate"></b></div>
+          <div class="kv"><span id="dDateLabel">Tarih</span><b id="dDate"></b></div>
           <div class="kv"><span>Ödeme</span><b id="dPay"></b></div>
-          <div class="kv" id="dRestRow"><span>Kalan</span><b id="dRest"></b></div>
+          <div class="kv" id="dRestRow"><span id="dRestLabel">Kalan</span><b id="dRest"></b></div>
         </div>
+        <button class="plain-btn" id="dEnd" hidden>Aboneliği bitir</button>
         <button class="danger wide" id="dDel">Harcamayı sil</button>
       </div>
 

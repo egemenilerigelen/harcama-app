@@ -16,15 +16,17 @@ const Store = {
   },
 
   // inst: taksit sayısı (varsayılan 1), ts: harcamanın zamanı (varsayılan şimdi; geçmiş tarihli ekleme),
-  // cat: kategori anahtarı (Categories). Kayıtlar yeniden eskiye sıralı kalır. Eklenen kaydı döner
-  add(name, amt, inst = 1, ts = Date.now(), cat) {
+  // cat: kategori anahtarı (Categories), sub: abonelik (her ay tekrar eder; Domain.subscriptionEntry).
+  // Kayıtlar yeniden eskiye sıralı kalır. Eklenen kaydı döner
+  add(name, amt, inst = 1, ts = Date.now(), cat, sub = false) {
     const item = {
       id: Date.now().toString(36) + Math.random().toString(36).substring(2, 5),
       name,
       amt: Number(amt),
       inst: Number(inst),
       ts,
-      cat
+      cat,
+      ...(sub ? { sub: true } : {})
     };
     this.replaceAll([item, ...this.all()]);
     return item;
@@ -35,15 +37,25 @@ const Store = {
     localStorage.setItem(this.KEY, JSON.stringify(items));
   },
 
-  // Kaydı düzenler (isim, tutar, taksit, tarih, kategori); id aynı kalır. Önceki halini döner (geri alma için)
-  update(id, { name, amt, inst, ts, cat }) {
+  // Kaydı düzenler (isim, tutar, taksit, tarih, kategori, abonelik, bitiş: verilen alanlar); id aynı kalır.
+  // Abonelik değilse ya da bitmediyse o alan yazılmaz. Önceki halini döner (geri alma için)
+  update(id, changes) {
     const items = this.all();
     const i = items.findIndex(e => e.id === id);
     if (i < 0) return null;
     const before = items[i];
-    items[i] = { ...before, name, amt: Number(amt), inst: Number(inst), ts, cat };
+    const item = { ...before, ...changes, amt: Number(changes.amt ?? before.amt), inst: Number(changes.inst ?? before.inst) || 1 };
+    if (!item.sub) delete item.sub;
+    if (!item.end) delete item.end;
+    items[i] = item;
     this.replaceAll(items);
     return before;
+  },
+
+  // Kaydı olduğu gibi önceki haline koyar (düzenlemeyi geri alma)
+  put(item) {
+    const items = this.all().map(e => e.id === item.id ? item : e);
+    this.replaceAll(items);
   },
 
   // Silinen kaydı geri koyar; yeni kayıtlar başta durduğu için ts'ye göre sıralar

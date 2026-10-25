@@ -163,12 +163,43 @@ const Format = Object.freeze({
   // Harcamalar listesinde önceki alışverişlerin bu döneme yansıyan taksitleri (günlerden ayrı grup)
   carriedTitle: 'Önceki taksitler',
 
+  // ABONELİKLER: Harcamalar'daki grubu, isim adımındaki ödeme etiketi ("Tek çekim" yerine), Özet kartı
+  subsTitle: 'Abonelikler',
+  monthly: 'Her ay',
+  endSub: 'Aboneliği bitir',
+
+  // Detay panelinin satır adları: abonelikte tarih ilk çekimdir, kalan yerine durum yazar
+  detailLabels(sub) {
+    return sub ? { date: 'Başlangıç', rest: 'Durum' } : { date: 'Tarih', rest: 'Kalan' };
+  },
+
+  subsCount(n) {
+    return n + ' abonelik';
+  },
+
+  // Detaydaki ödeme: "Her ayın 5'i"
+  subPay(ts) {
+    const day = new Date(ts).getDate();
+    return 'Her ayın ' + day + Format.possessive(day);
+  },
+
+  // Sıradaki çekim: "Sıradaki bugün" / "yarın" / "5 Kas"
+  subNext(next, now) {
+    const n = Domain.daysBetween(now, next);
+    return 'Sıradaki ' + (n === 0 ? 'bugün' : n === 1 ? 'yarın' : Format.shortDate(next));
+  },
+
+  // Detaydaki durum: sürüyorsa sıradaki çekim, bittiyse "Bitti · 25 Eki"
+  subState(item, now) {
+    return item.end && item.end <= now ? 'Bitti · ' + Format.shortDate(item.end) : Format.subNext(Domain.nextCharge(item, now), now);
+  },
+
   // Ekstre grafiğinde ilk kayıttan önceki dönemler
   noRecord: 'Kayıt yok',
 
-  // Geri alma kapsülü: "Netflix silindi"; düzenlemede tutar değiştiyse "₺320 → ₺298"
+  // Geri alma kapsülü: "Netflix silindi" / "Netflix aboneliği bitti"; düzenlemede tutar değiştiyse "₺320 → ₺298"
   undoTitle(kind, name) {
-    return name + ' ' + { deleted: 'silindi', edited: 'düzenlendi' }[kind];
+    return name + ' ' + { deleted: 'silindi', edited: 'düzenlendi', ended: 'aboneliği bitti' }[kind];
   },
 
   change(from, to) {

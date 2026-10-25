@@ -1,7 +1,8 @@
 // KAYIT DETAYI: satıra dokununca alttan açılan panel. "Düzenle" ile aynı panelde isim, kategori, tutar,
 // taksit ve tarih değiştirilir; tutar girişi tuş takımıyla aynı kurallarla (Calc: en fazla 9 hane, 2 ondalık).
 // Tarih değişince kaydın saati korunur. İsim değişince o isme daha önce verilen kategori gelir (elle seçilmediyse).
-// Nereye kaydedileceğini bilmez; sonucu onSave(id, { name, amt, inst, ts, cat }) ile dışarı verir.
+// Abonelikte ödeme "Her ayın 5'i", durum sıradaki çekim ya da bitiş; süren abonelik "Aboneliği bitir" ile biter.
+// Nereye kaydedileceğini bilmez; sonucu onSave(id, { name, amt, inst, ts, cat }) ve onEnd(id) ile dışarı verir.
 // Bağımlılık: BottomSheet, Calc, CategoryChoice, DateChoice, Domain, Format, Touch, paintMoney, $
 class DetailSheet extends BottomSheet {
   #panel = $('sheet').querySelector('.sheet');
@@ -17,10 +18,18 @@ class DetailSheet extends BottomSheet {
   #inst = 1;
   #onSave;
 
-  // onDelete(id): paneldeki "Harcamayı sil", onSave(id, değişiklik): düzenleme kaydedildi
-  constructor({ onDelete, onSave }) {
+  // onDelete(id): paneldeki "Harcamayı sil", onSave(id, değişiklik): düzenleme kaydedildi,
+  // onEnd(id): "Aboneliği bitir" (bu andan sonra çekim olmaz; geçmiş çekimler kalır)
+  constructor({ onDelete, onSave, onEnd }) {
     super($('sheet'));
     this.#onSave = onSave;
+
+    $('dEnd').onclick = () => {
+      const id = this.#item.id;
+      this.close();
+      onEnd(id);
+    };
+    Touch.hapticOn($('dEnd'));
 
     $('dDel').onclick = () => {
       const id = this.#item.id;
@@ -67,12 +76,22 @@ class DetailSheet extends BottomSheet {
     paintMoney($('dAmt'), Format.money(total));
     $('dCat').textContent = Format.category(item.cat);
     $('dDate').textContent = Format.longDateTime(item.ts);
-    $('dPay').textContent = Format.installment(parts) + (parts > 1 ? ' × ' + Format.money(total / parts) : '');
+    const labels = Format.detailLabels(item.sub);
+    $('dDateLabel').textContent = labels.date;
+    $('dRestLabel').textContent = labels.rest;
+    $('dEnd').hidden = !item.sub || (item.end && item.end <= now);
 
-    // Kalan taksit: henüz gelmemiş taksitler
-    const rest = Domain.remainingParts(item, cutoff, now);
-    $('dRestRow').style.display = parts === 1 ? 'none' : '';
-    $('dRest').textContent = rest ? rest + ' taksit · ' + Format.money(rest * total / parts) : 'Tamamlandı';
+    if (item.sub) {
+      $('dPay').textContent = Format.subPay(item.ts);
+      $('dRestRow').style.display = '';
+      $('dRest').textContent = Format.subState(item, now);
+    } else {
+      $('dPay').textContent = Format.installment(parts) + (parts > 1 ? ' × ' + Format.money(total / parts) : '');
+      // Kalan taksit: henüz gelmemiş taksitler
+      const rest = Domain.remainingParts(item, cutoff, now);
+      $('dRestRow').style.display = parts === 1 ? 'none' : '';
+      $('dRest').textContent = rest ? rest + ' taksit · ' + Format.money(rest * total / parts) : 'Tamamlandı';
+    }
 
     this.#item = item;
     this.#remember = remember;

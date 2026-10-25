@@ -1,7 +1,7 @@
 // SABİTLER: sihirli sayılar tek yerde; hiçbir dosyaya bağımlı değil
 const Config = Object.freeze({
   // Yayın sürümü (Ayarlar'ın en altında): her push'ta artırılır ki telefonda yeni sürümün geldiği görülsün
-  VERSION: '2026.10.18-4',
+  VERSION: '2026.10.25-1',
 
   DAY_MS: 864e5,
 
@@ -107,5 +107,8 @@ const Config = Object.freeze({
   // farklar "aynı" sayılır (her kuruş farkı ok çıkarmasın)
   CAT_VISIBLE: 4,
   CAT_SAME_RATIO: 0.1,
-  CAT_SAME_MIN: 50
+  CAT_SAME_MIN: 50,
+
+  // Abonelikler kartında sıradaki çekim bu kadar gün içindeyse vurgulanır
+  SUB_SOON_DAYS: 3
 });
