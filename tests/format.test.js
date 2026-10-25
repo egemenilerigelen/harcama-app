@@ -100,6 +100,8 @@
       eq(Format.finishedTitle(['Telefon']), 'Telefon taksitleri bitti');
       eq(Format.finishedTitle(['Telefon', 'TV', 'Koltuk']), '3 taksit bitti: Telefon, TV, Koltuk');
       eq(Format.finishedSub(1500), 'Sonraki ekstreler ₺1.500 hafifler');
+      eq(Format.installmentShare(6, 12000), '6 × ₺2.000');
+      eq(Format.installmentShare(3, 1000), '3 × ₺333,33');
       eq(Format.endedTitle(['Netflix']), 'Netflix aboneliği bitti');
       eq(Format.endedTitle(['Netflix', 'Spotify']), '2 abonelik bitti: Netflix, Spotify');
       eq(Format.endedSub(229), 'Her ay ₺229 daha az çekilecek');

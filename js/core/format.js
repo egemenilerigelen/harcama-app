@@ -292,6 +292,11 @@ const Format = Object.freeze({
     return n === 1 ? 'Tek çekim' : n + ' taksit';
   },
 
+  // Taksitli tutarın ekstre başına payı (isim adımındaki taksit etiketi): "6 × ₺2.000"
+  installmentShare(n, amount) {
+    return n + ' × ' + Format.money(amount / n);
+  },
+
   part(no, of) {
     return no + '/' + of + ' taksit';
   },

@@ -112,7 +112,9 @@ class NameSheet extends BottomSheet {
     const cat = this.#cats.value;
     const monthly = Domain.subscriptionEntry(cat, this.#inst);
     this.#token('cat', cat ? Format.category(cat) : Format.noCategory, false, cat);
-    this.#token('inst', monthly ? Format.monthly : Format.installment(this.#inst), monthly || this.#inst !== 1);
+    // Taksitliyse ekstre başına düşen pay ("6 × ₺2.000"): kararın etkisi seçerken görünür (etiket kayar şeritte, satır büyümez)
+    const inst = monthly ? Format.monthly : this.#inst > 1 ? Format.installmentShare(this.#inst, this.#amt) : Format.installment(1);
+    this.#token('inst', inst, monthly || this.#inst !== 1);
     this.#token('date', Format.dayChoice(this.#date.day, this.#now, this.#cutoff), this.#date.day !== Domain.dayStart(this.#now));
   }
 
