@@ -3,7 +3,8 @@
 // Parmak çubukta sağa sola gezdirilebilir (iOS 26 / Instagram gibi): kapsül parmağı izler, biraz büyür,
 // parmağın altındaki sekme vurgulanır; sayfa parmak kalkınca açılır (gezinirken arka plan değişmez).
 // Bırakınca kapsül sekmenin yerine oturur; dokunuş iptal edilirse açık sekmede kalır.
-// Bağımlılık: Touch, el
+// Dokunulan ya da gezinirken parmağın altına gelen sekmenin ikonu kısa hareketini oynar (TabIcons).
+// Bağımlılık: Touch, TabIcons, el
 class TabBar {
   #onShow;
   #bar = document.querySelector('.tabbar');
@@ -20,7 +21,10 @@ class TabBar {
     this.#pill.setAttribute('aria-hidden', 'true');
     this.#bar.prepend(this.#pill);
     this.#tabs.forEach(t => {
-      Touch.bindPress(t, () => this.show(t.dataset.tab));
+      Touch.bindPress(t, () => {
+        TabIcons.play(t);
+        this.show(t.dataset.tab);
+      });
     });
 
     this.#bar.addEventListener('pointerdown', e => (this.#x0 = e.clientX));
@@ -63,6 +67,7 @@ class TabBar {
     if (name !== this.#hover) {
       this.#hover = name;
       Touch.haptic();
+      TabIcons.play(this.#tabs[i]);
       this.#highlight(name);
     }
   }

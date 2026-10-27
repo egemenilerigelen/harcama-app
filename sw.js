@@ -39,6 +39,7 @@ const ASSETS = [
   'js/core/backup.js',
   'js/ui/dom.js',
   'js/ui/motion.js',
+  'js/ui/tab-icons.js',
   'js/ui/cat-icon.js',
   'js/ui/device.js',
   'js/ui/haptics.js',

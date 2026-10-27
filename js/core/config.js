@@ -150,5 +150,14 @@ const Config = Object.freeze({
   STATEMENT_RECORD_MIN: 2,
   STATEMENT_RECORD_PERIODS: 5,
   STATEMENT_DELAY_MS: 450,
+  // Alt çubuk ikonlarının hareketi (TabIcons; heroicons-animated'ın süreleri): ev, fişte yüzde çizgisinin çizilmesi
+  // ve belirmesi, noktalar ve sırayla gecikmeleri, pasta dilimi, dişli
+  ICON_HOME_MS: 400,
+  ICON_DRAW_MS: 400,
+  ICON_FADE_MS: 100,
+  ICON_DOT_MS: 300,
+  ICON_DOT_DELAYS: [200, 350],
+  ICON_PIE_MS: 500,
+  ICON_GEAR_MS: 800,
   DIALOG_CLOSE_MS: 200
 });

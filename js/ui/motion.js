@@ -9,10 +9,16 @@ const Motion = Object.freeze({
 
   // el.animate gibi; ms süre, curve :root'taki eğrinin adı, delay gecikme (ms)
   play(el, frames, ms, curve = '--ease', delay = 0) {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const a = Motion.feedback(el, frames, ms, curve, delay);
+    if (a) a.id = Motion.ID;
+  },
+
+  // Dokunuşun kendi geri bildirimi (sekme ikonu): dokunuşla başladığı için dokunma ve kaydırma onu bitirmez.
+  // Hareketi Azalt'ta oynamaz (null döner)
+  feedback(el, frames, ms, curve = '--ease', delay = 0) {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
     const easing = getComputedStyle(document.documentElement).getPropertyValue(curve).trim() || 'ease';
-    const a = el.animate(frames, { duration: ms, delay, easing, fill: 'backwards' });
-    a.id = Motion.ID;
+    return el.animate(frames, { duration: ms, delay, easing, fill: 'backwards' });
   },
 
   // Süren hareketleri son haline atlat
