@@ -8,6 +8,11 @@ const Format = Object.freeze({
     return '₺' + n.toLocaleString('tr-TR', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 });
   },
 
+  // Grafik ekseni: tam sayı, binlik noktalı ("500", "30.000"); kısaltma yok ("B" bin mi milyar mı belli olmaz)
+  axisValue(v) {
+    return Math.round(v).toLocaleString('tr-TR');
+  },
+
   time(ts) {
     return new Date(ts).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
   },

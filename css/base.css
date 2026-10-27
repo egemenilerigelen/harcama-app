@@ -12,6 +12,8 @@
   --mut-2: #80848f;
   --gold: #d9b877;
   --gold-soft: rgba(217, 184, 119, 0.14);
+  /* Grafik sütunlarının rengi (BarChart); başka bir renk tek satırla denenir */
+  --chart-bar: var(--gold);
   --danger: #e88f8f;
   --danger-bg: #b54a4a;
   --warn: #e3a857;

@@ -219,10 +219,10 @@
   touch-action: pan-y;
 }
 
-/* Tek seri: tüm sütunlar aynı altın; seçili tam, diğerleri soluk */
+/* Tek seri: tüm sütunlar aynı renk (--chart-bar); seçili tam, diğerleri soluk */
 /* Sütunlar tabandan büyür (Özet açılışı, Günlük ↔ Ekstre: BarChart.grow) */
 .chart .bar {
-  fill: var(--gold);
+  fill: var(--chart-bar);
   opacity: 0.5;
   transform-box: fill-box;
   transform-origin: 50% 100%;
@@ -249,7 +249,7 @@
 }
 
 .chart .stub.zero {
-  fill: var(--gold);
+  fill: var(--chart-bar);
   opacity: 0.25;
 }
 
@@ -257,10 +257,22 @@
   opacity: 0.6;
 }
 
-/* Izgara: düz, silik kıl çizgi */
+/* Izgara: üst ve orta düz, silik kıl çizgi; taban biraz belirgin */
 .chart .grid {
   stroke: var(--line);
   stroke-width: 1;
+}
+
+.chart .grid.base {
+  stroke: var(--mut-2);
+  stroke-opacity: 0.4;
+}
+
+/* Günlük: haftalık kesikli dikey ayırıcı (tepeden alttaki tarih şeridine) */
+.chart .guide {
+  stroke: var(--line);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
 }
 
 

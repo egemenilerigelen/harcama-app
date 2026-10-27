@@ -99,6 +99,7 @@
       eq(Format.statementChange(100, 100, 'same'), 'Geçen ekstreyle aynı');
       eq(Format.statementTitle(new Date(2026, 9, 15).getTime(), new Date(2026, 9, 25).getTime()), 'Ekim Ekstresi');
       eq(Format.statementEmpty(), 'Bu ekstrede kayıt yok');
+      eq([0, 500, 750, 1000, 1500, 30000, 2500000].map(Format.axisValue), ['0', '500', '750', '1.000', '1.500', '30.000', '2.500.000']);
       eq(Format.finishedTitle(['Telefon']), 'Telefon taksitleri bitti');
       eq(Format.finishedTitle(['Telefon', 'TV', 'Koltuk']), '3 taksit bitti: Telefon, TV, Koltuk');
       eq(Format.finishedSub(1500), 'Sonraki ekstreler ₺1.500 hafifler');

@@ -88,14 +88,21 @@ const Config = Object.freeze({
   GOAL_SUGGEST_PERIODS: 3,
   GOAL_SUGGEST_ROUND: 100,
 
-  // Sütun grafik: çizim alanı yüksekliği, üst boşluk (ölçek etiketi), x ekseni bandı,
-  // sütun en fazla genişliği, sütunlar arası boşluk, uç yuvarlaklığı, ekstre görünümünde kaç dönem
+  // Sütun grafik: çizim alanı yüksekliği, üst boşluk (en üst eksen değeri), alttaki tarih şeridi ve etiketin
+  // tabandan uzaklığı, sağdaki Y ekseni şeridi; Y ekseni değeri çizginin ne kadar üstünde, günlükte tarih kesikli
+  // çizginin ne kadar sağında; sütun genişliği slotun oranı (en fazla BAR_MAX_W, ekstrede kalın olmasın), üst köşe
+  // yarıçapı sütun genişliğinin oranı; günlükte kaç günde bir kesikli ayırıcı, ekstre görünümünde kaç dönem
   CHART_H: 132,
   CHART_TOP: 18,
   CHART_AXIS_H: 22,
+  CHART_TICK_Y: 15,
+  CHART_AXIS_W: 52,
+  CHART_LABEL_RISE: 3,
+  CHART_LABEL_PAD: 4,
+  BAR_WIDTH_RATIO: 0.62,
   BAR_MAX_W: 24,
-  BAR_GAP: 2,
-  BAR_RADIUS: 4,
+  BAR_RADIUS_RATIO: 0.25,
+  CHART_WEEK_DAYS: 7,
   CHART_PERIODS: 6,
   // Günlük grafikte tek bir dev gün diğerlerini ezmesin: en az CHART_CLIP_MIN dolu gün varken, dolu günlerin
   // CHART_CLIP_PCT dilimindeki değerin CHART_CLIP_RATIO katını aşan sütunlar ölçeğin tepesinde kesik çizilir

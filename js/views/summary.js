@@ -118,12 +118,12 @@ class SummaryView {
       const days = Domain.dailyTotals(inPeriod.filter(Domain.isDaily), start, end);
       const carried = Domain.dailyTotals(inPeriod.filter(Domain.isCarried), start, end);
       const today = Domain.dayKey(now);
-      const last = days.length - 1, mid = Math.floor(last / 2);
+      // Dönemin ilk gününden başlayarak her CHART_WEEK_DAYS günde bir tarih (kesikli ayırıcıyla, guides)
       const bars = days.map((d, i) => ({
         value: d.total,
         future: d.ts > now,
         label: Format.shortWhen(d.ts, now),
-        tick: i === 0 || i === mid || i === last ? Format.shortDate(d.ts) : '',
+        tick: i % Config.CHART_WEEK_DAYS === 0 ? Format.shortDate(d.ts) : '',
         note: carried[i].total ? Format.carriedNote(carried[i].total) : ''
       }));
       // Günlük görünümde bütçe çizgisi yok: hedef kartındaki "günde ₺X" ile çelişen ikinci bir sayı olurdu.
@@ -132,7 +132,8 @@ class SummaryView {
         key: 'day',
         selected: days.findIndex(d => Domain.dayKey(d.ts) === today),
         title: 'Bu dönemin günlük harcamaları',
-        clip: true
+        clip: true,
+        guides: true
       });
       return;
     }
