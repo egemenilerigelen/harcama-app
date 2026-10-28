@@ -124,12 +124,14 @@
       eq(Format.goalNote(10700, 9500), '₺1.200 aştı · hedef ₺9.500');
     },
     'hedef ipucu: tempo, sınır, aşım'() {
-      eq(Format.goalHint({ state: 'ok', perDay: 333.7 }, 0), 'Günde ₺333 harcayabilirsin');
-      eq(Format.goalHint({ state: 'warn', perDay: 333.7 }, 0, true), 'Bu gidişle hedefi aşarsın');
-      eq(Format.goalHint({ state: 'ok', perDay: 0.5 }, 0), 'Hedefin sınırındasın');
-      eq(Format.goalHint({ state: 'over', perDay: 0 }, 7000), '₺7.000 önceki taksitlerden');
-      eq(Format.goalHint({ state: 'over', perDay: 0 }, 0, true), 'Hedef aşıldı');
-      eq(Format.goalHint(null, 0), 'Halkaya dokunup hedef koy');
+      eq(Format.goalHint({ state: 'ok', remaining: 5000, perDay: 333.7 }, 0), 'Hedef için günde ₺333');
+      eq(Format.goalHint({ state: 'warn', remaining: 5000, perDay: 333.7 }, 0), 'Hedef için günde ₺333');
+      eq(Format.goalHint({ state: 'ok', remaining: 200, perDay: 0 }, 0), 'Kalanı aboneliklere ayrıldı');
+      eq(Format.goalHint({ state: 'ok', remaining: 0.5, perDay: 0 }, 0), 'Hedefin sınırındasın');
+      eq(Format.goalHint({ state: 'over', remaining: -900, perDay: 0 }, 7000), '₺7.000 önceki taksitlerden');
+      eq(Format.goalHint({ state: 'over', remaining: -900, perDay: 0 }, 0), '');
+      eq(Format.goalHint(null, 0), '');
+      eq(Format.goalPace(12399.6), 'bu gidişle ₺12.400');
       eq(Format.periodLeft(new Date(2026, 9, 16).getTime(), new Date(2026, 10, 15).getTime(), 22), '16 Eki – 15 Kas · 22 gün kaldı');
     },
     'hedef önerisi'() {

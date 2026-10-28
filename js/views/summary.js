@@ -72,8 +72,8 @@ class SummaryView {
     return { start: periodStart.getTime(), end: Domain.periodStart(now, cutoff, 1).getTime() };
   }
 
-  // HEDEF KARTI: başlıkta aralık ve kalan gün; halka, harcanan / hedef / kalan; altta tek kısa not (günde ne
-  // kadar harcanabilir ya da bu tempoyla hedef aşılacak mı). Günlük tutar ve tahmin dönemin kalanına düşecek
+  // HEDEF KARTI: başlıkta aralık ve kalan gün; halka, harcanan / hedef / kalan; altta tek satır: hedef için günde
+  // ne kadar · bu gidişle dönem sonunda ne kadar (hedefi aşacaksa amber). Günlük tutar ve tahmin dönemin kalanına düşecek
   // abonelik çekimlerini hesaba katar (onlar zaten gelecek)
   #renderGoal() {
     const { now, items, rows, goal } = this.#model;
@@ -92,7 +92,7 @@ class SummaryView {
       $('gGoal').textContent = '—';
       $('gLeftLabel').textContent = 'Kalan';
       $('gLeft').textContent = '—';
-      $('gHint').textContent = Format.goalHint(null, 0);
+      this.#hint('', null, false);
       return;
     }
 
@@ -102,7 +102,18 @@ class SummaryView {
     $('gGoal').textContent = Format.money(goal);
     $('gLeftLabel').textContent = p.remaining < 0 ? 'Aşım' : 'Kalan';
     $('gLeft').textContent = Format.money(Math.abs(p.remaining));
-    $('gHint').textContent = Format.goalHint(p, Domain.sum(period.filter(Domain.isCarried)), forecast != null && forecast > goal);
+    const pace = p.state === 'over' ? null : forecast; // aşıldıysa tahmin yeni bir şey söylemez
+    this.#hint(Format.goalHint(p, Domain.sum(period.filter(Domain.isCarried))), pace, pace != null && pace > goal);
+  }
+
+  // Alt satır: ne yapmalı · tahmin (biri yoksa ayırıcı da yok); tahmin hedefi aşıyorsa amber
+  #hint(text, forecast, over) {
+    const hint = $('gHint');
+    hint.innerHTML = '';
+    if (text) hint.append(text);
+    if (forecast == null) return;
+    if (text) hint.append(' · ');
+    hint.append(el('span', over ? 'pace over' : 'pace', Format.goalPace(forecast)));
   }
 
   // SÜTUN GRAFİK: günlük (bu dönemin günleri) ya da ekstre (son dönemler)

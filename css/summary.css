@@ -162,6 +162,16 @@
   white-space: nowrap;
 }
 
+/* Söyleyecek yeni bir şey yoksa satır boş ama yeri durur (kart yüksekliği değişmez) */
+.goal-hint:empty::after {
+  content: "\00a0";
+}
+
+/* Tahmin hedefi aşıyorsa (ikinci yarı) */
+.goal-hint .pace.over {
+  color: var(--warn);
+}
+
 /* GRAFİK KARTI */
 .chart-card {
   padding: 14px 14px 10px;
