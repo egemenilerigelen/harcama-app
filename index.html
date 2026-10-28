@@ -2,6 +2,10 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
+<!-- En başta: iOS açılış resminden sonra, sayfa boyanana kadar web görünümünün kendi beyaz zemini bir an görünüyor
+     (WebKit hatası, docs/pwa.md). Koyu zemin ve koyu renk şeması ilk satırlarda: belge mümkün olan ilk karede koyu boyansın -->
+<meta name="color-scheme" content="dark">
+<style>html { background: #0a0b0e; }</style>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a0b0e">
 <!-- Ana ekran uygulaması: tam ekran, kendi ikonu ve adı. Durum çubuğu düz siyah: içerik altından başlar.
@@ -38,7 +42,6 @@
      dolum o an bitmediyse solarken sürer. Hareketi Azalt'ta hareket yok. Kurulum hata verirse 6 sn
      sonra kendiliğinden çekilir. -->
 <style>
-  html { background: #0a0b0e; }
   #splash {
     position: fixed; inset: 0; z-index: 100;
     display: flex; align-items: center; justify-content: center;
