@@ -1,7 +1,7 @@
 // SABİTLER: sihirli sayılar tek yerde; hiçbir dosyaya bağımlı değil
 const Config = Object.freeze({
   // Yayın sürümü (Ayarlar'ın en altında): her push'ta artırılır ki telefonda yeni sürümün geldiği görülsün
-  VERSION: '2026.10.29-3',
+  VERSION: '2026.10.29-4',
 
   DAY_MS: 864e5,
 
