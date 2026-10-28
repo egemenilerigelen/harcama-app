@@ -91,6 +91,44 @@ const Touch = Object.freeze({
     }, { passive: false });
   },
 
+  // Basılı tutulan kaydırılabilir öğeye zemin verir (.pressed). Kaydırma ve sürükleme ile karışmasın diye
+  // hemen yanmaz: PRESS_DELAY_MS bekler; parmak kayarsa (liste kaydırma, silme hareketi), tarayıcı dokunuşu
+  // iptal ederse ya da parmak çıkarsa hiç yanmaz. Kısa dokunuşta (bekleme dolmadan kalkarsa) en az PRESS_MIN_MS yanar
+  bindHighlight(el) {
+    let x0 = 0, y0 = 0, timer = null, shown = 0;
+    const off = () => {
+      clearTimeout(timer);
+      timer = null;
+      el.classList.remove('pressed');
+    };
+    const on = () => {
+      timer = null;
+      shown = performance.now();
+      el.classList.add('pressed');
+    };
+
+    el.addEventListener('pointerdown', e => {
+      off();
+      x0 = e.clientX; y0 = e.clientY;
+      timer = setTimeout(on, Config.PRESS_DELAY_MS);
+    });
+    el.addEventListener('pointermove', e => {
+      if (!timer && !el.classList.contains('pressed')) return;
+      if (Math.abs(e.clientX - x0) + Math.abs(e.clientY - y0) > Config.SWIPE_SLOP_PX) off();
+    });
+    el.addEventListener('pointerup', () => {
+      if (timer) { // kısa dokunuş: yine de görünsün
+        clearTimeout(timer);
+        on();
+        timer = setTimeout(off, Config.PRESS_MIN_MS);
+      } else if (el.classList.contains('pressed')) {
+        timer = setTimeout(off, Math.max(0, Config.PRESS_MIN_MS - (performance.now() - shown)));
+      }
+    });
+    el.addEventListener('pointercancel', off);
+    el.addEventListener('pointerleave', off);
+  },
+
   // Satırı sola kaydırınca onDelete, kaydırmadan dokununca onTap.
   // wrap: silme hapını taşıyan sarmalayıcı (--reveal: açılan genişlik, --reveal-p: eşiğe oran,
   // --ico-x: ikonun sağdan uzaklığı; eşik geçilince .armed), row: kayan satır

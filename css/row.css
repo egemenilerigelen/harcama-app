@@ -111,6 +111,23 @@
   transition: transform 0.2s var(--ease);
 }
 
+/* Basma zemini (Touch.bindHighlight): satırın arkasında, içeriğin altında; basınca hemen, bırakınca yumuşak söner */
+.row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--surface-2);
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+
+.row.pressed::before {
+  opacity: 1;
+  transition-duration: 0.04s;
+}
+
 /* Kayarken satır opak ve kalkık: sağ kenarı yuvarlanır, gölgesi kuyuya düşer */
 .swipe.on .row {
   background: #191b21;

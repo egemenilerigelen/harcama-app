@@ -53,6 +53,10 @@ const Config = Object.freeze({
   SWIPE_OUT_MS: 160,
   SWIPE_COLLAPSE_MS: 240,
   SWIPE_BACK_MS: 200,
+  // Satırın basma zemini: bu kadar basılı kalınca yanar (kaydırma ve silme hareketi başlarsa hiç yanmaz);
+  // kısa dokunuşta bile en az PRESS_MIN_MS görünür
+  PRESS_DELAY_MS: 70,
+  PRESS_MIN_MS: 110,
 
   // Dönem kartını kaydırma: geçiş eşiği, sınırda direnç, çıkış mesafesi, kayma süresi
   // (PAGER_SLIDE_MS, CSS'teki .period geçiş süresiyle aynı olmalı)
