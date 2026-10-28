@@ -88,10 +88,33 @@ const Format = Object.freeze({
 
   // Ayarlar'daki yedek satırı: "Son yedek: bugün" / "dün" / "12 gün önce" / "Henüz yedek alınmadı"
   backupAge(ts, now) {
-    if (!ts) return 'Henüz yedek alınmadı';
-    const n = Domain.daysBetween(ts, now);
-    return 'Son yedek: ' + (n === 0 ? 'bugün' : n === 1 ? 'dün' : n + ' gün önce');
+    return ts ? 'Son yedek: ' + Format.backupWhen(ts, now) : 'Henüz yedek alınmadı';
   },
+
+  // Son yedeğin zamanı tek başına: "bugün", "dün", "12 gün önce", "Hiç alınmadı"
+  backupWhen(ts, now) {
+    if (!ts) return 'Hiç alınmadı';
+    const n = Domain.daysBetween(ts, now);
+    return n === 0 ? 'bugün' : n === 1 ? 'dün' : n + ' gün önce';
+  },
+
+  // Silinecek kayıtlar: "52 harcama · ₺48.320"
+  clearCount(count, total) {
+    return count + ' harcama · ' + Format.money(total);
+  },
+
+  // Ayarlar'ın altındaki sürüm satırı (dokununca güncelleme denetlenir) ve sonuçları
+  versionLine(version) {
+    return 'Sürüm ' + version + ' · Güncelle';
+  },
+  updateChecking: 'Denetleniyor…',
+  updateCurrent: 'Uygulama güncel',
+  updateOffline: 'Denetlenemedi · internet var mı?',
+  updateFound(version) {
+    return 'Yeni sürüm ' + version + ' · yükleniyor…';
+  },
+
+  clearedAfterBackup: 'Yedek alındı · kayıtlar silindi',
 
   // Geri yükleme sonucu: "12 kayıt eklendi · 3 kayıt zaten vardı"
   importResult(added, skipped) {

@@ -1,6 +1,6 @@
 // ORTADA AÇILAN EKRAN (temel sınıf): arka plan kararır, kart ortada hafif büyüyerek belirir.
 // İçindeki [data-close] öğeleri (Kapat, arka plan) kapatır; kapanırken kart küçülerek solar.
-// Ekstre özeti bundan türer.
+// Ekstre özeti ve silmeden önce yedek sorusu bundan türer.
 // Bağımlılık: Config
 class CenterDialog {
   #root;

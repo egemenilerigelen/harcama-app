@@ -315,6 +315,121 @@
   opacity: 0.7;
 }
 
+/* SİLMEDEN ÖNCE YEDEK: kısa kart. Başlık ve tek cümle ortada; altında gömük kuyuda neyin gideceği ve son yedek
+   (kaydırarak silmedeki kuyu gibi); ana yol EKLE'nin metalik altını, silme koyu yüzeyde kırmızı yazı (ikincil),
+   Vazgeç sade yazı. Kart dar: tek bakışta okunur */
+.dialog.ask {
+  max-width: 320px;
+  padding: 22px 18px 10px;
+  text-align: center;
+}
+
+.dialog.ask h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.ask-body {
+  margin: 6px 4px 0;
+  color: var(--mut);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.ask-well {
+  margin: 16px 0 18px;
+  padding: 4px 14px;
+  border-radius: 14px;
+  background: var(--sunken);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.7);
+  text-align: left;
+}
+
+.ask-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 14px;
+}
+
+.ask-row + .ask-row {
+  border-top: 1px solid var(--line);
+}
+
+.ask-row span {
+  color: var(--mut);
+}
+
+.ask-row b {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ask-row b.warn {
+  color: var(--warn);
+}
+
+/* Ana yol: EKLE'nin metalik altını (yukarıdan ışık, koyu altın alt kenar; basınca kenar kadar iner) */
+.ask-main {
+  display: block;
+  width: 100%;
+  min-height: 42px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #e4c88e, #cfac68);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 0 #7d6331, 0 4px 10px rgba(0, 0, 0, 0.25);
+  color: #1b1407;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 650;
+  touch-action: manipulation;
+  transition: transform 0.05s ease-out, box-shadow 0.05s ease-out;
+}
+
+.ask-main:active {
+  transform: translateY(2px);
+  background: linear-gradient(180deg, #d4b679, #c09c5b);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 0 0 #7d6331;
+}
+
+/* Silme: ikincil, koyu yüzeyde kırmızı yazı (rengin gücü yazıda; dolu kırmızı yok) */
+.ask-skip {
+  display: block;
+  width: 100%;
+  min-height: 38px;
+  margin-top: 8px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface-3);
+  box-shadow: var(--hl);
+  color: var(--danger);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  touch-action: manipulation;
+}
+
+.ask-cancel {
+  display: block;
+  width: 100%;
+  min-height: 36px;
+  margin-top: 2px;
+  border: 0;
+  background: transparent;
+  color: var(--mut);
+  font: inherit;
+  font-size: 14px;
+  touch-action: manipulation;
+}
+
+.ask-skip:active, .ask-cancel:active {
+  opacity: 0.6;
+}
+
 /* Özet başlığındaki ekstre özeti bağlantısı */
 .view-head .link[hidden] {
   display: none;

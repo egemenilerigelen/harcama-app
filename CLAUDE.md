@@ -62,13 +62,14 @@ js/ui/                ARAYÜZ YARDIMCILARI ve ortak bileşenler
   barchart.js         BarChart: tek serili sütun grafik (SVG)
   dialog.js           CenterDialog: ortada açılan ekran (temel sınıf; arka plan kararır)
   statement.js        StatementDialog extends CenterDialog: geçmiş ekstrelerin özeti (‹ › ve kaydırma)
+  clear-dialog.js     ClearDialog extends CenterDialog: "Tümünü sil" öncesi yedek sorusu
 
 js/views/             EKRANLAR: her biri kendi DOM'unu ve durumunu yönetir
   entry.js            EntryPanel: girişin 1. adımı (tutar, tuş takımı, Devam)
   home.js             HomeView: özet kartı, son harcamalar
   list.js             ListView: dönem gezgini, arama, günlere göre liste
   summary.js          SummaryView: hedef, grafik, kategoriler, abonelikler, taksitler
-  settings.js         SettingsView: kesim günü, hedef, uygulama, veri
+  settings.js         SettingsView: kesim günü, hedef, uygulama, veri, sürüm (dokununca güncelleme)
   tabs.js             TabBar: alt sekme çubuğu
 
 js/app.js             App: bileşenleri kurar ve bağlar (composition root), veri akışını yönetir

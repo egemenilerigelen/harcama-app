@@ -14,6 +14,24 @@ const Device = Object.freeze({
     }
   },
 
+  // Yayındaki sürüm (config.js'teki VERSION); ulaşılamazsa null. Ağdan sorulur (HTTP önbelleği atlanır)
+  async latestVersion() {
+    try {
+      const res = await fetch('js/core/config.js?t=' + Date.now(), { cache: 'no-store' });
+      const match = /VERSION:\s*'([^']+)'/.exec(await res.text());
+      return match ? match[1] : null;
+    } catch (e) {
+      return null;
+    }
+  },
+
+  // Yeni sürümü alır: çevrimdışı katman güncellenir, sayfa yenilenir (veri localStorage'da kalır)
+  async reload() {
+    const reg = 'serviceWorker' in navigator ? await navigator.serviceWorker.getRegistration() : null;
+    if (reg) await reg.update().catch(() => {});
+    location.reload();
+  },
+
   // Tarayıcıdan verilerin kendiliğinden silinmemesini ister (destekleniyorsa)
   persistStorage() {
     if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});

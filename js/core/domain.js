@@ -52,6 +52,11 @@ const Domain = Object.freeze({
     return hasData && (!lastBackup || Domain.daysBetween(lastBackup, now) >= Config.BACKUP_WARN_DAYS);
   },
 
+  // Bugün yedek alınmış mı (silmeden önce yedek sorulup sorulmayacağı)
+  backupFresh(lastBackup, now) {
+    return !!lastBackup && Domain.daysBetween(lastBackup, now) === 0;
+  },
+
   // Dönemin kalan günü (bugün dahil, en az 1)
   daysLeft(start, end, now) {
     return Math.max(1, Domain.periodDays(start, end, end) - Domain.periodDays(start, end, now) + 1);

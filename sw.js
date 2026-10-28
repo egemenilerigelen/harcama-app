@@ -59,6 +59,7 @@ const ASSETS = [
   'js/ui/barchart.js',
   'js/ui/dialog.js',
   'js/ui/statement.js',
+  'js/ui/clear-dialog.js',
   'js/views/entry.js',
   'js/views/home.js',
   'js/views/list.js',

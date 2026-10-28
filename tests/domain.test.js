@@ -61,6 +61,12 @@
       eq(Domain.backupDue(Domain.daysAgo(now, Config.BACKUP_WARN_DAYS - 1), now, true), false, 'süre dolmadı');
       eq(Domain.backupDue(Domain.daysAgo(now, Config.BACKUP_WARN_DAYS), now, true), true, 'süre doldu');
     },
+    'bugün yedek alınmış mı'() {
+      const now = D(2026, 10, 17, 12);
+      eq(Domain.backupFresh(null, now), false, 'hiç yedek yok');
+      eq(Domain.backupFresh(D(2026, 10, 17, 8), now), true, 'bugün');
+      eq(Domain.backupFresh(D(2026, 10, 16, 23), now), false, 'dün');
+    },
     'kesim günü 1–28 arasında tutulur'() {
       eq(Domain.clampCutoff(0), 1);
       eq(Domain.clampCutoff(31), 28);

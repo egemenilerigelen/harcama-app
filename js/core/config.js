@@ -25,6 +25,7 @@ const Config = Object.freeze({
   UNDO_DELAY_MS: 400,
   UNDO_SWIPE_PX: 24,
   CONFIRM_MS: 2500,
+  UPDATE_RELOAD_MS: 700, // yeni sürüm bulununca yazıyı okutup yenilemeden önceki bekleme
   STATUS_MS: 4000,
 
   // Yedek bu kadar gün eskiyse (ya da hiç alınmadıysa) Ayarlar'da uyarı rengiyle gösterilir

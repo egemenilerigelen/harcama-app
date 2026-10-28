@@ -15,6 +15,8 @@ class App {
   #list;
   #summary;
   #settings;
+  #clearAsk;
+  #updating = false;
   #tabs;
   #tab = 'home'; // açık sekme: geri alma kapsülü ana sayfada kayan hanelerden sonra açılır
   #remember = () => null; // isme daha önce verilen kategori (tahmin yok; refresh kurar)
@@ -36,6 +38,13 @@ class App {
     this.#cutSheet = new CutoffSheet({ onSave: day => this.#setCutoff(day) });
     this.#nameSheet = new NameSheet({ onAdd: entry => this.#add(entry) });
     this.#statement = new StatementDialog({ load: offset => this.#statementAt(offset) });
+    this.#clearAsk = new ClearDialog({
+      onBackup: () => this.#backup(),
+      onClear: backedUp => {
+        this.#clear();
+        if (backedUp) this.#settings.flash(Format.clearedAfterBackup);
+      }
+    });
     this.#home = new HomeView({ rowActions, onSeeAll: () => this.#seeAll() });
     this.#list = new ListView({ rowActions, onChange: () => this.refresh() });
     this.#summary = new SummaryView({
@@ -51,7 +60,9 @@ class App {
       onBackup: () => this.#backup(),
       onImport: () => this.#import(),
       onExportCsv: () => this.#exportCsv(),
-      onClear: () => this.#clear()
+      onClear: () => this.#clear(),
+      onBeforeClear: () => this.#askBackupBeforeClear(),
+      onCheckUpdate: () => this.#checkUpdate()
     });
     this.#tabs = new TabBar({ onShow: name => this.#onTab(name) });
     this.#entry = new EntryPanel({ onNext: amt => this.#askName(amt) });
@@ -214,9 +225,38 @@ class App {
   async #backup() {
     const now = Date.now();
     const text = Backup.json({ items: Store.all(), cutoff: Store.getCutoff(), goal: Store.getGoal(), goals: Store.getGoalLog() }, now);
-    if (!await Device.saveFile(Format.backupName(now), 'application/json', text)) return;
+    if (!await Device.saveFile(Format.backupName(now), 'application/json', text)) return false;
     Store.setBackupAt(now);
     this.refresh();
+    return true;
+  }
+
+  // "Tümünü sil"in ilk dokunuşu: kayıt varken bugün yedek alınmadıysa önce yedek sorulur (true: soru açıldı)
+  #askBackupBeforeClear() {
+    const now = Date.now();
+    const at = Store.getBackupAt();
+    const items = Store.all();
+    if (!items.length || Domain.backupFresh(at, now)) return false;
+    this.#clearAsk.open(Format.clearCount(items.length, items.reduce((t, e) => t + (e.amt || 0), 0)), Format.backupWhen(at, now));
+    return true;
+  }
+
+  // Sürüm satırına dokununca: yayındaki sürüm sorulur; yeniyse yüklenir (sayfa yenilenir, veri kalır)
+  async #checkUpdate() {
+    if (this.#updating) return;
+    this.#updating = true;
+    this.#settings.showUpdate(Format.updateChecking);
+    const latest = await Device.latestVersion();
+    if (latest && latest !== Config.VERSION) {
+      this.#settings.showUpdate(Format.updateFound(latest));
+      setTimeout(() => Device.reload(), Config.UPDATE_RELOAD_MS);
+      return;
+    }
+    this.#settings.showUpdate(latest ? Format.updateCurrent : Format.updateOffline);
+    setTimeout(() => {
+      this.#settings.showUpdate(null);
+      this.#updating = false;
+    }, Config.STATUS_MS);
   }
 
   // GERİ YÜKLEME: kayıtlar birleştirilir (aynısı iki kez eklenmez); yedekteki kesim günü, hedef ve hedef geçmişi alınır

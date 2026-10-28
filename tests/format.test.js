@@ -134,6 +134,18 @@
       eq(Format.goalPace(12399.6), 'bu gidişle ayda ₺12.400');
       eq(Format.periodLeft(new Date(2026, 9, 16).getTime(), new Date(2026, 10, 15).getTime(), 22), '16 Eki – 15 Kas · 22 gün kaldı');
     },
+    'silmeden önce yedek: sayı ve son yedek'() {
+      const now = new Date(2026, 9, 29, 12).getTime();
+      eq(Format.clearCount(52, 48320), '52 harcama · ₺48.320');
+      eq(Format.backupWhen(null, now), 'Hiç alınmadı');
+      eq(Format.backupWhen(now - 3600e3, now), 'bugün');
+      eq(Format.backupWhen(new Date(2026, 9, 17, 12).getTime(), now), '12 gün önce');
+      eq(Format.backupAge(null, now), 'Henüz yedek alınmadı');
+    },
+    'sürüm satırı ve güncelleme metinleri'() {
+      eq(Format.versionLine('2026.10.29-2'), 'Sürüm 2026.10.29-2 · Güncelle');
+      eq(Format.updateFound('2026.10.29-3'), 'Yeni sürüm 2026.10.29-3 · yükleniyor…');
+    },
     'hedef önerisi'() {
       eq(Format.goalSuggestion({ count: 3, amount: 8900 }), 'Son 3 ekstre ortalaması ≈ ₺8.900');
       eq(Format.goalSuggestion({ count: 1, amount: 8900 }), 'Geçen ekstre ≈ ₺8.900');

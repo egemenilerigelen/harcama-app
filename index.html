@@ -351,7 +351,7 @@
 
         <p class="set-status" id="dataStatus" role="status" aria-live="polite"></p>
         <p class="note">Veriler sadece bu cihazda saklanır. Telefon değişirse yedekten geri yükle.</p>
-        <p class="note version" id="appVersion"></p>
+        <button class="note version" id="appVersion" aria-label="Güncellemeyi denetle"></button>
       </div>
     </section>
   </div>
@@ -440,7 +440,7 @@
         <h2 id="goalTitle">Dönem hedefi</h2>
         <button class="link save" id="goalSave">Kaydet</button>
       </div>
-      <p class="sheet-note">Her ekstre bu tutarla ölçülür. İstediğin zaman değiştirebilirsin.</p>
+      <p class="sheet-note">Her ekstre kendi hedefiyle ölçülür; değişiklik geçmiş ekstreleri etkilemez.</p>
       <label class="goal-input">
         <span class="cur">₺</span>
         <input id="goalInput" inputmode="numeric" enterkeyhint="done" autocomplete="off" placeholder="0" aria-label="Hedef tutarı">
@@ -535,6 +535,23 @@
     </div>
   </div>
 
+  <!-- SİLMEDEN ÖNCE YEDEK: "Tümünü sil"e basılınca bugün yedek alınmadıysa. Neyin silineceği ve son yedek gömük
+       kuyuda; ana yol metalik altın (yedek al ve sil), silme ikincil, Vazgeç sade yazı -->
+  <div class="dialog-wrap" id="clearAsk">
+    <div class="dialog-bg" data-close></div>
+    <div class="dialog ask" role="alertdialog" aria-modal="true" aria-labelledby="clearTitle">
+      <h2 id="clearTitle">Tümünü sil</h2>
+      <p class="ask-body">Bütün kayıtlar silinir, geri gelmez.</p>
+      <div class="ask-well">
+        <div class="ask-row"><span>Silinecek</span><b id="clearCount"></b></div>
+        <div class="ask-row"><span>Son yedek</span><b class="warn" id="clearAge"></b></div>
+      </div>
+      <button class="ask-main" id="clearBackup">Yedek al ve sil</button>
+      <button class="ask-skip" id="clearSkip">Yedeksiz sil</button>
+      <button class="ask-cancel" data-close>Vazgeç</button>
+    </div>
+  </div>
+
   <!-- GERİ ALMA KAPSÜLÜ: ekleme, silme ve düzenlemeden sonra birkaç saniye; ekranın tepesinden
        Dynamic Island gibi büyür -->
   <div id="undo" role="status" aria-live="polite">
@@ -596,6 +613,7 @@
 <script src="js/ui/barchart.js"></script>
 <script src="js/ui/dialog.js"></script>
 <script src="js/ui/statement.js"></script>
+<script src="js/ui/clear-dialog.js"></script>
 <script src="js/views/entry.js"></script>
 <script src="js/views/home.js"></script>
 <script src="js/views/list.js"></script>

@@ -59,10 +59,25 @@
   font-size: 13px;
 }
 
+/* Sürüm satırı: dokununca güncelleme denetlenir (sessiz; basılınca soluklaşır) */
 .note.version {
+  display: block;
+  width: calc(100% - 2 * var(--gap));
+  min-height: 36px;
   margin-top: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.15s ease;
+}
+
+.note.version:active {
+  opacity: 0.55;
 }
 
 /* AYARLAR: dokununca panel açan ya da işlem yapan satır */
