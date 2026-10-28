@@ -5,7 +5,7 @@
 // Çekim zayıfsa ağ NETWORK_WAIT_MS içinde yanıt vermezse önbellekteki sürümle açılır; ağ yanıtı
 // yine önbelleğe yazılır, yeni sürüm bir sonraki açılışta gelir (kasada açılış takılmasın).
 // Yeni dosya eklenince ASSETS listesine de eklenir (eksik dosya kurulumu bozar).
-const CACHE = 'harcama-v24';
+const CACHE = 'harcama-v25';
 const NETWORK_WAIT_MS = 2500;
 const ASSETS = [
   './',
