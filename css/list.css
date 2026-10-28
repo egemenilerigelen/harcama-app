@@ -84,8 +84,8 @@
    üstte ışık çizgisi, kenarlarda hafif kırılma; gölge nötr. Alan ve Vazgeç ayrı kapsüller */
 .search-field, .search-cancel {
   position: relative;
-  height: 44px;
-  border-radius: 22px;
+  height: 40px;
+  border-radius: 20px;
   background: linear-gradient(180deg, rgba(52, 56, 66, 0.46), rgba(20, 22, 28, 0.6));
   -webkit-backdrop-filter: blur(22px) saturate(180%);
   backdrop-filter: blur(22px) saturate(180%);
@@ -126,8 +126,8 @@
 
 .search-field svg {
   flex-shrink: 0;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   fill: none;
   stroke: var(--mut);
   stroke-width: 2;
@@ -148,10 +148,10 @@
 
 .search-cancel {
   flex-shrink: 0;
-  padding: 0 16px;
+  padding: 0 14px;
   color: var(--tx);
   font: inherit;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   touch-action: manipulation;
