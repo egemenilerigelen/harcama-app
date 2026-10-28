@@ -91,9 +91,10 @@ const Touch = Object.freeze({
     }, { passive: false });
   },
 
-  // Basılı tutulan kaydırılabilir öğeye zemin verir (.pressed). Kaydırma ve sürükleme ile karışmasın diye
-  // hemen yanmaz: PRESS_DELAY_MS bekler; parmak kayarsa (liste kaydırma, silme hareketi), tarayıcı dokunuşu
-  // iptal ederse ya da parmak çıkarsa hiç yanmaz. Kısa dokunuşta (bekleme dolmadan kalkarsa) en az PRESS_MIN_MS yanar
+  // Basılı öğeye zemin verir (.pressed): parmak değdiği an yanar, gecikme yok (hızlı dokunuş da görünsün).
+  // Parmak SWIPE_SLOP_PX kayarsa (liste kaydırma, silme hareketi), tarayıcı dokunuşu iptal ederse ya da parmak
+  // öğeden çıkarsa söner (yumuşak: kaydırmada kısa bir an yanıp sönebilir). Parmak kalkınca da en az
+  // PRESS_MIN_MS görünür kalır (panel açılırken dokunuş fark edilsin)
   bindHighlight(el) {
     let x0 = 0, y0 = 0, timer = null, shown = 0;
     const off = () => {
@@ -101,29 +102,20 @@ const Touch = Object.freeze({
       timer = null;
       el.classList.remove('pressed');
     };
-    const on = () => {
-      timer = null;
-      shown = performance.now();
-      el.classList.add('pressed');
-    };
 
     el.addEventListener('pointerdown', e => {
       off();
       x0 = e.clientX; y0 = e.clientY;
-      timer = setTimeout(on, Config.PRESS_DELAY_MS);
+      shown = performance.now();
+      el.classList.add('pressed');
     });
     el.addEventListener('pointermove', e => {
-      if (!timer && !el.classList.contains('pressed')) return;
+      if (!el.classList.contains('pressed')) return;
       if (Math.abs(e.clientX - x0) + Math.abs(e.clientY - y0) > Config.SWIPE_SLOP_PX) off();
     });
     el.addEventListener('pointerup', () => {
-      if (timer) { // kısa dokunuş: yine de görünsün
-        clearTimeout(timer);
-        on();
-        timer = setTimeout(off, Config.PRESS_MIN_MS);
-      } else if (el.classList.contains('pressed')) {
-        timer = setTimeout(off, Math.max(0, Config.PRESS_MIN_MS - (performance.now() - shown)));
-      }
+      if (!el.classList.contains('pressed')) return;
+      timer = setTimeout(off, Math.max(0, Config.PRESS_MIN_MS - (performance.now() - shown)));
     });
     el.addEventListener('pointercancel', off);
     el.addEventListener('pointerleave', off);

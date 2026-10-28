@@ -53,9 +53,7 @@ const Config = Object.freeze({
   SWIPE_OUT_MS: 160,
   SWIPE_COLLAPSE_MS: 240,
   SWIPE_BACK_MS: 200,
-  // Satırın basma zemini: bu kadar basılı kalınca yanar (kaydırma ve silme hareketi başlarsa hiç yanmaz);
-  // kısa dokunuşta bile en az PRESS_MIN_MS görünür
-  PRESS_DELAY_MS: 30,
+  // Satırın basma zemini: parmak kalkınca da en az bu kadar görünür (kısa dokunuş fark edilsin)
   PRESS_MIN_MS: 180,
 
   // Dönem kartını kaydırma: geçiş eşiği, sınırda direnç, çıkış mesafesi, kayma süresi
