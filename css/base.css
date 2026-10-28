@@ -77,6 +77,18 @@ html, body {
   overflow: hidden;
   overscroll-behavior: none;
   background: var(--bg);
+  /* Uygulama gibi: çift dokunuşla yakınlaşma yok (alt öğelerin touch-action'ı bununla kesişir) */
+  touch-action: manipulation;
+  /* Basılı tutunca yazı seçilmez, iPhone'un kopyala / büyüteç menüsü çıkmaz; yazı alanları hariç */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input, textarea {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
 }
 
 /* Zemin: ekranın üstünden gelen tek, nötr ve hafif ışık */

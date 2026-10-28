@@ -122,7 +122,7 @@ Ayrıntı `docs/is-kurallari.md`. Bunlar kullanıcı kararıdır:
 Ayrıntı `docs/tasarim.md`; CSS'e dokunmadan önce oku.
 
 - Koyu "siyah kart" tema; renk, boşluk ve eğri değişkenleri `base.css` `:root`'ta. Altın sadece sinyal (EKLE, seçili, ana toplamlar, bağlantılar); kategori rengi sadece kategori bağlamında; gölgeler hep nötr.
-- "AI slop" yok: lekeler, cam/blur (tek istisna alt sekme çubuğu), renkli parlama, sürekli dönen animasyon, degrade yazı, kutu içinde kutu, aralıklı BÜYÜK HARF etiket, emoji ikon, süs ikon, 4.5:1 altı kontrast.
+- "AI slop" yok: lekeler, cam/blur (istisna: alt sekme çubuğu ve arama kapsülleri), renkli parlama, sürekli dönen animasyon, degrade yazı, kutu içinde kutu, aralıklı BÜYÜK HARF etiket, emoji ikon, süs ikon, 4.5:1 altı kontrast.
 - Hareket kütüphanesiz (CSS + `Motion`), sadece bir şey olduğunda; rakamlar beklemez, dokununca biter, Hareketi Azalt'ta oynamaz.
 - Düzen sabit: sayfa kaymaz, `.app` `position: fixed; inset: 0`, vh/dvh yok. Hedef ekranlar 393×659, 430×739, 375×548: yatay kaydırma yok, tuş takımı ve alt bar sığar.
 - Yeni tuşlar `Touch.bindPress` / `Touch.hapticOn` kullanır (iPhone titreşimi `Haptics.attach`, `docs/tasarim.md`'de).

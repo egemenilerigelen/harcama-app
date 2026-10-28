@@ -190,8 +190,11 @@
 
       <!-- ARAMA: tüm dönemlerde arar -->
       <div class="search-bar">
-        <input id="search" type="search" placeholder="Tüm harcamalarda ara" maxlength="60" autocomplete="off">
-        <button class="link" id="searchCancel">Vazgeç</button>
+        <label class="search-field">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+          <input id="search" type="search" placeholder="Tüm harcamalarda ara" maxlength="60" autocomplete="off">
+        </label>
+        <button class="search-cancel" id="searchCancel">Vazgeç</button>
       </div>
       <small class="search-sum" id="searchSum"></small>
 
