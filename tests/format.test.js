@@ -131,7 +131,7 @@
       eq(Format.goalHint({ state: 'over', remaining: -900, perDay: 0 }, 7000), '₺7.000 önceki taksitlerden');
       eq(Format.goalHint({ state: 'over', remaining: -900, perDay: 0 }, 0), '');
       eq(Format.goalHint(null, 0), '');
-      eq(Format.goalPace(12399.6), 'bu gidişle ₺12.400');
+      eq(Format.goalPace(12399.6), 'bu gidişle ayda ₺12.400');
       eq(Format.periodLeft(new Date(2026, 9, 16).getTime(), new Date(2026, 10, 15).getTime(), 22), '16 Eki – 15 Kas · 22 gün kaldı');
     },
     'hedef önerisi'() {

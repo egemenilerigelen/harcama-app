@@ -229,9 +229,9 @@ const Format = Object.freeze({
     return 'Hedef için günde ' + Format.money(Math.floor(p.perDay));
   },
 
-  // Alt satırın ikinci yarısı: dönem sonu tahmini (Domain.forecast), "bu gidişle ₺12.400"
+  // Alt satırın ikinci yarısı: dönem sonu tahmini (Domain.forecast), "bu gidişle ayda ₺12.400"
   goalPace(forecast) {
-    return 'bu gidişle ' + Format.money(Math.round(forecast));
+    return 'bu gidişle ayda ' + Format.money(Math.round(forecast));
   },
 
   // Kart başlığı: dönem aralığı ve kalan gün ("16 Eki – 15 Kas · 22 gün kaldı")
