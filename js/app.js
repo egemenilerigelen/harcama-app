@@ -72,7 +72,7 @@ class App {
     this.#settings.showGoal(Store.getGoal());
     this.#settings.showInstall(!Device.isStandalone());
     this.refresh();
-    document.body.classList.add('ready'); // açılış ekranı kalkar
+    document.body.classList.add('ready'); // açılış ekranı hemen kalkar (yapay bekleme yok)
     this.#offerStatement();
 
     // Ana ekran uygulaması: internetsiz açılsın, veriler kendiliğinden silinmesin
