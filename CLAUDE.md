@@ -10,7 +10,7 @@ Stil ve script sırası `index.html`'de = bağımlılık yönü (bir dosya sadec
 index.html            iskelet (açılış ekranı + 4 sekme görünümü + alt bar + paneller), stil ve script sırası
 manifest.webmanifest  ana ekran uygulaması: ad, ikon, tam ekran, renkler
 sw.js                 çevrimdışı katman: önce ağ, geç kalırsa ya da yoksa önbellek; ASSETS listesi
-icons/                uygulama ikonu (180, 192, 512)
+icons/                uygulama ikonu (180, 192, 512), iOS açılış resimleri (startup-*.png; ASSETS'e girmez, docs/pwa.md)
 
 css/                  tasarım, bölümlere ayrılmış; sıra önemli (aynı ağırlıktaki kuralda sonraki kazanır)
   base.css            :root değişkenleri (renk, font, boşluk, eğri), zemin, uygulama çerçevesi, sekme görünümleri

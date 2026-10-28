@@ -12,10 +12,26 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<!-- iOS açılış resimleri: ana ekran uygulaması açılırken, sayfa gelmeden gösterilir (siyah ekran yerine #splash ile
+     aynı kart, ekranın tam ortasında, bilgiler boş). iOS bunları sadece ana ekrana eklerken okur: değişince uygulama
+     silinip yeniden eklenmeli. Cihaz başına bir dosya (css ölçü × piksel oranı, dikey) -->
+<link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/startup-1320x2868.png"><!-- 16 Pro Max -->
+<link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/startup-1290x2796.png"><!-- 15/16 Plus, 14/15 Pro Max -->
+<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/startup-1284x2778.png"><!-- 14 Plus, 12/13 Pro Max -->
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/startup-1242x2688.png"><!-- XS Max, 11 Pro Max -->
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="icons/startup-828x1792.png"><!-- XR, 11 -->
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/startup-1242x2208.png"><!-- 6s/7/8 Plus -->
+<link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/startup-1206x2622.png"><!-- 16 Pro -->
+<link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/startup-1179x2556.png"><!-- 14 Pro, 15, 15 Pro, 16 -->
+<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/startup-1170x2532.png"><!-- 12, 13, 14, 12/13 Pro -->
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/startup-1125x2436.png"><!-- X, XS, 11 Pro, 12/13 mini -->
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="icons/startup-750x1334.png"><!-- SE 2/3, 6s/7/8 -->
 <title>Harcama</title>
 <!-- AÇILIŞ EKRANI: uygulama kurulana kadar (çekim zayıfken dosyalar geç gelebilir) ikondaki altın kart.
      Satır içi: css/ dosyalarını beklemez. Renkler ve eğriler :root'takilerin aynısı (--bg, EKLE'nin metalik altını,
-     --ease). Bilgileri (çip, iki şerit) boş yuvalarından sırayla yükleme çubuğu gibi soldan dolar, dolum bitince uygulama hazır olana kadar nefes alır (parlaklığı yavaşça iner
+     --ease). Ana ekran uygulamasında iOS açılır açılmaz aynı kartı açılış resmiyle (apple-touch-startup-image, ekranın
+     tam ortasında, bilgileri boş) gösterir; sayfa gelince kart aynı yerde devralınır (zıplamasın diye ekranın ortasına
+     hizalanır, aşağıdaki küçük betik). Bilgileri (çip, iki şerit) boş yuvalarından sırayla yükleme çubuğu gibi soldan dolar, dolum bitince uygulama hazır olana kadar nefes alır (parlaklığı yavaşça iner
      çıkar). App hazır olur olmaz body.ready verir (yapay bekleme yok): kart hafifçe büyüyerek solar, altından
      uygulama belirir; dolum o an bitmediyse solarken sürer. Hareketi Azalt'ta hareket yok. Kurulum hata verirse 6 sn
      sonra kendiliğinden çekilir. -->
@@ -89,6 +105,14 @@
   </svg>
   </div>
 </div>
+<script>
+  // Kart ekranın tam ortasında olsun (iOS açılış resmindeki gibi): ana ekran uygulamasında sayfa durum çubuğunun
+  // altından başlar, aradaki pay kadar yukarı alınır (flex ortalamada eksi kenar boşluğu, payın yarısı kadar kaydırır)
+  (() => {
+    const bar = screen.height - innerHeight;
+    if (bar > 0 && bar < 100) document.querySelector('.splash-in').style.marginTop = -bar + 'px';
+  })();
+</script>
 <main class="app">
   <div class="views">
 
