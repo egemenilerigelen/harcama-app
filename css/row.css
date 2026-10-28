@@ -118,7 +118,7 @@
   inset: 0;
   z-index: -1;
   border-radius: inherit;
-  background: var(--surface-2);
+  background: var(--surface-3);
   opacity: 0;
   transition: opacity 0.2s ease-out;
 }
