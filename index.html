@@ -32,8 +32,10 @@
      --ease). Ana ekran uygulamasında iOS açılır açılmaz aynı kartı açılış resmiyle (apple-touch-startup-image, ekranın
      tam ortasında, bilgileri boş) gösterir; sayfa gelince kart aynı yerde devralınır (zıplamasın diye ekranın ortasına
      hizalanır, aşağıdaki küçük betik). Bilgileri (çip, iki şerit) boş yuvalarından sırayla yükleme çubuğu gibi soldan dolar, dolum bitince uygulama hazır olana kadar nefes alır (parlaklığı yavaşça iner
-     çıkar). App hazır olur olmaz body.ready verir (yapay bekleme yok): kart hafifçe büyüyerek solar, altından
-     uygulama belirir; dolum o an bitmediyse solarken sürer. Hareketi Azalt'ta hareket yok. Kurulum hata verirse 6 sn
+     çıkar). App hazır olur olmaz body.ready verir (yapay bekleme yok). Geçiş parlaklığı kademeli artırır (koyu karttan
+     parlak ana sayfaya birden atlamak parlama gibi görünüyordu): kart hafifçe küçülerek hızla solar, zemin biraz
+     daha yavaş açılır, uygulama açılış ekranının altında görünmez bekler ve koyudan yumuşakça belirir;
+     dolum o an bitmediyse solarken sürer. Hareketi Azalt'ta hareket yok. Kurulum hata verirse 6 sn
      sonra kendiliğinden çekilir. -->
 <style>
   html { background: #0a0b0e; }
@@ -41,10 +43,10 @@
     position: fixed; inset: 0; z-index: 100;
     display: flex; align-items: center; justify-content: center;
     background: #0a0b0e;
-    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    transition: opacity 0.4s ease-out, visibility 0s linear 0.4s;
     animation: splashOut 0.25s ease 6s forwards;
   }
-  .splash-in { position: relative; transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
+  .splash-in { position: relative; transition: opacity 0.25s ease-out, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
   #splash svg { display: block; width: 96px; height: auto; }
   /* Boş yuvalar silik; dolgular sırayla soldan dolar (çip, uzun şerit, kısa şerit: tek çubuk gibi art arda),
      sonra hepsi birlikte nefes alır (dolum transform, nefes opacity: çakışmaz) */
@@ -56,12 +58,18 @@
   .splash-fill.l1 { animation-duration: 0.3s, 1.6s; animation-delay: 0.25s, 0.75s; }
   .splash-fill.l2 { animation-duration: 0.15s, 1.6s; animation-delay: 0.55s, 0.75s; }
   body.ready #splash { opacity: 0; visibility: hidden; }
-  body.ready .splash-in { transform: scale(1.04); }
+  body.ready .splash-in { opacity: 0; transform: scale(0.97); }
+  /* Uygulama açılış ekranının altında görünmez bekler, hazır olunca koyudan belirir (kart solmaya başladıktan
+     biraz sonra). Kurulum hata verirse açılış ekranıyla birlikte 6 sn sonra görünür */
+  .app { transition: opacity 0.45s ease-out 0.1s; }
+  body:not(.ready) .app { opacity: 0; animation: appFallback 0.25s ease 6s forwards; }
+  @keyframes appFallback { to { opacity: 1; } }
   @keyframes splashLoad { from { transform: scaleX(0); } }
   @keyframes splashBreathe { 50% { opacity: 0.45; } }
   @keyframes splashOut { to { opacity: 0; visibility: hidden; } }
   @media (prefers-reduced-motion: reduce) {
     #splash *, .splash-in { animation: none; transition: none; }
+    .app { transition: none; } /* yedek gösterim (appFallback) kalır */
   }
 </style>
 <!-- Stil dosyaları: sıra önemli (aynı ağırlıktaki kuralda sonraki kazanır); media.css en sonda -->
