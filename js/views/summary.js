@@ -257,7 +257,7 @@ class SummaryView {
       const right = el('div', 'inst-left');
       right.append(el('b', '', Format.money(s.amt)));
       const row = el('div', 'inst-row cat-row sub-row');
-      row.append(CatIcon.well(s.cat), info, right);
+      row.append(CatIcon.dot(s.cat), info, right);
       row.onclick = () => this.#onOpen(s.id);
       list.appendChild(row);
     });

@@ -43,7 +43,7 @@ js/ui/                ARAYÜZ YARDIMCILARI ve ortak bileşenler
   dom.js              $ (id ile seçim), el (eleman, textContent ile), svgEl, paintMoney (₺ ve kuruş ayrı span)
   motion.js           Motion: kısa hareketler (Web Animations API; dokununca biter, Hareketi Azalt'ta yok); feedback: dokunuşun kendi hareketi
   tab-icons.js        TabIcons: alt çubuk ikonlarının hareketi (heroicons-animated'dan uyarlandı, MIT)
-  cat-icon.js         CatIcon: kategori ikonları (ince çizgi SVG, renk CSS'te data-cat) ve kuyu
+  cat-icon.js         CatIcon: kategori ikonları (ince çizgi SVG, renk CSS'te data-cat; sadece Özet kartı ve seçim çipleri), kuyu ve listelerdeki renk noktası
   device.js           Device: ana ekran algılama, service worker, kalıcı depolama, dosya paylaş/seç, klavye yüksekliği
   haptics.js          Haptics: titreşim (Android vibrate; iPhone'da gizli iOS anahtarı)
   touch.js            Touch: haptic, bindPress, trackDrag, bindSwipe, bindPager, bindDismiss

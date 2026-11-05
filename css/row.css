@@ -165,19 +165,7 @@
   min-width: 0;
 }
 
-/* Satırda ikon biraz küçük (Özet kartındaki 34px) */
-.row .cat-well {
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-}
-
-.row .cat-ico {
-  width: 17px;
-  height: 17px;
-}
-
-/* Kategori rengi: data-cat taşıyan öğe --c verir (CatIcon.well, kategori çipi, oran şeridi) */
+/* Kategori rengi: data-cat taşıyan öğe --c verir (CatIcon.dot, CatIcon.well, kategori çipi, oran şeridi) */
 [data-cat="market"] { --c: var(--cat-market); }
 [data-cat="food"] { --c: var(--cat-food); }
 [data-cat="transport"] { --c: var(--cat-transport); }
@@ -188,8 +176,17 @@
 [data-cat="fun"] { --c: var(--cat-fun); }
 [data-cat="other"] { --c: var(--cat-other); }
 
-/* KATEGORİ İKONU: renk sadece ikonun çizgisinde (kategorinin rengi), kuyu nötr ve gömük; satır ve Özet
-   kartı ortak. Ekran sakin kalır, renk kodu her yerde aynı; rengin dolu hali Özet'teki oran şeridinde */
+/* KATEGORİ NOKTASI: listelerde (satır, abonelik, ekstre, çipler) kategorinin rengi; ikon yok */
+.cat-dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c, var(--cat-other));
+}
+
+/* KATEGORİ İKONU: sadece Özet kategori kartında ve kategori seçim çiplerinde. Renk sadece ikonun
+   çizgisinde (kategorinin rengi), kuyu nötr ve gömük; rengin dolu hali Özet'teki oran şeridinde */
 .cat-well {
   flex-shrink: 0;
   display: grid;

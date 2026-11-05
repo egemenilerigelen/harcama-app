@@ -138,7 +138,7 @@ class ListView {
     this.#list.appendChild(box);
   }
 
-  // Başlıktaki süzme çipi: kategori ikonu, adı, kaldırma işareti
+  // Başlıktaki süzme çipi: kategori noktası, adı, kaldırma işareti
   #renderFilter() {
     const chip = $('catFilter');
     chip.hidden = !this.#cat;
@@ -148,7 +148,7 @@ class ListView {
     x.append(svgEl('path', { d: 'M7 7l10 10M17 7 7 17' }));
     // Haptics.attach'in serdiği etiket korunur
     chip.querySelectorAll(':scope > :not(.haptic)').forEach(n => n.remove());
-    chip.prepend(CatIcon.create(this.#cat), el('span', '', Format.category(this.#cat)), x);
+    chip.prepend(CatIcon.dot(this.#cat), el('span', '', Format.category(this.#cat)), x);
   }
 
   #step(d) {

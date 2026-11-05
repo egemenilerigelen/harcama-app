@@ -21,7 +21,16 @@ const CatIcon = Object.freeze({
     return svg;
   },
 
-  // Nötr gömük kuyuda, kategorinin renginde çizilmiş ikon (satır ve Özet kartı)
+  // Kategorinin renginde küçük nokta: ikonun yerini listelerde (satır, abonelik, ekstre, çipler) alır;
+  // kategori adı yanında ya da başlıkta yazar, nokta sadece renk kodu (ekran okuyucu atlar)
+  dot(key) {
+    const dot = el('span', 'cat-dot');
+    dot.dataset.cat = key;
+    dot.setAttribute('aria-hidden', 'true');
+    return dot;
+  },
+
+  // Nötr gömük kuyuda, kategorinin renginde çizilmiş ikon (sadece Özet kategori kartı)
   well(key) {
     const well = el('span', 'cat-well');
     well.dataset.cat = key;

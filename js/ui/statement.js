@@ -125,12 +125,12 @@ class StatementDialog extends CenterDialog {
     return news;
   }
 
-  // Sütun satırları: kategori ikonu (kuyuda), ad, sağda tutar
+  // Sütun satırları: kategori noktası, ad, sağda tutar
   #fill(box, list) {
     box.innerHTML = '';
     list.forEach(r => {
       const item = el('div', 'stmt-item');
-      item.append(CatIcon.well(r.cat), el('span', 'n', r.name), el('b', '', Format.money(r.amt)));
+      item.append(CatIcon.dot(r.cat), el('span', 'n', r.name), el('b', '', Format.money(r.amt)));
       box.appendChild(item);
     });
   }

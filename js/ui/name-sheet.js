@@ -118,7 +118,7 @@ class NameSheet extends BottomSheet {
     this.#token('date', Format.dayChoice(this.#date.day, this.#now, this.#cutoff), this.#date.day !== Domain.dayStart(this.#now));
   }
 
-  // Değer etiketi: [kategori ikonu] metin ⌄
+  // Değer etiketi: [kategori noktası] metin ⌄
   #token(key, text, changed, cat) {
     const tok = this.#picks.querySelector('[data-pick="' + key + '"]');
     tok.classList.toggle('changed', changed);
@@ -129,7 +129,7 @@ class NameSheet extends BottomSheet {
     chev.append(svgEl('path', { d: 'm6 9.5 6 6 6-6' }));
     // Haptics.attach'in serdiği etiket korunur: sadece metin, ikon ve ok yenilenir
     tok.querySelectorAll(':scope > :not(.haptic)').forEach(n => n.remove());
-    tok.prepend(...(cat ? [CatIcon.create(cat)] : []), el('span', '', text), chev);
+    tok.prepend(...(cat ? [CatIcon.dot(cat)] : []), el('span', '', text), chev);
   }
 
   // Seçici özet satırının yerinde açılır (yükseklik aynı); seçim yapılınca kapanır

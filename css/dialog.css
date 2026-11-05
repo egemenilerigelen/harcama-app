@@ -200,7 +200,7 @@
   font-weight: 600;
 }
 
-/* Satır: kategori ikonu (kuyuda), ad, sağda tutar */
+/* Satır: kategori noktası, ad, sağda tutar */
 .stmt-item {
   display: flex;
   align-items: center;
@@ -209,17 +209,6 @@
 
 .stmt-item + .stmt-item {
   margin-top: 8px;
-}
-
-.stmt-item .cat-well {
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-}
-
-.stmt-item .cat-ico {
-  width: 15px;
-  height: 15px;
 }
 
 .stmt-item .n {

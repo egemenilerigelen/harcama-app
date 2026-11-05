@@ -240,12 +240,6 @@
   display: none;
 }
 
-.filter-chip .cat-ico {
-  width: 16px;
-  height: 16px;
-  color: var(--c);
-}
-
 .filter-chip span {
   overflow: hidden;
   text-overflow: ellipsis;

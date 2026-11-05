@@ -160,13 +160,6 @@
   touch-action: manipulation;
 }
 
-.tok .cat-ico {
-  width: 16px;
-  height: 16px;
-  margin-left: -2px;
-  color: var(--c);
-}
-
 .tok-chev {
   width: 13px;
   height: 13px;
